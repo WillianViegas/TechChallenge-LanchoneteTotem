@@ -9,7 +9,7 @@ builder.Services.AddSingleton<MongoClient>(_ => new MongoClient());
 builder.Services.AddSingleton<IMongoDatabase>(provider => provider.GetRequiredService<MongoClient>().GetDatabase("LanchoneteTotem"));
 builder.Services.AddSingleton<IMongoCollection<Usuario>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Usuario>("Usuario"));
 builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Categoria"));
-//builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Produto"));
+builder.Services.AddSingleton<IMongoCollection<Produto>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Produto>("Produto"));
 //builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Carrinho"));
 //builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Pedido"));
 
@@ -45,10 +45,21 @@ usuarios.MapDelete("/{id}", DeleteUsuario).WithName("DeleteUsuario").WithOpenApi
 var categorias = app.MapGroup("/categoria");
 
 categorias.MapGet("/", GetAllCategorias).WithName("GetAllCategorias").WithOpenApi();
-categorias.MapGet("/id/{id}", GetCategoriaById).WithName("GetCategoriaById").WithOpenApi();
+categorias.MapGet("/{id}", GetCategoriaById).WithName("GetCategoriaById").WithOpenApi();
 categorias.MapPost("/", CreateCategoria).WithName("CreateCategoria").WithOpenApi();
 categorias.MapPut("/{id}", UpdateCategoria).WithName("UpdateCategoria").WithOpenApi();
 categorias.MapDelete("/{id}", DeleteCategoria).WithName("DeleteCategoria").WithOpenApi();
+#endregion
+
+#region endpoint Produto
+var produtos = app.MapGroup("/produto");
+
+produtos.MapGet("/", GetAllProdutos).WithName("GetAllProdutos").WithOpenApi();
+produtos.MapGet("/{id}", GetProdutoById).WithName("GetProdutoById").WithOpenApi();
+produtos.MapGet("/categoria/{id}", GetAllProdutosPorCategoria).WithName("GetAllProdutosPorCategoria").WithOpenApi();
+produtos.MapPost("/", CreateProduto).WithName("CreateProduto").WithOpenApi();
+produtos.MapPut("/{id}", UpdateProduto).WithName("UpdateProduto").WithOpenApi();
+produtos.MapDelete("/{id}", DeleteProduto).WithName("DeleteProduto").WithOpenApi();
 #endregion
 
 app.Run();
@@ -169,13 +180,77 @@ static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, 
 
     if (categoria is null) return TypedResults.NotFound();
 
-    await collection.ReplaceOneAsync(x => x.Id == id, categoriaInput);
+    categoria.Nome = categoriaInput.Nome;
+    categoria.Ativa = categoriaInput.Ativa;
+
+    await collection.ReplaceOneAsync(x => x.Id == id, categoria);
     return TypedResults.NoContent();
 }
 
 static async Task<IResult> DeleteCategoria(string id, IMongoCollection<Categoria> collection)
 {
     if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Categoria categoria)
+    {
+        await collection.DeleteOneAsync(x => x.Id == id);
+        return TypedResults.NoContent();
+    }
+
+    return TypedResults.NotFound();
+}
+#endregion
+
+#region Produto
+
+static async Task<IResult> GetAllProdutos(IMongoCollection<Produto> collection)
+{
+    var produtos = await collection.Find(_ => true).ToListAsync();
+    return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
+}
+
+static async Task<IResult> GetProdutoById(string id, IMongoCollection<Produto> collection)
+{
+    var produto = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    if (produto is null) return TypedResults.NotFound();
+
+    return TypedResults.Ok(new ProdutoDTO(produto));
+}
+
+
+static async Task<IResult> GetAllProdutosPorCategoria(string id, IMongoCollection<Produto> collection)
+{
+    var produtos = await collection.Find(x => x.CategoriaId == id).ToListAsync();
+    return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
+}
+
+///TODO Buscar produto pelo nome///
+
+
+static async Task<IResult> CreateProduto(Produto produto, IMongoCollection<Produto> collection)
+{
+    await collection.InsertOneAsync(produto);
+
+    return TypedResults.Created($"/usuario/{produto.Id}", produto);
+}
+
+static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IMongoCollection<Produto> collection)
+{
+    var produto = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    if (produto is null) return TypedResults.NotFound();
+
+    produto.Nome = produtoInput.Nome;
+    produto.Descricao = produtoInput.Descricao;
+    produto.Preco = produtoInput.Preco;
+    produto.CategoriaId = produtoInput.CategoriaId is null ? produto.CategoriaId : produtoInput.CategoriaId; //fazer uma validação melhor dps
+
+    await collection.ReplaceOneAsync(x => x.Id == id, produto);
+    return TypedResults.NoContent();
+}
+
+static async Task<IResult> DeleteProduto(string id, IMongoCollection<Produto> collection)
+{
+    if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Produto produto)
     {
         await collection.DeleteOneAsync(x => x.Id == id);
         return TypedResults.NoContent();
