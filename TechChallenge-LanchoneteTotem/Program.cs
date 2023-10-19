@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using TechChallenge_LanchoneteTotem.Model;
 using TechChallenge_LanchoneteTotem.Model.DTO;
+using static TechChallenge_LanchoneteTotem.Model.Pedido;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +13,7 @@ builder.Services.AddSingleton<IMongoCollection<Usuario>>(provider => provider.Ge
 builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Categoria"));
 builder.Services.AddSingleton<IMongoCollection<Produto>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Produto>("Produto"));
 builder.Services.AddSingleton<IMongoCollection<Carrinho>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Carrinho>("Carrinho"));
-//builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Pedido"));
+builder.Services.AddSingleton<IMongoCollection<Pedido>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Pedido>("Pedido"));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddEndpointsApiExplorer();
@@ -71,6 +73,19 @@ carrinho.MapPost("/RemoveProduto", RemoveProdutoCarrinho).WithName("RemoveProdut
 carrinho.MapPost("/", CreateCarrinho).WithName("CreateCarrinho").WithOpenApi();
 carrinho.MapPut("/{id}", UpdateCarrinho).WithName("UpdateCarrinho").WithOpenApi();
 carrinho.MapDelete("/{id}", DeleteCarrinho).WithName("DeleteCarrinho").WithOpenApi();
+#endregion
+
+#region endpoint Pedido
+var pedido = app.MapGroup("/pedido");
+
+pedido.MapGet("/ativos", GetAllPedidosAtivos).WithName("GetAllPedidosAtivos").WithOpenApi();
+pedido.MapGet("/", GetAllPedidos).WithName("GetAllPedidos").WithOpenApi();
+pedido.MapGet("/{id}", GetPedidoById).WithName("GetPedidoById").WithOpenApi();
+pedido.MapPost("/", CreatePedido).WithName("CreatePedido").WithOpenApi();
+pedido.MapPost("/confirmar/{id}", ConfirmarPedido).WithName("ConfirmarPedido").WithOpenApi();
+pedido.MapPut("/{id}", UpdatePedido).WithName("UpdatePedido").WithOpenApi();
+pedido.MapPut("/status/{id}", UpdateStatusPedido).WithName("UpdateStatusPedido").WithOpenApi();
+pedido.MapDelete("/{id}", DeletePedido).WithName("DeletePedido").WithOpenApi();
 #endregion
 
 app.Run();
@@ -285,11 +300,11 @@ static async Task<IResult> GetCarrinhoById(string id, IMongoCollection<Carrinho>
 
 static async Task<IResult> CreateCarrinho(Carrinho carrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto)
 {
-    foreach(var p in carrinho.Produtos)
+    foreach (var p in carrinho.Produtos)
     {
         var produto = await collectionProduto.Find(x => x.Id == p.Id).FirstOrDefaultAsync();
 
-        if(produto is null) return TypedResults.BadRequest($"Produto não encontrado, id:{p.Id}");
+        if (produto is null) return TypedResults.BadRequest($"Produto não encontrado, id:{p.Id}");
     }
 
     carrinho.Ativo = true;
@@ -387,6 +402,123 @@ static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, IMo
 static async Task<IResult> DeleteCarrinho(string id, IMongoCollection<Carrinho> collection)
 {
     if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Carrinho carrinho)
+    {
+        await collection.DeleteOneAsync(x => x.Id == id);
+        return TypedResults.NoContent();
+    }
+
+    return TypedResults.NotFound();
+}
+#endregion
+
+#region Pedido
+static async Task<IResult> GetAllPedidosAtivos(IMongoCollection<Pedido> collection)
+{
+    var pedidos = await collection.Find(x => x.Status != PedidoStatus.Finalizado).ToListAsync();
+    return TypedResults.Ok(pedidos);
+}
+
+static async Task<IResult> GetAllPedidos(IMongoCollection<Pedido> collection)
+{
+    var pedidos = await collection.Find(_ => true).ToListAsync();
+    return TypedResults.Ok(pedidos);
+}
+
+static async Task<IResult> GetPedidoById(string id, IMongoCollection<Pedido> collection)
+{
+    var pedido = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    if (pedido is null) return TypedResults.NotFound();
+
+    return TypedResults.Ok(pedido);
+}
+
+
+static async Task<IResult> CreatePedido(string idCarrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Pedido> collectionPedido)
+{
+    var carrinho = await collectionCarrinho.Find(x => x.Id == idCarrinho).FirstOrDefaultAsync();
+
+    if (carrinho is null) return TypedResults.NotFound();
+
+    var numeroPedido = await collectionPedido.Find(_ => true).ToListAsync();
+
+    var pedido = new Pedido
+    {
+        Produtos = carrinho.Produtos,
+        Total = carrinho.Total,
+        Status = 0,
+        DataCriacao = DateTime.Now,
+        Numero = numeroPedido.Count + 1,
+        Usuario = carrinho.Usuario,
+        IdCarrinho = idCarrinho
+    };
+
+    await collectionPedido.InsertOneAsync(pedido);
+
+    return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+}
+
+
+static async Task<IResult> ConfirmarPedido(string id, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Pedido> collectionPedido)
+{
+    var pedido = await collectionPedido.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    if (pedido is null) return TypedResults.NotFound();
+
+    //fazer solicitação do QRCode para pagamento(antes ou durante essa chamada)
+
+    //passando status pra pago por enquanto (ver como funciona na api do mercado pago)
+    pedido.Status = PedidoStatus.Pago;
+    pedido.Pagamento = new Pagamento()
+    {
+        Tipo = Pagamento.TipoPagamento.QRCode,
+        QRCodeUrl = "www.usdfhosdfsdhfosdfhsdofhdsfds.com.br",
+    };
+
+    await collectionPedido.ReplaceOneAsync(x => x.Id == id, pedido);
+
+
+    //desativa o carrinho (pensar se futuramente n é melhor excluir)
+    var carrinho = await collectionCarrinho.Find(x => x.Id == pedido.IdCarrinho).FirstOrDefaultAsync();
+    if (carrinho != null)
+    {
+        carrinho.Ativo = false;
+        await collectionCarrinho.ReplaceOneAsync(x => x.Id == carrinho.Id, carrinho);
+    }
+
+    return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+}
+
+static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IMongoCollection<Pedido> collection)
+{
+    var pedido = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    if (pedido is null) return TypedResults.NotFound();
+
+    pedido.Produtos = pedidoInput.Produtos;
+    pedido.Total = pedido.Produtos.Sum(x => x.Preco);
+    pedido.Usuario = pedidoInput.Usuario;
+
+    await collection.ReplaceOneAsync(x => x.Id == id, pedido);
+    return TypedResults.NoContent();
+}
+
+static async Task<IResult> UpdateStatusPedido(string id, int status, IMongoCollection<Pedido> collection)
+{
+    var pedido = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    if (pedido is null) return TypedResults.NotFound();
+
+    //adicionar umas regras para atualização posteriormente
+    pedido.Status = (PedidoStatus)status;
+
+    await collection.ReplaceOneAsync(x => x.Id == id, pedido);
+    return TypedResults.NoContent();
+}
+
+static async Task<IResult> DeletePedido(string id, IMongoCollection<Pedido> collection)
+{
+    if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Pedido pedido)
     {
         await collection.DeleteOneAsync(x => x.Id == id);
         return TypedResults.NoContent();

@@ -11,5 +11,6 @@ namespace TechChallenge_LanchoneteTotem.Model
         public List<Produto> Produtos { get; set; }
         public decimal Total { get; set; }
         public bool Ativo { get; set; }
+        public Usuario Usuario { get; set; }
     }
 }
