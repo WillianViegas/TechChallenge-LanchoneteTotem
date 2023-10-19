@@ -10,7 +10,7 @@ builder.Services.AddSingleton<IMongoDatabase>(provider => provider.GetRequiredSe
 builder.Services.AddSingleton<IMongoCollection<Usuario>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Usuario>("Usuario"));
 builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Categoria"));
 builder.Services.AddSingleton<IMongoCollection<Produto>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Produto>("Produto"));
-//builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Carrinho"));
+builder.Services.AddSingleton<IMongoCollection<Carrinho>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Carrinho>("Carrinho"));
 //builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Categoria>("Pedido"));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -60,6 +60,17 @@ produtos.MapGet("/categoria/{id}", GetAllProdutosPorCategoria).WithName("GetAllP
 produtos.MapPost("/", CreateProduto).WithName("CreateProduto").WithOpenApi();
 produtos.MapPut("/{id}", UpdateProduto).WithName("UpdateProduto").WithOpenApi();
 produtos.MapDelete("/{id}", DeleteProduto).WithName("DeleteProduto").WithOpenApi();
+#endregion
+
+#region endpoint Carrinho
+var carrinho = app.MapGroup("/carrinho");
+
+carrinho.MapGet("/{id}", GetCarrinhoById).WithName("GetCarrinhoById").WithOpenApi();
+carrinho.MapPost("/addProduto", AddProdutoCarrinho).WithName("AddProdutoCarrinho").WithOpenApi();
+carrinho.MapPost("/RemoveProduto", RemoveProdutoCarrinho).WithName("RemoveProdutoCarrinho").WithOpenApi();
+carrinho.MapPost("/", CreateCarrinho).WithName("CreateCarrinho").WithOpenApi();
+carrinho.MapPut("/{id}", UpdateCarrinho).WithName("UpdateCarrinho").WithOpenApi();
+carrinho.MapDelete("/{id}", DeleteCarrinho).WithName("DeleteCarrinho").WithOpenApi();
 #endregion
 
 app.Run();
@@ -171,7 +182,7 @@ static async Task<IResult> CreateCategoria(Categoria categoria, IMongoCollection
 {
     await collection.InsertOneAsync(categoria);
 
-    return TypedResults.Created($"/usuario/{categoria.Id}", categoria);
+    return TypedResults.Created($"/categoria/{categoria.Id}", categoria);
 }
 
 static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, IMongoCollection<Categoria> collection)
@@ -230,7 +241,7 @@ static async Task<IResult> CreateProduto(Produto produto, IMongoCollection<Produ
 {
     await collection.InsertOneAsync(produto);
 
-    return TypedResults.Created($"/usuario/{produto.Id}", produto);
+    return TypedResults.Created($"/categoria/{produto.Id}", produto);
 }
 
 static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IMongoCollection<Produto> collection)
@@ -251,6 +262,131 @@ static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IMongo
 static async Task<IResult> DeleteProduto(string id, IMongoCollection<Produto> collection)
 {
     if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Produto produto)
+    {
+        await collection.DeleteOneAsync(x => x.Id == id);
+        return TypedResults.NoContent();
+    }
+
+    return TypedResults.NotFound();
+}
+#endregion
+
+#region Carrinho
+
+static async Task<IResult> GetCarrinhoById(string id, IMongoCollection<Carrinho> collection)
+{
+    var carrinho = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    if (carrinho is null) return TypedResults.NotFound();
+
+    return TypedResults.Ok(carrinho);
+}
+
+
+static async Task<IResult> CreateCarrinho(Carrinho carrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto)
+{
+    foreach(var p in carrinho.Produtos)
+    {
+        var produto = await collectionProduto.Find(x => x.Id == p.Id).FirstOrDefaultAsync();
+
+        if(produto is null) return TypedResults.BadRequest($"Produto não encontrado, id:{p.Id}");
+    }
+
+    carrinho.Ativo = true;
+
+    await collectionCarrinho.InsertOneAsync(carrinho);
+
+    return TypedResults.Created($"/carrinho/{carrinho.Id}", carrinho);
+}
+
+
+static async Task<IResult> AddProdutoCarrinho(string idProduto, string idCarrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto, int quantidade = 1)
+{
+    var produto = await collectionProduto.Find(x => x.Id == idProduto).FirstOrDefaultAsync();
+    if (produto is null) return TypedResults.NotFound($"Produto não encontrado, id:{produto.Id}");
+
+
+    var carrinho = new Carrinho();
+
+    if (string.IsNullOrEmpty(idCarrinho))
+    {
+        var produtoLista = new List<Produto>();
+        //revisar essa parte dps
+
+        for (int i = 0; i < quantidade; i++)
+        {
+            produtoLista.Add(produto);
+        }
+
+        carrinho = new Carrinho()
+        {
+            Produtos = produtoLista,
+            Total = produtoLista.Sum(x => x.Preco),
+            Ativo = true
+        };
+
+        await collectionCarrinho.InsertOneAsync(carrinho);
+
+        return TypedResults.Created($"/carrinho/{carrinho.Id}", carrinho);
+    }
+
+    carrinho = await collectionCarrinho.Find(x => x.Id == idCarrinho).FirstOrDefaultAsync();
+
+    for (int i = 0; i < quantidade; i++)
+    {
+        carrinho.Produtos.Add(produto);
+    }
+
+    carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
+
+    await collectionCarrinho.ReplaceOneAsync(x => x.Id == idCarrinho, carrinho);
+    return TypedResults.NoContent();
+}
+
+static async Task<IResult> RemoveProdutoCarrinho(IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto, string idProduto, string idCarrinho, int quantidade = 1)
+{
+    var produto = await collectionProduto.Find(x => x.Id == idProduto).FirstOrDefaultAsync();
+    var carrinho = await collectionCarrinho.Find(x => x.Id == idCarrinho).FirstOrDefaultAsync();
+
+    if (produto is null) return TypedResults.NotFound();
+    if (carrinho is null) return TypedResults.NotFound(); //validar dps 
+
+
+    if (!carrinho.Produtos.Any(x => x.Id == idProduto)) return TypedResults.NotFound();
+
+
+
+    for (int i = 0; i < quantidade; i++)
+    {
+        var produtoCarrinho = carrinho.Produtos.FirstOrDefault(x => x.Id == idProduto);
+
+        if (produtoCarrinho is null) break;
+
+        carrinho.Produtos.Remove(produtoCarrinho);
+    }
+
+    carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
+
+    await collectionCarrinho.ReplaceOneAsync(x => x.Id == idCarrinho, carrinho);
+    return TypedResults.NoContent();
+}
+
+static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, IMongoCollection<Carrinho> collection)
+{
+    var carrinho = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    if (carrinho is null) return TypedResults.NotFound();
+
+    carrinho.Produtos = carrinhoInput.Produtos; //validar remoção da quantidade;
+    carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
+
+    await collection.ReplaceOneAsync(x => x.Id == id, carrinho);
+    return TypedResults.NoContent();
+}
+
+static async Task<IResult> DeleteCarrinho(string id, IMongoCollection<Carrinho> collection)
+{
+    if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Carrinho carrinho)
     {
         await collection.DeleteOneAsync(x => x.Id == id);
         return TypedResults.NoContent();
