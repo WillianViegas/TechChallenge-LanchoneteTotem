@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.UseCases.Interfaces;
+using Domain.Entities;
 using Domain.Entities.DTO;
 using Domain.Repositories;
 using Infra.Configurations;

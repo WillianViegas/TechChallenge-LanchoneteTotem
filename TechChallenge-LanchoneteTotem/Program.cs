@@ -1,4 +1,5 @@
 using Application.UseCases;
+using Application.UseCases.Interfaces;
 using Domain.Entities;
 using Domain.Entities.DTO;
 using Domain.Repositories;
@@ -23,7 +24,9 @@ builder.Services.AddSingleton<IMongoCollection<Pedido>>(provider => provider.Get
 
 
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddTransient<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddTransient<IUsuarioUseCase, UsuarioUseCase>();
+builder.Services.AddTransient<ICategoriaUseCase, CategoriaUseCase>();
 builder.Services.Configure<DatabaseConfig> (builder.Configuration.GetSection(nameof(DatabaseConfig)));
 builder.Services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOptions<DatabaseConfig>>().Value);
 
@@ -104,8 +107,7 @@ app.Run();
 
 static async Task<IResult> GetTeste(IMongoCollection<Categoria> collection)
 {
-    var categorias = await collection.Find(_ => true).ToListAsync();
-    return TypedResults.Ok(categorias);
+    return TypedResults.Ok();
 }
 
 #region Usuario
@@ -169,50 +171,47 @@ static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCa
 
 #region Categoria
 
-static async Task<IResult> GetAllCategorias(IMongoCollection<Categoria> collection)
+static async Task<IResult> GetAllCategorias(ICategoriaUseCase categoriaUseCase)
 {
-    var categorias = await collection.Find(_ => true).ToListAsync();
+    var categorias = categoriaUseCase.GetAllCategorias();
     return TypedResults.Ok(categorias.Select(x => new CategoriaDTO(x)).ToArray());
 }
 
-static async Task<IResult> GetCategoriaById(string id, IMongoCollection<Categoria> collection)
+static async Task<IResult> GetCategoriaById(string id, ICategoriaUseCase categoriaUseCase)
 {
-    var categoria = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
+    var categoria = await categoriaUseCase.GetCategoriaById(id);
 
     if (categoria is null) return TypedResults.NotFound();
 
-    return TypedResults.Ok(new CategoriaDTO(categoria));
+    return TypedResults.Ok(categoria);
 }
 
 
 ///TODO Buscar categoria pelo nome///
 
 
-static async Task<IResult> CreateCategoria(Categoria categoria, IMongoCollection<Categoria> collection)
+static async Task<IResult> CreateCategoria(Categoria categoria, ICategoriaUseCase categoriaUseCase)
 {
-    await collection.InsertOneAsync(categoria);
+    await categoriaUseCase.CreateCategoria(categoria);
 
     return TypedResults.Created($"/categoria/{categoria.Id}", categoria);
 }
 
-static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, IMongoCollection<Categoria> collection)
+static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, ICategoriaUseCase categoriaUseCase)
 {
-    var categoria = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
+    var categoria = await categoriaUseCase.GetCategoriaById(id);
 
     if (categoria is null) return TypedResults.NotFound();
 
-    categoria.Nome = categoriaInput.Nome;
-    categoria.Ativa = categoriaInput.Ativa;
-
-    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, categoria);
+    categoriaUseCase.UpdateCategoria(id, categoriaInput);
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> DeleteCategoria(string id, IMongoCollection<Categoria> collection)
+static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categoriaUseCase)
 {
-    if (await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Categoria categoria)
+    if (await categoriaUseCase.GetCategoriaById(id) is CategoriaDTO categoria)
     {
-        await collection.DeleteOneAsync(x => x.Id.ToString() == id);
+        categoriaUseCase.DeleteCategoria(id);
         return TypedResults.NoContent();
     }
 
