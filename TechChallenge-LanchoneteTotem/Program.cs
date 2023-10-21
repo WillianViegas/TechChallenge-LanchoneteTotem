@@ -25,9 +25,11 @@ builder.Services.AddSingleton<IMongoCollection<Pedido>>(provider => provider.Get
 
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddTransient<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddTransient<IUsuarioUseCase, UsuarioUseCase>();
 builder.Services.AddTransient<ICategoriaUseCase, CategoriaUseCase>();
-builder.Services.Configure<DatabaseConfig> (builder.Configuration.GetSection(nameof(DatabaseConfig)));
+builder.Services.AddTransient<IProdutoUseCase, ProdutoUseCase>();
+builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection(nameof(DatabaseConfig)));
 builder.Services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOptions<DatabaseConfig>>().Value);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -221,58 +223,53 @@ static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categori
 
 #region Produto
 
-static async Task<IResult> GetAllProdutos(IMongoCollection<Produto> collection)
+static async Task<IResult> GetAllProdutos(IProdutoUseCase produtoUseCase)
 {
-    var produtos = await collection.Find(_ => true).ToListAsync();
+    var produtos = produtoUseCase.GetAllProdutos();
     return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
 }
 
-static async Task<IResult> GetProdutoById(string id, IMongoCollection<Produto> collection)
+static async Task<IResult> GetProdutoById(string id, IProdutoUseCase produtoUseCase)
 {
-    var produto = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
+    var produto = await produtoUseCase.GetProdutoById(id);
 
     if (produto is null) return TypedResults.NotFound();
 
-    return TypedResults.Ok(new ProdutoDTO(produto));
+    return TypedResults.Ok(produto);
 }
 
 
-static async Task<IResult> GetAllProdutosPorCategoria(string id, IMongoCollection<Produto> collection)
+static async Task<IResult> GetAllProdutosPorCategoria(string id, IProdutoUseCase produtoUseCase)
 {
-    var produtos = await collection.Find(x => x.CategoriaId == id).ToListAsync();
+    var produtos = await produtoUseCase.GetAllProdutosPorCategoria(id);
     return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
 }
 
 ///TODO Buscar produto pelo nome///
 
 
-static async Task<IResult> CreateProduto(Produto produto, IMongoCollection<Produto> collection)
+static async Task<IResult> CreateProduto(Produto produto, IProdutoUseCase produtoUseCase)
 {
-    await collection.InsertOneAsync(produto);
-
+    await produtoUseCase.CreateProduto(produto);
     return TypedResults.Created($"/categoria/{produto.Id}", produto);
 }
 
-static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IMongoCollection<Produto> collection)
+static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IProdutoUseCase produtoUseCase)
 {
-    var produto = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
+    var produto = await produtoUseCase.GetProdutoById(id);
 
     if (produto is null) return TypedResults.NotFound();
 
-    produto.Nome = produtoInput.Nome;
-    produto.Descricao = produtoInput.Descricao;
-    produto.Preco = produtoInput.Preco;
-    produto.CategoriaId = produtoInput.CategoriaId is null ? produto.CategoriaId : produtoInput.CategoriaId; //fazer uma validação melhor dps
+    produtoUseCase.UpdateProduto(id, produtoInput);
 
-    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, produto);
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> DeleteProduto(string id, IMongoCollection<Produto> collection)
+static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCase)
 {
-    if (await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Produto produto)
+    if (await produtoUseCase.GetProdutoById(id) is ProdutoDTO produto)
     {
-        await collection.DeleteOneAsync(x => x.Id.ToString() == id);
+        produtoUseCase.DeleteProduto(id);
         return TypedResults.NoContent();
     }
 
@@ -485,7 +482,7 @@ static async Task<IResult> ConfirmarPedido(string id, IMongoCollection<Carrinho>
 
 static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IMongoCollection<Pedido> collection)
 {
-    var pedido = await collection.Find(x => x.Id.ToString().ToString()== id).FirstOrDefaultAsync();
+    var pedido = await collection.Find(x => x.Id.ToString().ToString() == id).FirstOrDefaultAsync();
 
     if (pedido is null) return TypedResults.NotFound();
 
