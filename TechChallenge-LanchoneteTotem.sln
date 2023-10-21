@@ -23,8 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infra", "Infra\Infra.csproj", "{44697594-227F-4EDE-AAD5-3D8EDB115729}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDbDataAccess", "MongoDbDataAccess\MongoDbDataAccess.csproj", "{5B09A214-D1E5-44E4-A96C-EC5DC2DC4193}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,10 +45,6 @@ Global
 		{44697594-227F-4EDE-AAD5-3D8EDB115729}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44697594-227F-4EDE-AAD5-3D8EDB115729}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44697594-227F-4EDE-AAD5-3D8EDB115729}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5B09A214-D1E5-44E4-A96C-EC5DC2DC4193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5B09A214-D1E5-44E4-A96C-EC5DC2DC4193}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B09A214-D1E5-44E4-A96C-EC5DC2DC4193}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B09A214-D1E5-44E4-A96C-EC5DC2DC4193}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,7 +58,6 @@ Global
 		{496E068C-9188-4F6D-8718-A7D2C1A1516F} = {C31F1318-3F15-4E20-ABEC-2B3CAE110568}
 		{1B2FF100-8BD3-4D9F-BE9F-0C7334C602E4} = {C31F1318-3F15-4E20-ABEC-2B3CAE110568}
 		{44697594-227F-4EDE-AAD5-3D8EDB115729} = {F5CD3631-DA89-4E24-B5C1-FE1D81F56A86}
-		{5B09A214-D1E5-44E4-A96C-EC5DC2DC4193} = {4D5C9484-CA9D-446E-9E34-F3B7B9BCECB2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {719E210A-8162-4F84-966E-BEC57F133419}
