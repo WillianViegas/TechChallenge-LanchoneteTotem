@@ -26,9 +26,11 @@ builder.Services.AddSingleton<IMongoCollection<Pedido>>(provider => provider.Get
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddTransient<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddTransient<ICarrinhoRepository, CarrinhoRepository>();
 builder.Services.AddTransient<IUsuarioUseCase, UsuarioUseCase>();
 builder.Services.AddTransient<ICategoriaUseCase, CategoriaUseCase>();
 builder.Services.AddTransient<IProdutoUseCase, ProdutoUseCase>();
+builder.Services.AddTransient<ICarrinhoUseCase, CarrinhoUseCase>();
 builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection(nameof(DatabaseConfig)));
 builder.Services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOptions<DatabaseConfig>>().Value);
 
@@ -279,125 +281,45 @@ static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCa
 
 #region Carrinho
 
-static async Task<IResult> GetCarrinhoById(string id, IMongoCollection<Carrinho> collection)
+static async Task<IResult> GetCarrinhoById(string id, ICarrinhoUseCase carrinhoUseCase)
 {
-    var carrinho = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-
+    var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
     if (carrinho is null) return TypedResults.NotFound();
-
     return TypedResults.Ok(carrinho);
 }
 
 
-static async Task<IResult> CreateCarrinho(Carrinho carrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto)
+static async Task<IResult> CreateCarrinho(Carrinho carrinho, ICarrinhoUseCase carrinhoUseCase)
 {
-    foreach (var p in carrinho.Produtos)
-    {
-        var produto = await collectionProduto.Find(x => x.Id == p.Id).FirstOrDefaultAsync();
-
-        if (produto is null) return TypedResults.BadRequest($"Produto não encontrado, id:{p.Id}");
-    }
-
-    carrinho.Ativo = true;
-
-    await collectionCarrinho.InsertOneAsync(carrinho);
-
+    await carrinhoUseCase.CreateCarrinho(carrinho);
     return TypedResults.Created($"/carrinho/{carrinho.Id}", carrinho);
 }
 
 
-static async Task<IResult> AddProdutoCarrinho(string idProduto, string idCarrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto, int quantidade = 1)
+static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, string idProduto, string idCarrinho, int quantidade = 1)
 {
-    var produto = await collectionProduto.Find(x => x.Id.ToString() == idProduto).FirstOrDefaultAsync();
-    if (produto is null) return TypedResults.NotFound($"Produto não encontrado, id:{produto.Id}");
+    //tratar retornos dps
 
-
-    var carrinho = new Carrinho();
-
-    if (string.IsNullOrEmpty(idCarrinho))
-    {
-        var produtoLista = new List<Produto>();
-        //revisar essa parte dps
-
-        for (int i = 0; i < quantidade; i++)
-        {
-            produtoLista.Add(produto);
-        }
-
-        carrinho = new Carrinho()
-        {
-            Produtos = produtoLista,
-            Total = produtoLista.Sum(x => x.Preco),
-            Ativo = true
-        };
-
-        await collectionCarrinho.InsertOneAsync(carrinho);
-
-        return TypedResults.Created($"/carrinho/{carrinho.Id}", carrinho);
-    }
-
-    carrinho = await collectionCarrinho.Find(x => x.Id.ToString() == idCarrinho).FirstOrDefaultAsync();
-
-    for (int i = 0; i < quantidade; i++)
-    {
-        carrinho.Produtos.Add(produto);
-    }
-
-    carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
-
-    await collectionCarrinho.ReplaceOneAsync(x => x.Id.ToString() == idCarrinho, carrinho);
+    await carrinhoUseCase.AddProdutoCarrinho(idProduto, idCarrinho, quantidade);
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> RemoveProdutoCarrinho(IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto, string idProduto, string idCarrinho, int quantidade = 1)
+static async Task<IResult> RemoveProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, string idProduto, string idCarrinho, int quantidade = 1)
 {
-    var produto = await collectionProduto.Find(x => x.Id.ToString() == idProduto).FirstOrDefaultAsync();
-    var carrinho = await collectionCarrinho.Find(x => x.Id.ToString() == idCarrinho).FirstOrDefaultAsync();
-
-    if (produto is null) return TypedResults.NotFound();
-    if (carrinho is null) return TypedResults.NotFound(); //validar dps 
-
-
-    if (!carrinho.Produtos.Any(x => x.Id.ToString() == idProduto)) return TypedResults.NotFound();
-
-
-
-    for (int i = 0; i < quantidade; i++)
-    {
-        var produtoCarrinho = carrinho.Produtos.FirstOrDefault(x => x.Id.ToString() == idProduto);
-
-        if (produtoCarrinho is null) break;
-
-        carrinho.Produtos.Remove(produtoCarrinho);
-    }
-
-    carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
-
-    await collectionCarrinho.ReplaceOneAsync(x => x.Id.ToString() == idCarrinho, carrinho);
+    await carrinhoUseCase.RemoveProdutoCarrinho(idProduto, idCarrinho, quantidade);
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, IMongoCollection<Carrinho> collection)
+static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, ICarrinhoUseCase carrinhoUseCase)
 {
-    var carrinho = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-
-    if (carrinho is null) return TypedResults.NotFound();
-
-    carrinho.Produtos = carrinhoInput.Produtos; //validar remoção da quantidade;
-    carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
-
-    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, carrinho);
+    await carrinhoUseCase.UpdateCarrinho(id, carrinhoInput);
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> DeleteCarrinho(string id, IMongoCollection<Carrinho> collection)
+static async Task<IResult> DeleteCarrinho(string id, ICarrinhoUseCase carrinhoUseCase)
 {
-    if (await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Carrinho carrinho)
-    {
-        await collection.DeleteOneAsync(x => x.Id.ToString() == id);
-        return TypedResults.NoContent();
-    }
-
+    await carrinhoUseCase.DeleteCarrinho(id);
+    //return TypedResults.NoContent(); tratar retornos
     return TypedResults.NotFound();
 }
 #endregion
