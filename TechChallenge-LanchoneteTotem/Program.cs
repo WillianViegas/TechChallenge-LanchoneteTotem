@@ -27,10 +27,14 @@ builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddTransient<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddTransient<ICarrinhoRepository, CarrinhoRepository>();
+builder.Services.AddTransient<IPedidoRepository, PedidoRepository>();
+
 builder.Services.AddTransient<IUsuarioUseCase, UsuarioUseCase>();
 builder.Services.AddTransient<ICategoriaUseCase, CategoriaUseCase>();
 builder.Services.AddTransient<IProdutoUseCase, ProdutoUseCase>();
 builder.Services.AddTransient<ICarrinhoUseCase, CarrinhoUseCase>();
+builder.Services.AddTransient<IPedidoUseCase, PedidoUseCase>();
+
 builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection(nameof(DatabaseConfig)));
 builder.Services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOptions<DatabaseConfig>>().Value);
 
@@ -325,21 +329,21 @@ static async Task<IResult> DeleteCarrinho(string id, ICarrinhoUseCase carrinhoUs
 #endregion
 
 #region Pedido
-static async Task<IResult> GetAllPedidosAtivos(IMongoCollection<Pedido> collection)
+static async Task<IResult> GetAllPedidosAtivos(IPedidoUseCase pedidoUseCase)
 {
-    var pedidos = await collection.Find(x => x.Status != PedidoStatus.Finalizado).ToListAsync();
+    var pedidos = await pedidoUseCase.GetAllPedidosAtivos();
     return TypedResults.Ok(pedidos);
 }
 
-static async Task<IResult> GetAllPedidos(IMongoCollection<Pedido> collection)
+static async Task<IResult> GetAllPedidos(IPedidoUseCase pedidoUseCase)
 {
-    var pedidos = await collection.Find(_ => true).ToListAsync();
+    var pedidos = await pedidoUseCase.GetAllPedidos();
     return TypedResults.Ok(pedidos);
 }
 
-static async Task<IResult> GetPedidoById(string id, IMongoCollection<Pedido> collection)
+static async Task<IResult> GetPedidoById(string id, IPedidoUseCase pedidoUseCase)
 {
-    var pedido = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
+    var pedido = await pedidoUseCase.GetPedidoById(id);
 
     if (pedido is null) return TypedResults.NotFound();
 
@@ -347,96 +351,39 @@ static async Task<IResult> GetPedidoById(string id, IMongoCollection<Pedido> col
 }
 
 
-static async Task<IResult> CreatePedido(string idCarrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Pedido> collectionPedido)
+static async Task<IResult> CreatePedido(string idCarrinho, IPedidoUseCase pedidoUseCase)
 {
-    var carrinho = await collectionCarrinho.Find(x => x.Id.ToString() == idCarrinho).FirstOrDefaultAsync();
-
-    if (carrinho is null) return TypedResults.NotFound();
-
-    var numeroPedido = await collectionPedido.Find(_ => true).ToListAsync();
-
-    var pedido = new Pedido
-    {
-        Produtos = carrinho.Produtos,
-        Total = carrinho.Total,
-        Status = 0,
-        DataCriacao = DateTime.Now,
-        Numero = numeroPedido.Count + 1,
-        Usuario = carrinho.Usuario,
-        IdCarrinho = idCarrinho
-    };
-
-    await collectionPedido.InsertOneAsync(pedido);
-
+    var pedido = await pedidoUseCase.CreatePedido(idCarrinho);
     return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
 }
 
 
-static async Task<IResult> ConfirmarPedido(string id, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Pedido> collectionPedido)
+static async Task<IResult> ConfirmarPedido(string id, IPedidoUseCase pedidoUseCase)
 {
-    var pedido = await collectionPedido.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-
-    if (pedido is null) return TypedResults.NotFound();
-
-    //fazer solicitação do QRCode para pagamento(antes ou durante essa chamada)
-
-    //passando status pra pago por enquanto (ver como funciona na api do mercado pago)
-    pedido.Status = PedidoStatus.Pago;
-    pedido.Pagamento = new Pagamento()
-    {
-        Tipo = Pagamento.TipoPagamento.QRCode,
-        QRCodeUrl = "www.usdfhosdfsdhfosdfhsdofhdsfds.com.br",
-    };
-
-    await collectionPedido.ReplaceOneAsync(x => x.Id.ToString() == id, pedido);
-
-
-    //desativa o carrinho (pensar se futuramente n é melhor excluir)
-    var carrinho = await collectionCarrinho.Find(x => x.Id.ToString() == pedido.IdCarrinho).FirstOrDefaultAsync();
-    if (carrinho != null)
-    {
-        carrinho.Ativo = false;
-        await collectionCarrinho.ReplaceOneAsync(x => x.Id == carrinho.Id, carrinho);
-    }
-
+    var pedido = await pedidoUseCase.ConfirmarPedido(id);
     return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
 }
 
-static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IMongoCollection<Pedido> collection)
+static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IPedidoUseCase pedidoUseCase)
 {
-    var pedido = await collection.Find(x => x.Id.ToString().ToString() == id).FirstOrDefaultAsync();
-
-    if (pedido is null) return TypedResults.NotFound();
-
-    pedido.Produtos = pedidoInput.Produtos;
-    pedido.Total = pedido.Produtos.Sum(x => x.Preco);
-    pedido.Usuario = pedidoInput.Usuario;
-
-    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, pedido);
+    pedidoUseCase.UpdatePedido(id, pedidoInput);
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> UpdateStatusPedido(string id, int status, IMongoCollection<Pedido> collection)
+static async Task<IResult> UpdateStatusPedido(string id, int status, IPedidoUseCase pedidoUseCase)
 {
-    var pedido = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-
-    if (pedido is null) return TypedResults.NotFound();
-
-    //adicionar umas regras para atualização posteriormente
-    pedido.Status = (PedidoStatus)status;
-
-    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, pedido);
+    pedidoUseCase.UpdateStatusPedido(id, status);
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> DeletePedido(string id, IMongoCollection<Pedido> collection)
+static async Task<IResult> DeletePedido(string id, IPedidoUseCase pedidoUseCase)
 {
-    if (await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Pedido pedido)
+    if (await pedidoUseCase.GetPedidoById(id) is Pedido pedido)
     {
-        await collection.DeleteOneAsync(x => x.Id.ToString() == id);
+        pedidoUseCase.DeletePedido(id);
         return TypedResults.NoContent();
     }
-
+    
     return TypedResults.NotFound();
 }
 #endregion
