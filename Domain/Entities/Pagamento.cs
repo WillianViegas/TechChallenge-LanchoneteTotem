@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace TechChallenge_LanchoneteTotem.Model
+namespace Domain.Entities
 {
     public class Pagamento
     {

@@ -1,4 +1,4 @@
-﻿namespace TechChallenge_LanchoneteTotem.Model.DTO
+﻿namespace Domain.Entities.DTO
 {
     public class ProdutoDTO
     {
@@ -10,6 +10,6 @@
         public ProdutoDTO() { }
 
         public ProdutoDTO(Produto produto) =>
-            (Id, Nome, Descricao, Preco) = (produto.Id, produto.Nome, produto.Descricao, produto.Preco);
+            (Id, Nome, Descricao, Preco) = (produto.Id.ToString(), produto.Nome, produto.Descricao, produto.Preco);
     }
 }

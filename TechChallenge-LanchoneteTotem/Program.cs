@@ -1,9 +1,15 @@
+using Application.UseCases;
+using Domain.Entities;
+using Domain.Entities.DTO;
+using Domain.Repositories;
+using Infra.Configurations;
+using Infra.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using TechChallenge_LanchoneteTotem.Model;
-using TechChallenge_LanchoneteTotem.Model.DTO;
-using static TechChallenge_LanchoneteTotem.Model.Pedido;
+using static Domain.Entities.Pedido;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +20,12 @@ builder.Services.AddSingleton<IMongoCollection<Categoria>>(provider => provider.
 builder.Services.AddSingleton<IMongoCollection<Produto>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Produto>("Produto"));
 builder.Services.AddSingleton<IMongoCollection<Carrinho>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Carrinho>("Carrinho"));
 builder.Services.AddSingleton<IMongoCollection<Pedido>>(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Pedido>("Pedido"));
+
+
+builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddTransient<IUsuarioUseCase, UsuarioUseCase>();
+builder.Services.Configure<DatabaseConfig> (builder.Configuration.GetSection(nameof(DatabaseConfig)));
+builder.Services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOptions<DatabaseConfig>>().Value);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddEndpointsApiExplorer();
@@ -97,74 +109,57 @@ static async Task<IResult> GetTeste(IMongoCollection<Categoria> collection)
 }
 
 #region Usuario
-static async Task<IResult> GetAllUsuarios(IMongoCollection<Usuario> collection)
+static async Task<IResult> GetAllUsuarios(IUsuarioUseCase usuarioUseCase)
 {
-    var usuarios = await collection.Find(_ => true).ToListAsync();
+    var usuarios = usuarioUseCase.GetAllUsuarios();
     return TypedResults.Ok(usuarios.Select(x => new UsuarioDTO(x)).ToArray());
 }
 
-static async Task<IResult> GetUsuarioById(string id, IMongoCollection<Usuario> collection)
+static async Task<IResult> GetUsuarioById(string id, IUsuarioUseCase usuarioUseCase)
 {
-    var usuario = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var usuario = await usuarioUseCase.GetUsuarioById(id);
 
     if (usuario is null) return TypedResults.NotFound();
 
-    return TypedResults.Ok(new UsuarioDTO(usuario));
+    return TypedResults.Ok(usuario);
 }
 
-static async Task<IResult> GetUsuarioByCPF(string cpf, IMongoCollection<Usuario> collection)
+static async Task<IResult> GetUsuarioByCPF(string cpf, IUsuarioUseCase usuarioUseCase)
 {
-    var usuario = await collection.Find(x => x.CPF == cpf).FirstOrDefaultAsync();
+    var usuario = await usuarioUseCase.GetUsuarioByCPF(cpf);
 
     if (usuario is null) return TypedResults.NotFound();
 
-    return TypedResults.Ok(new UsuarioDTO(usuario));
+    return TypedResults.Ok(usuario);
 }
 
-static async Task<IResult> GetUsuarioByEmail(string email, IMongoCollection<Usuario> collection)
+static async Task<IResult> GetUsuarioByEmail(string email, IUsuarioUseCase usuarioUseCase)
 {
-    var usuario = await collection.Find(x => x.Email == email).FirstOrDefaultAsync();
+    var usuario = await usuarioUseCase.GetUsuarioByEmail(email);
 
     if (usuario is null) return TypedResults.NotFound();
 
-    return TypedResults.Ok(new UsuarioDTO(usuario));
+    return TypedResults.Ok(usuario);
 }
 
-static async Task<IResult> CreateUsuario(UsuarioDTO usuarioDTO, IMongoCollection<Usuario> collection)
+static async Task<IResult> CreateUsuario(UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase)
 {
-    var usuario = new Usuario
-    {
-        Nome = usuarioDTO.Nome,
-        CPF = usuarioDTO.CPF,
-        Email = usuarioDTO.Email
-    };
-
-    await collection.InsertOneAsync(usuario);
-
-    usuarioDTO = new UsuarioDTO(usuario);
+    usuarioDTO = await usuarioUseCase.CreateUsuario(usuarioDTO);
 
     return TypedResults.Created($"/usuario/{usuarioDTO.Id}", usuarioDTO);
 }
 
-static async Task<IResult> UpdateUsuario(string id, UsuarioDTO usuarioDTO, IMongoCollection<Usuario> collection)
+static async Task<IResult> UpdateUsuario(string id, UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase)
 {
-    var usuario = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
-
-    if (usuario is null) return TypedResults.NotFound();
-
-    usuario.Nome = usuarioDTO.Nome;
-    usuario.Email = usuarioDTO.Email;
-    usuario.CPF = usuarioDTO.CPF;
-
-    await collection.ReplaceOneAsync(x => x.Id == id, usuario);
+    usuarioUseCase.UpdateUsuario(id, usuarioDTO);
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> DeleteUsuario(string id, IMongoCollection<Usuario> collection)
+static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCase)
 {
-    if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Usuario usuario)
+    if (await usuarioUseCase.GetUsuarioById(id) is UsuarioDTO usuario)
     {
-        await collection.DeleteOneAsync(x => x.Id == id);
+        usuarioUseCase.DeleteUsuario(id);
         return TypedResults.NoContent();
     }
 
@@ -182,7 +177,7 @@ static async Task<IResult> GetAllCategorias(IMongoCollection<Categoria> collecti
 
 static async Task<IResult> GetCategoriaById(string id, IMongoCollection<Categoria> collection)
 {
-    var categoria = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var categoria = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (categoria is null) return TypedResults.NotFound();
 
@@ -202,22 +197,22 @@ static async Task<IResult> CreateCategoria(Categoria categoria, IMongoCollection
 
 static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, IMongoCollection<Categoria> collection)
 {
-    var categoria = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var categoria = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (categoria is null) return TypedResults.NotFound();
 
     categoria.Nome = categoriaInput.Nome;
     categoria.Ativa = categoriaInput.Ativa;
 
-    await collection.ReplaceOneAsync(x => x.Id == id, categoria);
+    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, categoria);
     return TypedResults.NoContent();
 }
 
 static async Task<IResult> DeleteCategoria(string id, IMongoCollection<Categoria> collection)
 {
-    if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Categoria categoria)
+    if (await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Categoria categoria)
     {
-        await collection.DeleteOneAsync(x => x.Id == id);
+        await collection.DeleteOneAsync(x => x.Id.ToString() == id);
         return TypedResults.NoContent();
     }
 
@@ -235,7 +230,7 @@ static async Task<IResult> GetAllProdutos(IMongoCollection<Produto> collection)
 
 static async Task<IResult> GetProdutoById(string id, IMongoCollection<Produto> collection)
 {
-    var produto = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var produto = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (produto is null) return TypedResults.NotFound();
 
@@ -261,7 +256,7 @@ static async Task<IResult> CreateProduto(Produto produto, IMongoCollection<Produ
 
 static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IMongoCollection<Produto> collection)
 {
-    var produto = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var produto = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (produto is null) return TypedResults.NotFound();
 
@@ -270,15 +265,15 @@ static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IMongo
     produto.Preco = produtoInput.Preco;
     produto.CategoriaId = produtoInput.CategoriaId is null ? produto.CategoriaId : produtoInput.CategoriaId; //fazer uma validação melhor dps
 
-    await collection.ReplaceOneAsync(x => x.Id == id, produto);
+    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, produto);
     return TypedResults.NoContent();
 }
 
 static async Task<IResult> DeleteProduto(string id, IMongoCollection<Produto> collection)
 {
-    if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Produto produto)
+    if (await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Produto produto)
     {
-        await collection.DeleteOneAsync(x => x.Id == id);
+        await collection.DeleteOneAsync(x => x.Id.ToString() == id);
         return TypedResults.NoContent();
     }
 
@@ -290,7 +285,7 @@ static async Task<IResult> DeleteProduto(string id, IMongoCollection<Produto> co
 
 static async Task<IResult> GetCarrinhoById(string id, IMongoCollection<Carrinho> collection)
 {
-    var carrinho = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var carrinho = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (carrinho is null) return TypedResults.NotFound();
 
@@ -317,7 +312,7 @@ static async Task<IResult> CreateCarrinho(Carrinho carrinho, IMongoCollection<Ca
 
 static async Task<IResult> AddProdutoCarrinho(string idProduto, string idCarrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto, int quantidade = 1)
 {
-    var produto = await collectionProduto.Find(x => x.Id == idProduto).FirstOrDefaultAsync();
+    var produto = await collectionProduto.Find(x => x.Id.ToString() == idProduto).FirstOrDefaultAsync();
     if (produto is null) return TypedResults.NotFound($"Produto não encontrado, id:{produto.Id}");
 
 
@@ -345,7 +340,7 @@ static async Task<IResult> AddProdutoCarrinho(string idProduto, string idCarrinh
         return TypedResults.Created($"/carrinho/{carrinho.Id}", carrinho);
     }
 
-    carrinho = await collectionCarrinho.Find(x => x.Id == idCarrinho).FirstOrDefaultAsync();
+    carrinho = await collectionCarrinho.Find(x => x.Id.ToString() == idCarrinho).FirstOrDefaultAsync();
 
     for (int i = 0; i < quantidade; i++)
     {
@@ -354,26 +349,26 @@ static async Task<IResult> AddProdutoCarrinho(string idProduto, string idCarrinh
 
     carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
 
-    await collectionCarrinho.ReplaceOneAsync(x => x.Id == idCarrinho, carrinho);
+    await collectionCarrinho.ReplaceOneAsync(x => x.Id.ToString() == idCarrinho, carrinho);
     return TypedResults.NoContent();
 }
 
 static async Task<IResult> RemoveProdutoCarrinho(IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Produto> collectionProduto, string idProduto, string idCarrinho, int quantidade = 1)
 {
-    var produto = await collectionProduto.Find(x => x.Id == idProduto).FirstOrDefaultAsync();
-    var carrinho = await collectionCarrinho.Find(x => x.Id == idCarrinho).FirstOrDefaultAsync();
+    var produto = await collectionProduto.Find(x => x.Id.ToString() == idProduto).FirstOrDefaultAsync();
+    var carrinho = await collectionCarrinho.Find(x => x.Id.ToString() == idCarrinho).FirstOrDefaultAsync();
 
     if (produto is null) return TypedResults.NotFound();
     if (carrinho is null) return TypedResults.NotFound(); //validar dps 
 
 
-    if (!carrinho.Produtos.Any(x => x.Id == idProduto)) return TypedResults.NotFound();
+    if (!carrinho.Produtos.Any(x => x.Id.ToString() == idProduto)) return TypedResults.NotFound();
 
 
 
     for (int i = 0; i < quantidade; i++)
     {
-        var produtoCarrinho = carrinho.Produtos.FirstOrDefault(x => x.Id == idProduto);
+        var produtoCarrinho = carrinho.Produtos.FirstOrDefault(x => x.Id.ToString() == idProduto);
 
         if (produtoCarrinho is null) break;
 
@@ -382,28 +377,28 @@ static async Task<IResult> RemoveProdutoCarrinho(IMongoCollection<Carrinho> coll
 
     carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
 
-    await collectionCarrinho.ReplaceOneAsync(x => x.Id == idCarrinho, carrinho);
+    await collectionCarrinho.ReplaceOneAsync(x => x.Id.ToString() == idCarrinho, carrinho);
     return TypedResults.NoContent();
 }
 
 static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, IMongoCollection<Carrinho> collection)
 {
-    var carrinho = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var carrinho = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (carrinho is null) return TypedResults.NotFound();
 
     carrinho.Produtos = carrinhoInput.Produtos; //validar remoção da quantidade;
     carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
 
-    await collection.ReplaceOneAsync(x => x.Id == id, carrinho);
+    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, carrinho);
     return TypedResults.NoContent();
 }
 
 static async Task<IResult> DeleteCarrinho(string id, IMongoCollection<Carrinho> collection)
 {
-    if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Carrinho carrinho)
+    if (await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Carrinho carrinho)
     {
-        await collection.DeleteOneAsync(x => x.Id == id);
+        await collection.DeleteOneAsync(x => x.Id.ToString() == id);
         return TypedResults.NoContent();
     }
 
@@ -426,7 +421,7 @@ static async Task<IResult> GetAllPedidos(IMongoCollection<Pedido> collection)
 
 static async Task<IResult> GetPedidoById(string id, IMongoCollection<Pedido> collection)
 {
-    var pedido = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var pedido = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (pedido is null) return TypedResults.NotFound();
 
@@ -436,7 +431,7 @@ static async Task<IResult> GetPedidoById(string id, IMongoCollection<Pedido> col
 
 static async Task<IResult> CreatePedido(string idCarrinho, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Pedido> collectionPedido)
 {
-    var carrinho = await collectionCarrinho.Find(x => x.Id == idCarrinho).FirstOrDefaultAsync();
+    var carrinho = await collectionCarrinho.Find(x => x.Id.ToString() == idCarrinho).FirstOrDefaultAsync();
 
     if (carrinho is null) return TypedResults.NotFound();
 
@@ -461,7 +456,7 @@ static async Task<IResult> CreatePedido(string idCarrinho, IMongoCollection<Carr
 
 static async Task<IResult> ConfirmarPedido(string id, IMongoCollection<Carrinho> collectionCarrinho, IMongoCollection<Pedido> collectionPedido)
 {
-    var pedido = await collectionPedido.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var pedido = await collectionPedido.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (pedido is null) return TypedResults.NotFound();
 
@@ -475,11 +470,11 @@ static async Task<IResult> ConfirmarPedido(string id, IMongoCollection<Carrinho>
         QRCodeUrl = "www.usdfhosdfsdhfosdfhsdofhdsfds.com.br",
     };
 
-    await collectionPedido.ReplaceOneAsync(x => x.Id == id, pedido);
+    await collectionPedido.ReplaceOneAsync(x => x.Id.ToString() == id, pedido);
 
 
     //desativa o carrinho (pensar se futuramente n é melhor excluir)
-    var carrinho = await collectionCarrinho.Find(x => x.Id == pedido.IdCarrinho).FirstOrDefaultAsync();
+    var carrinho = await collectionCarrinho.Find(x => x.Id.ToString() == pedido.IdCarrinho).FirstOrDefaultAsync();
     if (carrinho != null)
     {
         carrinho.Ativo = false;
@@ -491,7 +486,7 @@ static async Task<IResult> ConfirmarPedido(string id, IMongoCollection<Carrinho>
 
 static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IMongoCollection<Pedido> collection)
 {
-    var pedido = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var pedido = await collection.Find(x => x.Id.ToString().ToString()== id).FirstOrDefaultAsync();
 
     if (pedido is null) return TypedResults.NotFound();
 
@@ -499,28 +494,28 @@ static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IMongoCol
     pedido.Total = pedido.Produtos.Sum(x => x.Preco);
     pedido.Usuario = pedidoInput.Usuario;
 
-    await collection.ReplaceOneAsync(x => x.Id == id, pedido);
+    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, pedido);
     return TypedResults.NoContent();
 }
 
 static async Task<IResult> UpdateStatusPedido(string id, int status, IMongoCollection<Pedido> collection)
 {
-    var pedido = await collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    var pedido = await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
 
     if (pedido is null) return TypedResults.NotFound();
 
     //adicionar umas regras para atualização posteriormente
     pedido.Status = (PedidoStatus)status;
 
-    await collection.ReplaceOneAsync(x => x.Id == id, pedido);
+    await collection.ReplaceOneAsync(x => x.Id.ToString() == id, pedido);
     return TypedResults.NoContent();
 }
 
 static async Task<IResult> DeletePedido(string id, IMongoCollection<Pedido> collection)
 {
-    if (await collection.Find(x => x.Id == id).FirstOrDefaultAsync() is Pedido pedido)
+    if (await collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Pedido pedido)
     {
-        await collection.DeleteOneAsync(x => x.Id == id);
+        await collection.DeleteOneAsync(x => x.Id.ToString() == id);
         return TypedResults.NoContent();
     }
 

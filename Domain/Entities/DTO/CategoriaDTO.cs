@@ -1,4 +1,4 @@
-﻿namespace TechChallenge_LanchoneteTotem.Model.DTO
+﻿namespace Domain.Entities.DTO
 {
     public class CategoriaDTO
     {
@@ -9,6 +9,6 @@
         public CategoriaDTO() { }
 
         public CategoriaDTO(Categoria categoria) =>
-            (Id, Nome) = (categoria.Id, categoria.Nome);
+            (Id, Nome) = (categoria.Id.ToString(), categoria.Nome);
     }
 }
