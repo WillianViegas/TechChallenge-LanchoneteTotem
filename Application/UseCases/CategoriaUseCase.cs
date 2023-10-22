@@ -19,41 +19,86 @@ namespace Application.UseCases
 
         public async Task<Categoria> CreateCategoria(Categoria categoria)
         {
-            categoria.Ativa = true;
-            return await _categoriaRepository.CreateCategoria(categoria);
+            try
+            {
+                categoria.Ativa = true;
+                return await _categoriaRepository.CreateCategoria(categoria);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task DeleteCategoria(string id)
         {
-            await _categoriaRepository.DeleteCategoria(id);
+            try
+            {
+                await _categoriaRepository.DeleteCategoria(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<IList<Categoria>> GetAllCategorias()
         {
-            return await _categoriaRepository.GetAllCategorias();
+            try
+            {
+                return await _categoriaRepository.GetAllCategorias();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<CategoriaDTO> GetCategoriaById(string id)
         {
-            var categoria = await _categoriaRepository.GetCategoriaById(id);
+            try
+            {
+                var categoria = await _categoriaRepository.GetCategoriaById(id);
+                if (categoria is null) return new CategoriaDTO();
 
-            if (categoria is null) return new CategoriaDTO();
-
-            return new CategoriaDTO(categoria);
+                return new CategoriaDTO(categoria);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<CategoriaDTO> GetCategoriaByNome(string nome)
         {
-            var categoria = await _categoriaRepository.GetCategoriaByNome(nome);
+            try
+            {
+                var categoria = await _categoriaRepository.GetCategoriaByNome(nome);
+                if (categoria is null) return new CategoriaDTO();
 
-            if (categoria is null) return new CategoriaDTO();
-
-            return new CategoriaDTO(categoria);
+                return new CategoriaDTO(categoria);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task UpdateCategoria(string id, Categoria categoria)
         {
-            await _categoriaRepository.UpdateCategoria(id, categoria);
+            try
+            {
+                var categoriaOriginal = await _categoriaRepository.GetCategoriaById(id);
+                if (categoriaOriginal is null) throw new Exception("Categoria não encontrada");
+
+                categoriaOriginal.Nome = categoria.Nome;
+                categoriaOriginal.Ativa = categoria.Ativa;
+                await _categoriaRepository.UpdateCategoria(id, categoriaOriginal);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

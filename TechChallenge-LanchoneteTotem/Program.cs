@@ -274,54 +274,96 @@ static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCa
 
 static async Task<IResult> GetAllCategorias(ICategoriaUseCase categoriaUseCase)
 {
-    var categorias = await categoriaUseCase.GetAllCategorias();
-    return TypedResults.Ok(categorias.Select(x => new CategoriaDTO(x)).ToArray());
+    try
+    {
+        var categorias = await categoriaUseCase.GetAllCategorias();
+        return TypedResults.Ok(categorias.Select(x => new CategoriaDTO(x)).ToArray());
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetCategoriaById(string id, ICategoriaUseCase categoriaUseCase)
 {
-    var categoria = await categoriaUseCase.GetCategoriaById(id);
+    try
+    {
+        var categoria = await categoriaUseCase.GetCategoriaById(id);
+        if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
 
-    if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
-
-    return TypedResults.Ok(categoria);
+        return TypedResults.Ok(categoria);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetCategoriaByNome(string nome, ICategoriaUseCase categoriaUseCase)
 {
-    var categoria = await categoriaUseCase.GetCategoriaByNome(nome);
+    try
+    {
+        var categoria = await categoriaUseCase.GetCategoriaByNome(nome);
+        if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
 
-    if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
-
-    return TypedResults.Ok(categoria);
+        return TypedResults.Ok(categoria);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> CreateCategoria(Categoria categoria, ICategoriaUseCase categoriaUseCase)
 {
-    await categoriaUseCase.CreateCategoria(categoria);
-
-    return TypedResults.Created($"/categoria/{categoria.Id}", categoria);
+    try
+    {
+        await categoriaUseCase.CreateCategoria(categoria);
+        return TypedResults.Created($"/categoria/{categoria.Id}", categoria);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, ICategoriaUseCase categoriaUseCase)
 {
-    var categoria = await categoriaUseCase.GetCategoriaById(id);
+    try
+    {
+        var categoria = await categoriaUseCase.GetCategoriaById(id);
+        if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
 
-    if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
-
-    await categoriaUseCase.UpdateCategoria(id, categoriaInput);
-    return TypedResults.NoContent();
+        await categoriaUseCase.UpdateCategoria(id, categoriaInput);
+        return TypedResults.NoContent();
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categoriaUseCase)
 {
-    if (await categoriaUseCase.GetCategoriaById(id) is CategoriaDTO categoria)
+    try
     {
+        var categoria = await categoriaUseCase.GetCategoriaById(id);
+        if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
+
         await categoriaUseCase.DeleteCategoria(id);
         return TypedResults.NoContent();
     }
-
-    return TypedResults.NotFound();
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 #endregion
 

@@ -21,46 +21,33 @@ namespace Infra.Repositories
 
         public async Task<IList<Categoria>> GetAllCategorias()
         {
-            return  await _collection.Find(_ => true).ToListAsync();
+            return await _collection.Find(_ => true).ToListAsync();
         }
 
         public async Task<Categoria> GetCategoriaById(string id)
         {
-            var categoria = await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-
-            return categoria;
+            return await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
         }
 
         public async Task<Categoria> GetCategoriaByNome(string nome)
         {
-            var categoria = await _collection.Find(x => x.Nome.ToUpper() == nome.ToUpper()).FirstOrDefaultAsync();
-
-            return categoria;
+            return await _collection.Find(x => x.Nome.ToUpper() == nome.ToUpper()).FirstOrDefaultAsync();
         }
 
         public async Task<Categoria> CreateCategoria(Categoria categoria)
         {
             await _collection.InsertOneAsync(categoria);
-
             return categoria;
         }
 
         public async Task UpdateCategoria(string id, Categoria categoria)
         {
-            var categoriaOriginal = await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-
-            categoriaOriginal.Nome = categoria.Nome;
-            categoriaOriginal.Ativa = categoria.Ativa;
-
-            await _collection.ReplaceOneAsync(x => x.Id.ToString() == id, categoriaOriginal);
+            await _collection.ReplaceOneAsync(x => x.Id.ToString() == id, categoria);
         }
 
         public async Task DeleteCategoria(string id)
         {
-            if (await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Categoria categoria)
-            {
-                await _collection.DeleteOneAsync(x => x.Id.ToString() == id);
-            }
+            await _collection.DeleteOneAsync(x => x.Id.ToString() == id);
         }
     }
 }

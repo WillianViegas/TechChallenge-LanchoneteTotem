@@ -110,6 +110,7 @@ namespace Application.UseCases
             try
             {
                 var usuarioOriginal = await _usuarioRepository.GetUsuarioById(id);
+                if (usuarioOriginal is null) throw new Exception("Usuario não encontrado");
 
                 usuarioOriginal.Nome = usuarioDTO.Nome;
                 usuarioOriginal.Email = usuarioDTO.Email;
