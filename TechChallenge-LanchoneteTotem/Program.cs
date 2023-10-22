@@ -371,61 +371,111 @@ static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categori
 
 static async Task<IResult> GetAllProdutos(IProdutoUseCase produtoUseCase)
 {
-    var produtos = await produtoUseCase.GetAllProdutos();
-    return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
+    try
+    {
+        var produtos = await produtoUseCase.GetAllProdutos();
+        return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
+    }
+    catch(Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetProdutoById(string id, IProdutoUseCase produtoUseCase)
 {
-    var produto = await produtoUseCase.GetProdutoById(id);
+    try
+    {
+        var produto = await produtoUseCase.GetProdutoById(id);
+        if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
 
-    if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
-
-    return TypedResults.Ok(produto);
+        return TypedResults.Ok(produto);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 
 static async Task<IResult> GetAllProdutosPorCategoria(string id, IProdutoUseCase produtoUseCase)
 {
-    var produtos = await produtoUseCase.GetAllProdutosPorCategoria(id);
-    return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
+    try
+    {
+        var produtos = await produtoUseCase.GetAllProdutosPorCategoria(id);
+        return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetProdutoByNome(string nome, IProdutoUseCase produtoUseCase)
 {
-    var produto = await produtoUseCase.GetProdutoByNome(nome);
+    try
+    {
+        var produto = await produtoUseCase.GetProdutoByNome(nome);
+        if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
 
-    if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
-
-    return TypedResults.Ok(produto);
+        return TypedResults.Ok(produto);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> CreateProduto(Produto produto, IProdutoUseCase produtoUseCase)
 {
-    await produtoUseCase.CreateProduto(produto);
-    return TypedResults.Created($"/categoria/{produto.Id}", produto);
+    try
+    {
+        await produtoUseCase.CreateProduto(produto);
+        return TypedResults.Created($"/categoria/{produto.Id}", produto);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IProdutoUseCase produtoUseCase)
 {
-    var produto = await produtoUseCase.GetProdutoById(id);
+    try
+    {
+        var produto = await produtoUseCase.GetProdutoById(id);
+        if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
 
-    if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
-
-    await produtoUseCase.UpdateProduto(id, produtoInput);
-
-    return TypedResults.NoContent();
+        await produtoUseCase.UpdateProduto(id, produtoInput);
+        return TypedResults.NoContent();
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCase)
 {
-    if (await produtoUseCase.GetProdutoById(id) is ProdutoDTO produto)
+    try
     {
+        var produto = await produtoUseCase.GetProdutoById(id);
+        if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
+
         await produtoUseCase.DeleteProduto(id);
         return TypedResults.NoContent();
     }
-
-    return TypedResults.NotFound();
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 #endregion
 

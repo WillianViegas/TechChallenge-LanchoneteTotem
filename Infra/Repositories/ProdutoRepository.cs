@@ -42,7 +42,6 @@ namespace Infra.Repositories
         public async Task<Produto> CreateProduto(Produto produto)
         {
             await _collection.InsertOneAsync(produto);
-
             return produto;
         }
 

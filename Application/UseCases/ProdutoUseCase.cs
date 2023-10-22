@@ -18,54 +18,99 @@ namespace Application.UseCases
 
         public async Task<ProdutoDTO> CreateProduto(Produto produto)
         {
-            return new ProdutoDTO( await _produtoRepository.CreateProduto(produto));
+            try
+            {
+                return new ProdutoDTO(await _produtoRepository.CreateProduto(produto));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task DeleteProduto(string id)
         {
-            await _produtoRepository.DeleteProduto(id);
+            try
+            {
+                await _produtoRepository.DeleteProduto(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<IList<Produto>> GetAllProdutos()
         {
-            return await _produtoRepository.GetAllProdutos();
+            try
+            {
+                return await _produtoRepository.GetAllProdutos();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<ProdutoDTO> GetProdutoById(string id)
         {
-            var produto = await _produtoRepository.GetProdutoById(id);
+            try
+            {
+                var produto = await _produtoRepository.GetProdutoById(id);
+                if (produto == null) return new ProdutoDTO();
 
-            if (produto == null) return new ProdutoDTO();
-
-            return new ProdutoDTO(await _produtoRepository.GetProdutoById(id));
+                return new ProdutoDTO(await _produtoRepository.GetProdutoById(id));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<IList<Produto>> GetAllProdutosPorCategoria(string id)
         {
-            return await _produtoRepository.GetAllProdutosPorCategoria(id);
+            try
+            {
+                return await _produtoRepository.GetAllProdutosPorCategoria(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<ProdutoDTO> GetProdutoByNome(string nome)
         {
-            var produto = await _produtoRepository.GetProdutoByNome(nome);
+            try
+            {
+                var produto = await _produtoRepository.GetProdutoByNome(nome);
+                if (produto == null) return new ProdutoDTO();
 
-            if (produto == null) return new ProdutoDTO();
-
-            return new ProdutoDTO(produto);
+                return new ProdutoDTO(produto);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task UpdateProduto(string id, Produto produtoInput)
         {
-            var produto = await _produtoRepository.GetProdutoById(id);
-
-            if (produto != null)
+            try
             {
+                var produto = await _produtoRepository.GetProdutoById(id);
+                if (produto is null) throw new Exception("Produto não encontrado");
+
                 produto.Nome = produtoInput.Nome;
                 produto.Descricao = produtoInput.Descricao;
                 produto.Preco = produtoInput.Preco;
                 produto.CategoriaId = produtoInput.CategoriaId is null ? produto.CategoriaId : produtoInput.CategoriaId;
 
                 await _produtoRepository.UpdateProduto(id, produto);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
     }
