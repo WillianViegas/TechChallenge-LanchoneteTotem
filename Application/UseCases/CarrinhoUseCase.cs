@@ -148,6 +148,8 @@ namespace Application.UseCases
             try
             {
                 var carrinhoOriginal = await _carrinhoRepository.GetCarrinhoById(id);
+                if (carrinhoOriginal is null) throw new Exception("Carrinho não encontrado");
+
                 carrinhoOriginal.Produtos = carrinho.Produtos;
                 carrinhoOriginal.Total = carrinho.Produtos.Sum(x => x.Preco);
 

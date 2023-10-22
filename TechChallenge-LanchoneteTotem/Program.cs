@@ -579,75 +579,136 @@ static async Task<IResult> DeleteCarrinho(string id, ICarrinhoUseCase carrinhoUs
 #region Pedido
 static async Task<IResult> GetAllPedidosAtivos(IPedidoUseCase pedidoUseCase)
 {
-    var pedidos = await pedidoUseCase.GetAllPedidosAtivos();
-    return TypedResults.Ok(pedidos);
+    try
+    {
+        var pedidos = await pedidoUseCase.GetAllPedidosAtivos();
+        return TypedResults.Ok(pedidos);
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetAllPedidos(IPedidoUseCase pedidoUseCase)
 {
-    var pedidos = await pedidoUseCase.GetAllPedidos();
-    return TypedResults.Ok(pedidos);
+    try
+    {
+        var pedidos = await pedidoUseCase.GetAllPedidos();
+        return TypedResults.Ok(pedidos);
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetPedidoById(string id, IPedidoUseCase pedidoUseCase)
 {
-    var pedido = await pedidoUseCase.GetPedidoById(id);
+    try
+    {
+        var pedido = await pedidoUseCase.GetPedidoById(id);
+        if (pedido is null || string.IsNullOrEmpty(pedido.Id)) return TypedResults.NotFound("Pedido não encontrado.");
 
-    if (pedido is null || string.IsNullOrEmpty(pedido.Id)) return TypedResults.NotFound();
-
-    return TypedResults.Ok(pedido);
+        return TypedResults.Ok(pedido);
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 
 
 static async Task<IResult> CreatePedidoFromCarrinho(string idCarrinho, IPedidoUseCase pedidoUseCase, ICarrinhoUseCase carrinhoUseCase)
 {
-    if (await carrinhoUseCase.GetCarrinhoById(idCarrinho) is Carrinho carrinho)
+    try
     {
-        var pedido = await pedidoUseCase.CreatePedidoFromCarrinho(carrinho);
-        return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
-    }
+        if (await carrinhoUseCase.GetCarrinhoById(idCarrinho) is Carrinho carrinho)
+        {
+            var pedido = await pedidoUseCase.CreatePedidoFromCarrinho(carrinho);
+            return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+        }
 
-    return TypedResults.NotFound();
+        return TypedResults.NotFound();
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> CreatePedido(Pedido pedidoInput, IPedidoUseCase pedidoUseCase)
 {
-    var pedido = await pedidoUseCase.CreatePedido(pedidoInput);
-    return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+    try
+    {
+        var pedido = await pedidoUseCase.CreatePedido(pedidoInput);
+        return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 
 
 static async Task<IResult> ConfirmarPedido(string id, IPedidoUseCase pedidoUseCase)
 {
-    var pedido = await pedidoUseCase.ConfirmarPedido(id);
-    return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+    try
+    {
+        var pedido = await pedidoUseCase.ConfirmarPedido(id);
+        return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IPedidoUseCase pedidoUseCase)
 {
-    pedidoUseCase.UpdatePedido(id, pedidoInput);
-    return TypedResults.NoContent();
+    try
+    {
+        var pedido = await pedidoUseCase.GetPedidoById(id);
+        if (pedido is null || string.IsNullOrEmpty(pedido.Id)) return TypedResults.NotFound("Pedido não encontrado.");
+
+        await pedidoUseCase.UpdatePedido(id, pedidoInput);
+        return TypedResults.NoContent();
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> UpdateStatusPedido(string id, int status, IPedidoUseCase pedidoUseCase)
 {
-    if (await pedidoUseCase.GetPedidoById(id) is Pedido pedido)
+    try
     {
-        pedidoUseCase.UpdateStatusPedido(id, status);
+        var pedido = await pedidoUseCase.GetPedidoById(id);
+        if (pedido is null || string.IsNullOrEmpty(pedido.Id)) return TypedResults.NotFound("Pedido não encontrado.");
+
+        await pedidoUseCase.UpdateStatusPedido(id, status);
         return TypedResults.NoContent();
     }
-
-    return TypedResults.NotFound();
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> DeletePedido(string id, IPedidoUseCase pedidoUseCase)
 {
-    if (await pedidoUseCase.GetPedidoById(id) is Pedido pedido)
+    try
     {
-        pedidoUseCase.DeletePedido(id);
+        var pedido = await pedidoUseCase.GetPedidoById(id);
+        if (pedido is null || string.IsNullOrEmpty(pedido.Id)) return TypedResults.NotFound("Pedido não encontrado.");
+
+        await pedidoUseCase.DeletePedido(id);
         return TypedResults.NoContent();
     }
-    
-    return TypedResults.NotFound();
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message);
+    }
 }
 #endregion
