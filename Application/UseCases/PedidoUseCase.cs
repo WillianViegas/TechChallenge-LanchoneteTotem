@@ -48,14 +48,8 @@ namespace Application.UseCases
             return pedido;
         }
 
-        public async Task<Pedido> CreatePedido(string carrinhoId)
+        public async Task<Pedido> CreatePedidoFromCarrinho(Carrinho carrinho)
         {
-            //pensar em desvincular o pedido do carrinho para a criação
-
-            var carrinho = await _carrinhoRepository.GetCarrinhoById(carrinhoId);
-
-            if (carrinho is null) return null;
-
             var numeroPedido = await _pedidoRepository.GetAllPedidos();
 
             var pedido = new Pedido
@@ -66,12 +60,32 @@ namespace Application.UseCases
                 DataCriacao = DateTime.Now,
                 Numero = numeroPedido.Count + 1,
                 Usuario = carrinho.Usuario,
-                IdCarrinho = carrinhoId
+                IdCarrinho = carrinho.Id
             };
 
             await _pedidoRepository.CreatePedido(pedido);
 
             return pedido;
+        }
+
+        public async Task<Pedido> CreatePedido(Pedido pedido)
+        {
+            var numeroPedido = await _pedidoRepository.GetAllPedidos();
+
+            var novoPedido = new Pedido
+            {
+                Produtos = pedido.Produtos,
+                Total = pedido.Produtos.Sum(x => x.Preco),
+                Status = 0,
+                DataCriacao = DateTime.Now,
+                Numero = numeroPedido.Count + 1,
+                Usuario = pedido.Usuario,
+                IdCarrinho = pedido.IdCarrinho
+            };
+
+            await _pedidoRepository.CreatePedido(novoPedido);
+
+            return novoPedido;
         }
 
         public async Task DeletePedido(string id)

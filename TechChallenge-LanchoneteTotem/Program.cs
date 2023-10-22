@@ -5,11 +5,15 @@ using Domain.Entities.DTO;
 using Domain.Repositories;
 using Infra.Configurations;
 using Infra.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using TechChallenge_LanchoneteTotem.Model;
 using static Domain.Entities.Pedido;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +46,34 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSwaggerGen(x =>
+{
+    x.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the bearer scheme",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+});
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+  .AddPolicy("token_admin", policy =>
+        policy
+            .RequireRole("admin")
+            .RequireClaim("scope", "token"));
+
+//torna obrigatorio o authorize em todas as requisições
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+//    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+//    .RequireAuthenticatedUser()
+//    .Build();
+//});
+
 var app = builder.Build();
 
 
@@ -49,10 +81,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
 }
 
 
-app.MapGet("/teste", GetTeste).WithName("GetTeste").WithOpenApi();
+app.MapGet("/teste", GetTeste).WithName("GetTeste").WithOpenApi().RequireAuthorization("token_admin");
 
 #region endpoint Usuario
 var usuarios = app.MapGroup("/usuario");
@@ -82,7 +117,7 @@ var produtos = app.MapGroup("/produto");
 
 produtos.MapGet("/", GetAllProdutos).WithName("GetAllProdutos").WithOpenApi();
 produtos.MapGet("/{id}", GetProdutoById).WithName("GetProdutoById").WithOpenApi();
-produtos.MapGet("/nome/{id}", GetProdutoByNome).WithName("GetProdutoByNome").WithOpenApi();
+produtos.MapGet("/nome/{nome}", GetProdutoByNome).WithName("GetProdutoByNome").WithOpenApi();
 produtos.MapGet("/categoria/{id}", GetAllProdutosPorCategoria).WithName("GetAllProdutosPorCategoria").WithOpenApi();
 produtos.MapPost("/", CreateProduto).WithName("CreateProduto").WithOpenApi();
 produtos.MapPut("/{id}", UpdateProduto).WithName("UpdateProduto").WithOpenApi();
@@ -107,6 +142,7 @@ pedido.MapGet("/ativos", GetAllPedidosAtivos).WithName("GetAllPedidosAtivos").Wi
 pedido.MapGet("/", GetAllPedidos).WithName("GetAllPedidos").WithOpenApi();
 pedido.MapGet("/{id}", GetPedidoById).WithName("GetPedidoById").WithOpenApi();
 pedido.MapPost("/", CreatePedido).WithName("CreatePedido").WithOpenApi();
+pedido.MapPost("/fromCarrinho", CreatePedidoFromCarrinho).WithName("CreatePedidoFromCarrinho").WithOpenApi();
 pedido.MapPost("/confirmar/{id}", ConfirmarPedido).WithName("ConfirmarPedido").WithOpenApi();
 pedido.MapPut("/{id}", UpdatePedido).WithName("UpdatePedido").WithOpenApi();
 pedido.MapPut("/status/{id}", UpdateStatusPedido).WithName("UpdateStatusPedido").WithOpenApi();
@@ -220,7 +256,7 @@ static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, 
 {
     var categoria = await categoriaUseCase.GetCategoriaById(id);
 
-    if (categoria is null) return TypedResults.NotFound();
+    if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
 
     await categoriaUseCase.UpdateCategoria(id, categoriaInput);
     return TypedResults.NoContent();
@@ -250,7 +286,7 @@ static async Task<IResult> GetProdutoById(string id, IProdutoUseCase produtoUseC
 {
     var produto = await produtoUseCase.GetProdutoById(id);
 
-    if (produto is null) return TypedResults.NotFound();
+    if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
 
     return TypedResults.Ok(produto);
 }
@@ -266,7 +302,7 @@ static async Task<IResult> GetProdutoByNome(string nome, IProdutoUseCase produto
 {
     var produto = await produtoUseCase.GetProdutoByNome(nome);
 
-    if (produto is null) return TypedResults.NotFound();
+    if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
 
     return TypedResults.Ok(produto);
 }
@@ -281,7 +317,7 @@ static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IProdu
 {
     var produto = await produtoUseCase.GetProdutoById(id);
 
-    if (produto is null) return TypedResults.NotFound();
+    if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
 
     await produtoUseCase.UpdateProduto(id, produtoInput);
 
@@ -305,7 +341,7 @@ static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCa
 static async Task<IResult> GetCarrinhoById(string id, ICarrinhoUseCase carrinhoUseCase)
 {
     var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
-    if (carrinho is null) return TypedResults.NotFound();
+    if (carrinho is null || string.IsNullOrEmpty(carrinho.Id)) return TypedResults.NotFound();
     return TypedResults.Ok(carrinho);
 }
 
@@ -317,12 +353,12 @@ static async Task<IResult> CreateCarrinho(Carrinho carrinho, ICarrinhoUseCase ca
 }
 
 
-static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, string idProduto, string idCarrinho, int quantidade = 1)
+static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, CarrinhoBody carrinhoBody)
 {
     //melhorar
     try
     {
-        var carrinho = await carrinhoUseCase.AddProdutoCarrinho(idProduto, idCarrinho, quantidade);
+        var carrinho = await carrinhoUseCase.AddProdutoCarrinho(carrinhoBody.IdProduto, carrinhoBody.IdCarrinho, carrinhoBody.Quantidade);
         return TypedResults.Ok(carrinho);
     }
     catch(Exception ex)
@@ -332,12 +368,12 @@ static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, 
    
 }
 
-static async Task<IResult> RemoveProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, string idProduto, string idCarrinho, int quantidade = 1)
+static async Task<IResult> RemoveProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, CarrinhoBody carrinhoBody)
 {
     //melhorar
     try
     {
-        var carrinho = await carrinhoUseCase.RemoveProdutoCarrinho(idProduto, idCarrinho, quantidade);
+        var carrinho = await carrinhoUseCase.RemoveProdutoCarrinho(carrinhoBody.IdProduto, carrinhoBody.IdCarrinho, carrinhoBody.Quantidade);
         return TypedResults.Ok(carrinho);
     }
     catch (Exception ex)
@@ -387,15 +423,26 @@ static async Task<IResult> GetPedidoById(string id, IPedidoUseCase pedidoUseCase
 {
     var pedido = await pedidoUseCase.GetPedidoById(id);
 
-    if (pedido is null) return TypedResults.NotFound();
+    if (pedido is null || string.IsNullOrEmpty(pedido.Id)) return TypedResults.NotFound();
 
     return TypedResults.Ok(pedido);
 }
 
 
-static async Task<IResult> CreatePedido(string idCarrinho, IPedidoUseCase pedidoUseCase)
+static async Task<IResult> CreatePedidoFromCarrinho(string idCarrinho, IPedidoUseCase pedidoUseCase, ICarrinhoUseCase carrinhoUseCase)
 {
-    var pedido = await pedidoUseCase.CreatePedido(idCarrinho);
+    if (await carrinhoUseCase.GetCarrinhoById(idCarrinho) is Carrinho carrinho)
+    {
+        var pedido = await pedidoUseCase.CreatePedidoFromCarrinho(carrinho);
+        return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+    }
+
+    return TypedResults.NotFound();
+}
+
+static async Task<IResult> CreatePedido(Pedido pedidoInput, IPedidoUseCase pedidoUseCase)
+{
+    var pedido = await pedidoUseCase.CreatePedido(pedidoInput);
     return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
 }
 

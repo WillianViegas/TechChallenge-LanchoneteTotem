@@ -36,7 +36,7 @@ namespace Infra.Repositories
 
         public async Task<Produto> GetProdutoByNome(string nome)
         {
-            return await _collection.Find(x => x.Id.ToString() == nome).FirstOrDefaultAsync(); ;
+            return await _collection.Find(x => x.Nome.ToString() == nome).FirstOrDefaultAsync(); ;
         }
 
         public async Task<Produto> CreateProduto(Produto produto)
