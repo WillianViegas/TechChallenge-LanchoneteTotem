@@ -483,22 +483,38 @@ static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCa
 
 static async Task<IResult> GetCarrinhoById(string id, ICarrinhoUseCase carrinhoUseCase)
 {
-    var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
-    if (carrinho is null || string.IsNullOrEmpty(carrinho.Id)) return TypedResults.NotFound();
-    return TypedResults.Ok(carrinho);
+    try
+    {
+        var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
+        if (carrinho is null || string.IsNullOrEmpty(carrinho.Id)) return TypedResults.NotFound();
+
+        return TypedResults.Ok(carrinho);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 
 static async Task<IResult> CreateCarrinho(Carrinho carrinho, ICarrinhoUseCase carrinhoUseCase)
 {
-    await carrinhoUseCase.CreateCarrinho(carrinho);
-    return TypedResults.Created($"/carrinho/{carrinho.Id}", carrinho);
+    try
+    {
+        await carrinhoUseCase.CreateCarrinho(carrinho);
+        return TypedResults.Created($"/carrinho/{carrinho.Id}", carrinho);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 
-static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, CarrinhoBody carrinhoBody)
+static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, IProdutoUseCase produtoUseCase, CarrinhoBody carrinhoBody)
 {
-    //melhorar
     try
     {
         var carrinho = await carrinhoUseCase.AddProdutoCarrinho(carrinhoBody.IdProduto, carrinhoBody.IdCarrinho, carrinhoBody.Quantidade);
@@ -513,7 +529,6 @@ static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, 
 
 static async Task<IResult> RemoveProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, CarrinhoBody carrinhoBody)
 {
-    //melhorar
     try
     {
         var carrinho = await carrinhoUseCase.RemoveProdutoCarrinho(carrinhoBody.IdProduto, carrinhoBody.IdCarrinho, carrinhoBody.Quantidade);
@@ -528,24 +543,36 @@ static async Task<IResult> RemoveProdutoCarrinho(ICarrinhoUseCase carrinhoUseCas
 
 static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, ICarrinhoUseCase carrinhoUseCase)
 {
-    if (await carrinhoUseCase.GetCarrinhoById(id) is Carrinho carrinho)
+    try
     {
+        var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
+        if (carrinho is null || string.IsNullOrEmpty(carrinho.Id)) return TypedResults.NotFound();
+
         await carrinhoUseCase.UpdateCarrinho(id, carrinhoInput);
         return TypedResults.NoContent();
     }
-
-    return TypedResults.NotFound();
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> DeleteCarrinho(string id, ICarrinhoUseCase carrinhoUseCase)
 {
-    if (await carrinhoUseCase.GetCarrinhoById(id) is Carrinho carrinho)
+    try
     {
+        var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
+        if (carrinho is null || string.IsNullOrEmpty(carrinho.Id)) return TypedResults.NotFound();
+
         await carrinhoUseCase.DeleteCarrinho(id);
         return TypedResults.NoContent();
     }
-   
-    return TypedResults.NotFound();
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 #endregion
 

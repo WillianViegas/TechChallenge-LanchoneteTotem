@@ -21,8 +21,7 @@ namespace Infra.Repositories
 
         public async Task<Carrinho> GetCarrinhoById(string id)
         {
-            var carrinho = await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-            return carrinho;
+            return await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
         }
 
         public async Task<Carrinho> CreateCarrinho(Carrinho carrinho)

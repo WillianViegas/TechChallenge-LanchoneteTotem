@@ -20,107 +20,143 @@ namespace Application.UseCases
 
         public async Task<Carrinho> AddProdutoCarrinho(string idProduto, string idCarrinho, int quantidade = 1)
         {
-            var produto = await _produtoRepository.GetProdutoById(idProduto);
-
-            if (produto is null) throw new Exception("Produto não existe");
-
-            var carrinho = new Carrinho();
-
-            if (string.IsNullOrEmpty(idCarrinho))
+            try
             {
-                var produtoLista = new List<Produto>();
-                //revisar essa parte dps
+                var produto = await _produtoRepository.GetProdutoById(idProduto);
+                if (produto is null) throw new Exception("Produto não existe");
+
+                var carrinho = new Carrinho();
+
+                if (string.IsNullOrEmpty(idCarrinho))
+                {
+                    var produtoLista = new List<Produto>();
+
+                    for (int i = 0; i < quantidade; i++)
+                    {
+                        produtoLista.Add(produto);
+                    }
+
+                    carrinho = new Carrinho()
+                    {
+                        Produtos = produtoLista,
+                        Total = produtoLista.Sum(x => x.Preco),
+                        Ativo = true
+                    };
+
+                    await _carrinhoRepository.CreateCarrinho(carrinho);
+                    return carrinho;
+                }
+
+                carrinho = await GetCarrinhoById(idCarrinho);
 
                 for (int i = 0; i < quantidade; i++)
                 {
-                    produtoLista.Add(produto);
+                    carrinho.Produtos.Add(produto);
                 }
 
-                carrinho = new Carrinho()
-                {
-                    Produtos = produtoLista,
-                    Total = produtoLista.Sum(x => x.Preco),
-                    Ativo = true
-                };
-
-                await _carrinhoRepository.CreateCarrinho(carrinho);
+                carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
+                await UpdateCarrinho(idCarrinho, carrinho);
 
                 return carrinho;
             }
-
-            carrinho = await GetCarrinhoById(idCarrinho);
-
-            for (int i = 0; i < quantidade; i++)
+            catch (Exception ex)
             {
-                carrinho.Produtos.Add(produto);
+                throw new Exception(ex.Message);
             }
-
-            carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
-
-            await UpdateCarrinho(idCarrinho, carrinho);
-
-            return carrinho;
         }
 
         public async Task<Carrinho> CreateCarrinho(Carrinho carrinho)
         {
-            //verifica se o produto existe
-            foreach (var p in carrinho.Produtos)
+            try
             {
-                var produto = await _produtoRepository.GetProdutoById(p.Id);
+                foreach (var p in carrinho.Produtos)
+                {
+                    var produto = await _produtoRepository.GetProdutoById(p.Id);
+                    if (produto is null) throw new Exception("Produto não existe");
+                }
 
-                if (produto is null) return null;
+                carrinho.Ativo = true;
+
+                return await _carrinhoRepository.CreateCarrinho(carrinho);
             }
-
-            carrinho.Ativo = true;
-
-            return await _carrinhoRepository.CreateCarrinho(carrinho);
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task DeleteCarrinho(string id)
         {
-            await _carrinhoRepository.DeleteCarrinho(id);
+            try
+            {
+                await _carrinhoRepository.DeleteCarrinho(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<Carrinho> GetCarrinhoById(string id)
         {
-            return await _carrinhoRepository.GetCarrinhoById(id);
+            try
+            {
+                return await _carrinhoRepository.GetCarrinhoById(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<Carrinho> RemoveProdutoCarrinho(string idProduto, string idCarrinho, int quantidade = 1)
         {
-            var produto = await _produtoRepository.GetProdutoById(idProduto);
-            var carrinho = await GetCarrinhoById(idCarrinho);
-
-            if (produto is null) throw new Exception("Produto não existe");
-            if (carrinho is null) throw new Exception("Carrinho não existe");
-
-            if (!carrinho.Produtos.Any(x => x.Id.ToString() == idProduto)) return null;
-
-
-            for (int i = 0; i < quantidade; i++)
+            try
             {
-                var produtoCarrinho = carrinho.Produtos.FirstOrDefault(x => x.Id.ToString() == idProduto);
+                var produto = await _produtoRepository.GetProdutoById(idProduto);
+                if (produto is null) throw new Exception("Produto não existe");
 
-                if (produtoCarrinho is null) break;
+                var carrinho = await GetCarrinhoById(idCarrinho);
+                if (carrinho is null) throw new Exception("Carrinho não existe");
 
-                carrinho.Produtos.Remove(produtoCarrinho);
+
+                if (!carrinho.Produtos.Any(x => x.Id.ToString() == idProduto)) throw new Exception("O produto não existe no carrinho");
+
+
+                for (int i = 0; i < quantidade; i++)
+                {
+                    var produtoCarrinho = carrinho.Produtos.FirstOrDefault(x => x.Id.ToString() == idProduto);
+
+                    if (produtoCarrinho is null) break;
+
+                    carrinho.Produtos.Remove(produtoCarrinho);
+                }
+
+                carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
+                await UpdateCarrinho(idCarrinho, carrinho);
+
+                return carrinho;
             }
-
-            carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
-
-            await UpdateCarrinho(idCarrinho, carrinho);
-
-            return carrinho;
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task UpdateCarrinho(string id, Carrinho carrinho)
         {
-            var carrinhoOriginal = await _carrinhoRepository.GetCarrinhoById(id);
-            carrinhoOriginal.Produtos = carrinho.Produtos;
-            carrinhoOriginal.Total = carrinho.Produtos.Sum(x => x.Preco);
+            try
+            {
+                var carrinhoOriginal = await _carrinhoRepository.GetCarrinhoById(id);
+                carrinhoOriginal.Produtos = carrinho.Produtos;
+                carrinhoOriginal.Total = carrinho.Produtos.Sum(x => x.Preco);
 
-            await _carrinhoRepository.UpdateCarrinho(id, carrinhoOriginal);
+                await _carrinhoRepository.UpdateCarrinho(id, carrinhoOriginal);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
