@@ -2,6 +2,7 @@
 using Domain.Entities.DTO;
 using Domain.Repositories;
 using Infra.Configurations;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 
@@ -36,7 +37,8 @@ namespace Infra.Repositories
 
         public async Task<Produto> GetProdutoByNome(string nome)
         {
-            return await _collection.Find(x => x.Nome.ToString() == nome).FirstOrDefaultAsync(); ;
+            var filter = new BsonDocument { { "Nome", new BsonDocument { { "$regex", nome }, { "$options", "i" } } } };
+            return await _collection.Find(filter).FirstOrDefaultAsync();
         }
 
         public async Task<Produto> CreateProduto(Produto produto)
