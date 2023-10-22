@@ -1,4 +1,5 @@
-﻿using Application.UseCases.Interfaces;
+﻿using Amazon.Runtime.Internal.Util;
+using Application.UseCases.Interfaces;
 using Domain.Entities;
 using Domain.Entities.DTO;
 using Domain.Repositories;
@@ -18,51 +19,108 @@ namespace Application.UseCases
 
         public async Task<UsuarioDTO> CreateUsuario(UsuarioDTO usuarioDTO)
         {
-            var usuario = new Usuario
+            try
             {
-                Nome = usuarioDTO.Nome,
-                CPF = usuarioDTO.CPF,
-                Email = usuarioDTO.Email
-            };
+                var usuario = new Usuario
+                {
+                    Nome = usuarioDTO.Nome,
+                    CPF = usuarioDTO.CPF,
+                    Email = usuarioDTO.Email
+                };
 
-            return await _usuarioRepository.CreateUsuario(usuario);
+                return new UsuarioDTO(await _usuarioRepository.CreateUsuario(usuario));
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task DeleteUsuario(string id)
         {
-            await _usuarioRepository.DeleteUsuario(id);
+            try
+            {
+                await _usuarioRepository.DeleteUsuario(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<IList<Usuario>> GetAllUsuarios()
         {
-            return await _usuarioRepository.GetAllUsuarios();
+            try
+            {
+                return await _usuarioRepository.GetAllUsuarios();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<UsuarioDTO> GetUsuarioByCPF(string cpf)
         {
-            return await _usuarioRepository.GetUsuarioByCPF(cpf);
+            try
+            {
+                var usuario = await _usuarioRepository.GetUsuarioByCPF(cpf);
+                if (usuario == null) return new UsuarioDTO();
+
+                return new UsuarioDTO(usuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<UsuarioDTO> GetUsuarioByEmail(string email)
         {
-            return await _usuarioRepository.GetUsuarioByEmail(email);
+            try
+            {
+                var usuario = await _usuarioRepository.GetUsuarioByEmail(email);
+                if (usuario == null) return new UsuarioDTO();
+
+                return new UsuarioDTO(usuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<UsuarioDTO> GetUsuarioById(string id)
         {
-            return await _usuarioRepository.GetUsuarioById(id);
+            try
+            {
+                var usuario = await _usuarioRepository.GetUsuarioById(id);
+                if (usuario == null) return new UsuarioDTO();
+
+                return new UsuarioDTO(usuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task UpdateUsuario(string id, UsuarioDTO usuarioDTO)
         {
-            var usuario = new Usuario
+            try
             {
-                Nome = usuarioDTO.Nome,
-                CPF = usuarioDTO.CPF,
-                Email = usuarioDTO.Email
-            };
+                var usuarioOriginal = await _usuarioRepository.GetUsuarioById(id);
 
-            await _usuarioRepository.UpdateUsuario(id, usuario);
+                usuarioOriginal.Nome = usuarioDTO.Nome;
+                usuarioOriginal.Email = usuarioDTO.Email;
+                usuarioOriginal.CPF = usuarioDTO.CPF;
+
+                await _usuarioRepository.UpdateUsuario(id, usuarioOriginal);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

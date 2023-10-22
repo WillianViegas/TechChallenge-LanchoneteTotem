@@ -25,50 +25,35 @@ namespace Infra.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
-        public async Task<UsuarioDTO> GetUsuarioById(string id)
+        public async Task<Usuario> GetUsuarioById(string id)
         {
-            var usuario = await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-            return new UsuarioDTO(usuario);
+            return await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
         }
 
-        public async Task<UsuarioDTO> GetUsuarioByCPF(string cpf)
+        public async Task<Usuario> GetUsuarioByCPF(string cpf)
         {
-            var usuario = await _collection.Find(x => x.CPF == cpf).FirstOrDefaultAsync();
-            return new UsuarioDTO(usuario);
+            return await _collection.Find(x => x.CPF == cpf).FirstOrDefaultAsync();
         }
 
-        public async Task<UsuarioDTO> GetUsuarioByEmail(string email)
+        public async Task<Usuario> GetUsuarioByEmail(string email)
         {
-            var usuario = await _collection.Find(x => x.Email == email).FirstOrDefaultAsync();
-            return new UsuarioDTO(usuario);
+            return await _collection.Find(x => x.Email == email).FirstOrDefaultAsync();
         }
 
-        public async Task<UsuarioDTO> CreateUsuario(Usuario usuario)
+        public async Task<Usuario> CreateUsuario(Usuario usuario)
         {
             await _collection.InsertOneAsync(usuario);
-
-            var usuarioDTO = new UsuarioDTO(usuario);
-
-            return usuarioDTO;
+            return usuario;
         }
 
         public async Task UpdateUsuario(string id, Usuario usuario)
         {
-            var usuarioOriginal = await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-
-            usuarioOriginal.Nome = usuario.Nome;
-            usuarioOriginal.Email = usuario.Email;
-            usuarioOriginal.CPF = usuario.CPF;
-
-            await _collection.ReplaceOneAsync(x => x.Id.ToString() == id, usuarioOriginal);
+            await _collection.ReplaceOneAsync(x => x.Id.ToString() == id, usuario);
         }
 
         public async Task DeleteUsuario(string id)
         {
-            if (await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync() is Usuario usuario)
-            {
-                await _collection.DeleteOneAsync(x => x.Id.ToString() == id);
-            }
+            await _collection.DeleteOneAsync(x => x.Id.ToString() == id);
         }
     }
 }

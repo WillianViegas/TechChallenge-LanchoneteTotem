@@ -159,63 +159,114 @@ static async Task<IResult> GetTeste(IMongoCollection<Categoria> collection)
 #region Usuario
 static async Task<IResult> GetAllUsuarios(IUsuarioUseCase usuarioUseCase)
 {
-    var usuarios = await usuarioUseCase.GetAllUsuarios();
-    return TypedResults.Ok(usuarios.Select(x => new UsuarioDTO(x)).ToArray());
+    try
+    {
+        var usuarios = await usuarioUseCase.GetAllUsuarios();
+        if (!usuarios.Any()) return TypedResults.NotFound("Nenhum usuário encontrado");
+
+        return TypedResults.Ok(usuarios.Select(x => new UsuarioDTO(x)).ToArray());
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetUsuarioById(string id, IUsuarioUseCase usuarioUseCase)
 {
-    var usuario = await usuarioUseCase.GetUsuarioById(id);
+    try
+    {
+        var usuario = await usuarioUseCase.GetUsuarioById(id);
+        if (usuario is null || string.IsNullOrEmpty(usuario.Id)) return TypedResults.NotFound("Usuário não encontrado");
 
-    if (usuario is null) return TypedResults.NotFound();
-
-    return TypedResults.Ok(usuario);
+        return TypedResults.Ok(usuario);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetUsuarioByCPF(string cpf, IUsuarioUseCase usuarioUseCase)
 {
-    var usuario = await usuarioUseCase.GetUsuarioByCPF(cpf);
+    try
+    {
+        var usuario = await usuarioUseCase.GetUsuarioByCPF(cpf);
+        if (usuario is null || string.IsNullOrEmpty(usuario.Id)) return TypedResults.NotFound("Usuário não encontrado");
 
-    if (usuario is null) return TypedResults.NotFound();
-
-    return TypedResults.Ok(usuario);
+        return TypedResults.Ok(usuario);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> GetUsuarioByEmail(string email, IUsuarioUseCase usuarioUseCase)
 {
-    var usuario = await usuarioUseCase.GetUsuarioByEmail(email);
+    try
+    {
+        var usuario = await usuarioUseCase.GetUsuarioByEmail(email);
+        if (usuario is null || string.IsNullOrEmpty(usuario.Id)) return TypedResults.NotFound("Usuário não encontrado");
 
-    if (usuario is null) return TypedResults.NotFound();
-
-    return TypedResults.Ok(usuario);
+        return TypedResults.Ok(usuario);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> CreateUsuario(UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase)
 {
-    usuarioDTO = await usuarioUseCase.CreateUsuario(usuarioDTO);
-
-    return TypedResults.Created($"/usuario/{usuarioDTO.Id}", usuarioDTO);
+    try
+    {
+        usuarioDTO = await usuarioUseCase.CreateUsuario(usuarioDTO);
+        return TypedResults.Created($"/usuario/{usuarioDTO.Id}", usuarioDTO);
+    }
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> UpdateUsuario(string id, UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase)
 {
-    if (await usuarioUseCase.GetUsuarioById(id) is UsuarioDTO usuario)
+    try
     {
-        usuarioUseCase.UpdateUsuario(id, usuarioDTO);
+        var usuario = await usuarioUseCase.GetUsuarioById(id);
+        if (usuario is null || string.IsNullOrEmpty(usuario.Id)) return TypedResults.NotFound("Usuário não encontrado");
+
+        await usuarioUseCase.UpdateUsuario(id, usuarioDTO);
         return TypedResults.NoContent();
     }
-    return TypedResults.NotFound();
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 
 static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCase)
 {
-    if (await usuarioUseCase.GetUsuarioById(id) is UsuarioDTO usuario)
+    try
     {
-        usuarioUseCase.DeleteUsuario(id);
+        var usuario = await usuarioUseCase.GetUsuarioById(id);
+        if (usuario is null || string.IsNullOrEmpty(usuario.Id)) return TypedResults.NotFound("Usuário não encontrado");
+
+        await usuarioUseCase.DeleteUsuario(id);
         return TypedResults.NoContent();
     }
-
-    return TypedResults.NotFound();
+    catch (Exception ex)
+    {
+        //logar dps
+        throw new Exception(ex.Message);
+    }
 }
 #endregion
 
