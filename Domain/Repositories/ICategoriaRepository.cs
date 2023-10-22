@@ -11,8 +11,9 @@ namespace Domain.Repositories
 {
     public interface ICategoriaRepository
     {
-        public IList<Categoria> GetAllCategorias();
+        public Task<IList<Categoria>> GetAllCategorias();
         public Task<Categoria> GetCategoriaById(string id);
+        public Task<Categoria> GetCategoriaByNome(string nome);
         public  Task<Categoria> CreateCategoria(Categoria usuario);
         public  Task UpdateCategoria(string id, Categoria usuario);
         public Task DeleteCategoria(string id);

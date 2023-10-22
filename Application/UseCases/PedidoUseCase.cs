@@ -23,10 +23,9 @@ namespace Application.UseCases
         {
             var pedido = await GetPedidoById(id);
 
-            if (pedido is null) return null;
+            if (pedido is null) throw new Exception("Pedido não existe");
 
             //fazer solicitação do QRCode para pagamento(antes ou durante essa chamada)
-
             //passando status pra pago por enquanto (ver como funciona na api do mercado pago)
             pedido.Status = PedidoStatus.Pago;
             pedido.Pagamento = new Pagamento()
@@ -35,7 +34,7 @@ namespace Application.UseCases
                 QRCodeUrl = "www.usdfhosdfsdhfosdfhsdofhdsfds.com.br",
             };
 
-            _pedidoRepository.UpdatePedido(id, pedido);
+            await _pedidoRepository.UpdatePedido(id, pedido);
 
 
             //desativa o carrinho (pensar se futuramente n é melhor excluir)
@@ -43,7 +42,7 @@ namespace Application.UseCases
             if (carrinho != null)
             {
                 carrinho.Ativo = false;
-                _carrinhoRepository.UpdateCarrinho(carrinho.Id, carrinho);
+                await _carrinhoRepository.UpdateCarrinho(carrinho.Id, carrinho);
             }
 
             return pedido;
@@ -75,14 +74,9 @@ namespace Application.UseCases
             return pedido;
         }
 
-        public async void DeletePedido(string id)
+        public async Task DeletePedido(string id)
         {
-            if (await GetPedidoById(id) is Pedido pedido)
-            {
-                _pedidoRepository.DeletePedido(id);
-            }
-
-            //fazer tratativa pro caso de n achar o id
+            await _pedidoRepository.DeletePedido(id);
         }
 
         public async Task<IList<Pedido>> GetAllPedidos()
@@ -92,7 +86,7 @@ namespace Application.UseCases
 
         public async Task<IList<Pedido>> GetAllPedidosAtivos()
         {
-           var listaPedidosAtivos = await _pedidoRepository.GetAllPedidos();
+            var listaPedidosAtivos = await _pedidoRepository.GetAllPedidos();
             return listaPedidosAtivos.Where(x => x.Status != Pedido.PedidoStatus.Finalizado).ToList();
         }
 
@@ -101,27 +95,21 @@ namespace Application.UseCases
             return await _pedidoRepository.GetPedidoById(id);
         }
 
-        public async void UpdatePedido(string id, Pedido pedidoInput)
+        public async Task UpdatePedido(string id, Pedido pedidoInput)
         {
-            var pedido = await  _pedidoRepository.GetPedidoById(id);
-
-            //if (pedido is null) return null; //tratar retorno
-
+            var pedido = await _pedidoRepository.GetPedidoById(id);
             pedido.Produtos = pedidoInput.Produtos;
             pedido.Total = pedido.Produtos.Sum(x => x.Preco);
             pedido.Usuario = pedidoInput.Usuario;
 
-            _pedidoRepository.UpdatePedido(id, pedido);
+            await _pedidoRepository.UpdatePedido(id, pedido);
         }
 
-        public async void UpdateStatusPedido(string id, int status)
+        public async Task UpdateStatusPedido(string id, int status)
         {
             var pedido = await _pedidoRepository.GetPedidoById(id);
-
-            //if (pedido is null) return null; //tratar retorno
-
             pedido.Status = (Pedido.PedidoStatus)status;
-            _pedidoRepository.UpdatePedido(id, pedido);
+            await _pedidoRepository.UpdatePedido(id, pedido);
         }
     }
 }

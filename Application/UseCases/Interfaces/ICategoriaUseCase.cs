@@ -5,10 +5,11 @@ namespace Application.UseCases.Interfaces
 {
     public interface ICategoriaUseCase
     {
-        public IList<Categoria> GetAllCategorias();
+        public Task<IList<Categoria>> GetAllCategorias();
         public Task<CategoriaDTO> GetCategoriaById(string id);
+        public Task<CategoriaDTO> GetCategoriaByNome(string id);
         public Task<Categoria> CreateCategoria(Categoria categoria);
-        public void UpdateCategoria(string id, Categoria categoria);
-        public void DeleteCategoria(string id);
+        public Task UpdateCategoria(string id, Categoria categoria);
+        public Task DeleteCategoria(string id);
     }
 }

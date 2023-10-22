@@ -11,7 +11,7 @@ namespace Domain.Repositories
 {
     public interface IUsuarioRepository
     {
-        public IList<Usuario> GetAllUsuarios();
+        public Task<IList<Usuario>> GetAllUsuarios();
         public Task<UsuarioDTO> GetUsuarioById(string id);
         public  Task<UsuarioDTO> GetUsuarioByCPF(string cpf);
         public  Task<UsuarioDTO> GetUsuarioByEmail(string email);

@@ -28,8 +28,6 @@ namespace Infra.Repositories
         public async Task<Carrinho> CreateCarrinho(Carrinho carrinho)
         {
             await _collection.InsertOneAsync(carrinho);
-
-
             return carrinho;
         }
 

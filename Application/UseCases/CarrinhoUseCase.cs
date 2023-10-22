@@ -22,8 +22,7 @@ namespace Application.UseCases
         {
             var produto = await _produtoRepository.GetProdutoById(idProduto);
 
-            if (produto is null) return null;
-
+            if (produto is null) throw new Exception("Produto não existe");
 
             var carrinho = new Carrinho();
 
@@ -58,7 +57,7 @@ namespace Application.UseCases
 
             carrinho.Total = carrinho.Produtos.Sum(x => x.Preco);
 
-            UpdateCarrinho(idCarrinho, carrinho);
+            await UpdateCarrinho(idCarrinho, carrinho);
 
             return carrinho;
         }
@@ -80,17 +79,12 @@ namespace Application.UseCases
 
         public async Task DeleteCarrinho(string id)
         {
-            if (await GetCarrinhoById(id) is Carrinho carrinho)
-            {
-                await _carrinhoRepository.DeleteCarrinho(id);
-            }
-
-            //tratar retorno 
+            await _carrinhoRepository.DeleteCarrinho(id);
         }
 
-        public Task<Carrinho> GetCarrinhoById(string id)
+        public async Task<Carrinho> GetCarrinhoById(string id)
         {
-            return _carrinhoRepository.GetCarrinhoById(id);
+            return await _carrinhoRepository.GetCarrinhoById(id);
         }
 
         public async Task<Carrinho> RemoveProdutoCarrinho(string idProduto, string idCarrinho, int quantidade = 1)
@@ -98,8 +92,8 @@ namespace Application.UseCases
             var produto = await _produtoRepository.GetProdutoById(idProduto);
             var carrinho = await GetCarrinhoById(idCarrinho);
 
-            if (produto is null) return null;
-            if (carrinho is null) return null; //validar dps 
+            if (produto is null) throw new Exception("Produto não existe");
+            if (carrinho is null) throw new Exception("Carrinho não existe");
 
             if (!carrinho.Produtos.Any(x => x.Id.ToString() == idProduto)) return null;
 
@@ -123,10 +117,7 @@ namespace Application.UseCases
         public async Task UpdateCarrinho(string id, Carrinho carrinho)
         {
             var carrinhoOriginal = await _carrinhoRepository.GetCarrinhoById(id);
-
-            //if (carrinhoOriginal is null) return null; //validar isso na useCase dps
-
-            carrinhoOriginal.Produtos = carrinho.Produtos; //validar remoção da quantidade;
+            carrinhoOriginal.Produtos = carrinho.Produtos;
             carrinhoOriginal.Total = carrinho.Produtos.Sum(x => x.Preco);
 
             await _carrinhoRepository.UpdateCarrinho(id, carrinhoOriginal);

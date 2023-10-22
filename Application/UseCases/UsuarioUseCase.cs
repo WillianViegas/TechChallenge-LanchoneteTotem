@@ -16,7 +16,7 @@ namespace Application.UseCases
             _usuarioRepository = usuarioRepository;
         }
 
-        public Task<UsuarioDTO> CreateUsuario(UsuarioDTO usuarioDTO)
+        public async Task<UsuarioDTO> CreateUsuario(UsuarioDTO usuarioDTO)
         {
             var usuario = new Usuario
             {
@@ -25,35 +25,35 @@ namespace Application.UseCases
                 Email = usuarioDTO.Email
             };
 
-            return _usuarioRepository.CreateUsuario(usuario);
+            return await _usuarioRepository.CreateUsuario(usuario);
         }
 
-        public void DeleteUsuario(string id)
+        public async Task DeleteUsuario(string id)
         {
-            _usuarioRepository.DeleteUsuario(id);
+            await _usuarioRepository.DeleteUsuario(id);
         }
 
-        public IList<Usuario> GetAllUsuarios()
+        public async Task<IList<Usuario>> GetAllUsuarios()
         {
-            return _usuarioRepository.GetAllUsuarios();
+            return await _usuarioRepository.GetAllUsuarios();
         }
 
-        public Task<UsuarioDTO> GetUsuarioByCPF(string cpf)
+        public async Task<UsuarioDTO> GetUsuarioByCPF(string cpf)
         {
-            return _usuarioRepository.GetUsuarioByCPF(cpf);
+            return await _usuarioRepository.GetUsuarioByCPF(cpf);
         }
 
-        public Task<UsuarioDTO> GetUsuarioByEmail(string email)
+        public async Task<UsuarioDTO> GetUsuarioByEmail(string email)
         {
-            return _usuarioRepository.GetUsuarioByEmail(email);
+            return await _usuarioRepository.GetUsuarioByEmail(email);
         }
 
-        public Task<UsuarioDTO> GetUsuarioById(string id)
+        public async Task<UsuarioDTO> GetUsuarioById(string id)
         {
-            return _usuarioRepository.GetUsuarioById(id);
+            return await _usuarioRepository.GetUsuarioById(id);
         }
 
-        public void UpdateUsuario(string id, UsuarioDTO usuarioDTO)
+        public async Task UpdateUsuario(string id, UsuarioDTO usuarioDTO)
         {
             var usuario = new Usuario
             {
@@ -62,7 +62,7 @@ namespace Application.UseCases
                 Email = usuarioDTO.Email
             };
 
-            _usuarioRepository.UpdateUsuario(id, usuario);
+            await _usuarioRepository.UpdateUsuario(id, usuario);
         }
     }
 }

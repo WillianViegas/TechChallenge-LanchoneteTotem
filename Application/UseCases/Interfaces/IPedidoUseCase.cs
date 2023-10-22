@@ -16,8 +16,8 @@ namespace Application.UseCases.Interfaces
         public Task<Pedido> GetPedidoById(string id);
         public Task<Pedido> CreatePedido(string carrinhoId);
         public Task<Pedido> ConfirmarPedido(string id);
-        public void UpdatePedido(string id, Pedido pedidoInput);
-        public void UpdateStatusPedido(string id, int status);
-        public void DeletePedido(string id);
+        public Task UpdatePedido(string id, Pedido pedidoInput);
+        public Task UpdateStatusPedido(string id, int status);
+        public Task DeletePedido(string id);
     }
 }

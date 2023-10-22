@@ -17,34 +17,43 @@ namespace Application.UseCases
             _categoriaRepository = categoriaRepository;
         }
 
-        public Task<Categoria> CreateCategoria(Categoria categoria)
+        public async Task<Categoria> CreateCategoria(Categoria categoria)
         {
             categoria.Ativa = true;
-            return _categoriaRepository.CreateCategoria(categoria);
+            return await _categoriaRepository.CreateCategoria(categoria);
         }
 
-        public void DeleteCategoria(string id)
+        public async Task DeleteCategoria(string id)
         {
-            _categoriaRepository.DeleteCategoria(id);
+            await _categoriaRepository.DeleteCategoria(id);
         }
 
-        public IList<Categoria> GetAllCategorias()
+        public async Task<IList<Categoria>> GetAllCategorias()
         {
-            return _categoriaRepository.GetAllCategorias();
+            return await _categoriaRepository.GetAllCategorias();
         }
 
         public async Task<CategoriaDTO> GetCategoriaById(string id)
         {
             var categoria = await _categoriaRepository.GetCategoriaById(id);
 
-            if (categoria is null) return null;
+            if (categoria is null) return new CategoriaDTO();
 
             return new CategoriaDTO(categoria);
         }
 
-        public void UpdateCategoria(string id, Categoria categoria)
+        public async Task<CategoriaDTO> GetCategoriaByNome(string nome)
         {
-            _categoriaRepository.UpdateCategoria(id, categoria);
+            var categoria = await _categoriaRepository.GetCategoriaByNome(nome);
+
+            if (categoria is null) return new CategoriaDTO();
+
+            return new CategoriaDTO(categoria);
+        }
+
+        public async Task UpdateCategoria(string id, Categoria categoria)
+        {
+            await _categoriaRepository.UpdateCategoria(id, categoria);
         }
     }
 }

@@ -21,18 +21,22 @@ namespace Application.UseCases
             return new ProdutoDTO( await _produtoRepository.CreateProduto(produto));
         }
 
-        public void DeleteProduto(string id)
+        public async Task DeleteProduto(string id)
         {
-            _produtoRepository.DeleteProduto(id);
+            await _produtoRepository.DeleteProduto(id);
         }
 
-        public IList<Produto> GetAllProdutos()
+        public async Task<IList<Produto>> GetAllProdutos()
         {
-            return _produtoRepository.GetAllProdutos();
+            return await _produtoRepository.GetAllProdutos();
         }
 
         public async Task<ProdutoDTO> GetProdutoById(string id)
         {
+            var produto = await _produtoRepository.GetProdutoById(id);
+
+            if (produto == null) return new ProdutoDTO();
+
             return new ProdutoDTO(await _produtoRepository.GetProdutoById(id));
         }
 
@@ -41,7 +45,16 @@ namespace Application.UseCases
             return await _produtoRepository.GetAllProdutosPorCategoria(id);
         }
 
-        public async void UpdateProduto(string id, Produto produtoInput)
+        public async Task<ProdutoDTO> GetProdutoByNome(string nome)
+        {
+            var produto = await _produtoRepository.GetProdutoByNome(nome);
+
+            if (produto == null) return new ProdutoDTO();
+
+            return new ProdutoDTO(produto);
+        }
+
+        public async Task UpdateProduto(string id, Produto produtoInput)
         {
             var produto = await _produtoRepository.GetProdutoById(id);
 
@@ -52,7 +65,7 @@ namespace Application.UseCases
                 produto.Preco = produtoInput.Preco;
                 produto.CategoriaId = produtoInput.CategoriaId is null ? produto.CategoriaId : produtoInput.CategoriaId;
 
-                _produtoRepository.UpdateProduto(id, produto);
+                await _produtoRepository.UpdateProduto(id, produto);
             }
         }
     }

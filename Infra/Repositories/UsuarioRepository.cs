@@ -20,9 +20,9 @@ namespace Infra.Repositories
         }
 
         //ver como lançar um await
-        public IList<Usuario> GetAllUsuarios()
+        public async Task<IList<Usuario>> GetAllUsuarios()
         {
-            return  _collection.Find(_ => true).ToList();
+            return await _collection.Find(_ => true).ToListAsync();
         }
 
         public async Task<UsuarioDTO> GetUsuarioById(string id)

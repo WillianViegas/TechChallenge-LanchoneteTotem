@@ -11,8 +11,9 @@ namespace Domain.Repositories
 {
     public interface IProdutoRepository
     {
-        public IList<Produto> GetAllProdutos();
+        public Task<IList<Produto>> GetAllProdutos();
         public Task<Produto> GetProdutoById(string id);
+        public Task<Produto> GetProdutoByNome(string nome);
         public  Task<Produto> CreateProduto(Produto produto);
         public  Task UpdateProduto(string id, Produto produto);
         public Task DeleteProduto(string id);

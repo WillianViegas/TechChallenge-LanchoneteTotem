@@ -19,25 +19,24 @@ namespace Infra.Repositories
             _collection = database.GetCollection<Produto>("Produto");
         }
 
-        //ver como lançar um await
-        public IList<Produto> GetAllProdutos()
+        public async Task<IList<Produto>> GetAllProdutos()
         {
-            return  _collection.Find(_ => true).ToList();
+            return await _collection.Find(_ => true).ToListAsync();
         }
 
         public async Task<Produto> GetProdutoById(string id)
         {
-            var produto = await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
-
-            if (produto == null) return null;
-
-            return produto;
+            return await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync(); ;
         }
 
         public async Task<IList<Produto>> GetAllProdutosPorCategoria(string id)
         {
-            var produtos = await _collection.Find(x => x.CategoriaId == id).ToListAsync();
-            return produtos;
+            return await _collection.Find(x => x.CategoriaId == id).ToListAsync();
+        }
+
+        public async Task<Produto> GetProdutoByNome(string nome)
+        {
+            return await _collection.Find(x => x.Id.ToString() == nome).FirstOrDefaultAsync(); ;
         }
 
         public async Task<Produto> CreateProduto(Produto produto)

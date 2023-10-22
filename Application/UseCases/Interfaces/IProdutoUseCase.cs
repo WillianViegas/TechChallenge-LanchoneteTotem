@@ -11,11 +11,12 @@ namespace Application.UseCases.Interfaces
 {
     public interface IProdutoUseCase
     {
-        public IList<Produto> GetAllProdutos();
+        public Task<IList<Produto>> GetAllProdutos();
         public Task<ProdutoDTO> GetProdutoById(string id);
+        public Task<ProdutoDTO> GetProdutoByNome(string id);
         public Task<ProdutoDTO> CreateProduto(Produto produto);
-        public void UpdateProduto(string id, Produto produto);
-        public void DeleteProduto(string id);
+        public Task UpdateProduto(string id, Produto produto);
+        public Task DeleteProduto(string id);
         public Task<IList<Produto>> GetAllProdutosPorCategoria(string id);
     }
 }

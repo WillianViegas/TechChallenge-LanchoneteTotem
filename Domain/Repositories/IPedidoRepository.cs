@@ -14,7 +14,7 @@ namespace Domain.Repositories
         public Task<IList<Pedido>> GetAllPedidos();
         public Task<Pedido> GetPedidoById(string id);
         public Task<Pedido> CreatePedido(Pedido pedido);
-        public void UpdatePedido(string id, Pedido pedidoInput);
-        public void DeletePedido(string id);
+        public Task UpdatePedido(string id, Pedido pedidoInput);
+        public Task DeletePedido(string id);
     }
 }

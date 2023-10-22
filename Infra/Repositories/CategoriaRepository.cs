@@ -19,15 +19,21 @@ namespace Infra.Repositories
             _collection = database.GetCollection<Categoria>("Categoria");
         }
 
-        //ver como lançar um await
-        public IList<Categoria> GetAllCategorias()
+        public async Task<IList<Categoria>> GetAllCategorias()
         {
-            return  _collection.Find(_ => true).ToList();
+            return  await _collection.Find(_ => true).ToListAsync();
         }
 
         public async Task<Categoria> GetCategoriaById(string id)
         {
             var categoria = await _collection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
+
+            return categoria;
+        }
+
+        public async Task<Categoria> GetCategoriaByNome(string nome)
+        {
+            var categoria = await _collection.Find(x => x.Nome.ToUpper() == nome.ToUpper()).FirstOrDefaultAsync();
 
             return categoria;
         }

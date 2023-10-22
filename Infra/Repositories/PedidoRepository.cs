@@ -19,7 +19,6 @@ namespace Infra.Repositories
             _collection = database.GetCollection<Pedido>("Pedido");
         }
 
-        //ver como lançar um await
         public async Task<IList<Pedido>> GetAllPedidos()
         {
             return await _collection.Find(_ => true).ToListAsync();
@@ -38,14 +37,14 @@ namespace Infra.Repositories
             return pedido;
         }
 
-        public void UpdatePedido(string id, Pedido pedidoInput)
+        public async Task UpdatePedido(string id, Pedido pedidoInput)
         {
-            _collection.ReplaceOneAsync(x => x.Id.ToString() == id, pedidoInput);
+            await _collection.ReplaceOneAsync(x => x.Id.ToString() == id, pedidoInput);
         }
 
-        public void DeletePedido(string id)
+        public async Task DeletePedido(string id)
         {
-            _collection.DeleteOneAsync(x => x.Id.ToString() == id);
+            await _collection.DeleteOneAsync(x => x.Id.ToString() == id);
         }
     }
 }

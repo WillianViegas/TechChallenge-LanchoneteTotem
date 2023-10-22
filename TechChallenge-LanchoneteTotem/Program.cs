@@ -71,6 +71,7 @@ var categorias = app.MapGroup("/categoria");
 
 categorias.MapGet("/", GetAllCategorias).WithName("GetAllCategorias").WithOpenApi();
 categorias.MapGet("/{id}", GetCategoriaById).WithName("GetCategoriaById").WithOpenApi();
+categorias.MapGet("/nome/{nome}", GetCategoriaByNome).WithName("GetCategoriaByNome").WithOpenApi();
 categorias.MapPost("/", CreateCategoria).WithName("CreateCategoria").WithOpenApi();
 categorias.MapPut("/{id}", UpdateCategoria).WithName("UpdateCategoria").WithOpenApi();
 categorias.MapDelete("/{id}", DeleteCategoria).WithName("DeleteCategoria").WithOpenApi();
@@ -81,6 +82,7 @@ var produtos = app.MapGroup("/produto");
 
 produtos.MapGet("/", GetAllProdutos).WithName("GetAllProdutos").WithOpenApi();
 produtos.MapGet("/{id}", GetProdutoById).WithName("GetProdutoById").WithOpenApi();
+produtos.MapGet("/nome/{id}", GetProdutoByNome).WithName("GetProdutoByNome").WithOpenApi();
 produtos.MapGet("/categoria/{id}", GetAllProdutosPorCategoria).WithName("GetAllProdutosPorCategoria").WithOpenApi();
 produtos.MapPost("/", CreateProduto).WithName("CreateProduto").WithOpenApi();
 produtos.MapPut("/{id}", UpdateProduto).WithName("UpdateProduto").WithOpenApi();
@@ -121,7 +123,7 @@ static async Task<IResult> GetTeste(IMongoCollection<Categoria> collection)
 #region Usuario
 static async Task<IResult> GetAllUsuarios(IUsuarioUseCase usuarioUseCase)
 {
-    var usuarios = usuarioUseCase.GetAllUsuarios();
+    var usuarios = await usuarioUseCase.GetAllUsuarios();
     return TypedResults.Ok(usuarios.Select(x => new UsuarioDTO(x)).ToArray());
 }
 
@@ -161,8 +163,12 @@ static async Task<IResult> CreateUsuario(UsuarioDTO usuarioDTO, IUsuarioUseCase 
 
 static async Task<IResult> UpdateUsuario(string id, UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase)
 {
-    usuarioUseCase.UpdateUsuario(id, usuarioDTO);
-    return TypedResults.NoContent();
+    if (await usuarioUseCase.GetUsuarioById(id) is UsuarioDTO usuario)
+    {
+        usuarioUseCase.UpdateUsuario(id, usuarioDTO);
+        return TypedResults.NoContent();
+    }
+    return TypedResults.NotFound();
 }
 
 static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCase)
@@ -181,7 +187,7 @@ static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCa
 
 static async Task<IResult> GetAllCategorias(ICategoriaUseCase categoriaUseCase)
 {
-    var categorias = categoriaUseCase.GetAllCategorias();
+    var categorias = await categoriaUseCase.GetAllCategorias();
     return TypedResults.Ok(categorias.Select(x => new CategoriaDTO(x)).ToArray());
 }
 
@@ -189,14 +195,19 @@ static async Task<IResult> GetCategoriaById(string id, ICategoriaUseCase categor
 {
     var categoria = await categoriaUseCase.GetCategoriaById(id);
 
-    if (categoria is null) return TypedResults.NotFound();
+    if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
 
     return TypedResults.Ok(categoria);
 }
 
+static async Task<IResult> GetCategoriaByNome(string nome, ICategoriaUseCase categoriaUseCase)
+{
+    var categoria = await categoriaUseCase.GetCategoriaByNome(nome);
 
-///TODO Buscar categoria pelo nome///
+    if (categoria is null || string.IsNullOrEmpty(categoria.Id)) return TypedResults.NotFound();
 
+    return TypedResults.Ok(categoria);
+}
 
 static async Task<IResult> CreateCategoria(Categoria categoria, ICategoriaUseCase categoriaUseCase)
 {
@@ -211,7 +222,7 @@ static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, 
 
     if (categoria is null) return TypedResults.NotFound();
 
-    categoriaUseCase.UpdateCategoria(id, categoriaInput);
+    await categoriaUseCase.UpdateCategoria(id, categoriaInput);
     return TypedResults.NoContent();
 }
 
@@ -219,7 +230,7 @@ static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categori
 {
     if (await categoriaUseCase.GetCategoriaById(id) is CategoriaDTO categoria)
     {
-        categoriaUseCase.DeleteCategoria(id);
+        await categoriaUseCase.DeleteCategoria(id);
         return TypedResults.NoContent();
     }
 
@@ -231,7 +242,7 @@ static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categori
 
 static async Task<IResult> GetAllProdutos(IProdutoUseCase produtoUseCase)
 {
-    var produtos = produtoUseCase.GetAllProdutos();
+    var produtos = await produtoUseCase.GetAllProdutos();
     return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
 }
 
@@ -251,8 +262,14 @@ static async Task<IResult> GetAllProdutosPorCategoria(string id, IProdutoUseCase
     return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
 }
 
-///TODO Buscar produto pelo nome///
+static async Task<IResult> GetProdutoByNome(string nome, IProdutoUseCase produtoUseCase)
+{
+    var produto = await produtoUseCase.GetProdutoByNome(nome);
 
+    if (produto is null) return TypedResults.NotFound();
+
+    return TypedResults.Ok(produto);
+}
 
 static async Task<IResult> CreateProduto(Produto produto, IProdutoUseCase produtoUseCase)
 {
@@ -266,7 +283,7 @@ static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IProdu
 
     if (produto is null) return TypedResults.NotFound();
 
-    produtoUseCase.UpdateProduto(id, produtoInput);
+    await produtoUseCase.UpdateProduto(id, produtoInput);
 
     return TypedResults.NoContent();
 }
@@ -275,7 +292,7 @@ static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCa
 {
     if (await produtoUseCase.GetProdutoById(id) is ProdutoDTO produto)
     {
-        produtoUseCase.DeleteProduto(id);
+        await produtoUseCase.DeleteProduto(id);
         return TypedResults.NoContent();
     }
 
@@ -302,28 +319,53 @@ static async Task<IResult> CreateCarrinho(Carrinho carrinho, ICarrinhoUseCase ca
 
 static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, string idProduto, string idCarrinho, int quantidade = 1)
 {
-    //tratar retornos dps
-
-    await carrinhoUseCase.AddProdutoCarrinho(idProduto, idCarrinho, quantidade);
-    return TypedResults.NoContent();
+    //melhorar
+    try
+    {
+        var carrinho = await carrinhoUseCase.AddProdutoCarrinho(idProduto, idCarrinho, quantidade);
+        return TypedResults.Ok(carrinho);
+    }
+    catch(Exception ex)
+    {
+        return TypedResults.BadRequest(ex.Message);
+    }
+   
 }
 
 static async Task<IResult> RemoveProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, string idProduto, string idCarrinho, int quantidade = 1)
 {
-    await carrinhoUseCase.RemoveProdutoCarrinho(idProduto, idCarrinho, quantidade);
-    return TypedResults.NoContent();
+    //melhorar
+    try
+    {
+        var carrinho = await carrinhoUseCase.RemoveProdutoCarrinho(idProduto, idCarrinho, quantidade);
+        return TypedResults.Ok(carrinho);
+    }
+    catch (Exception ex)
+    {
+        return TypedResults.BadRequest(ex.Message);
+    }
+
 }
 
 static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, ICarrinhoUseCase carrinhoUseCase)
 {
-    await carrinhoUseCase.UpdateCarrinho(id, carrinhoInput);
-    return TypedResults.NoContent();
+    if (await carrinhoUseCase.GetCarrinhoById(id) is Carrinho carrinho)
+    {
+        await carrinhoUseCase.UpdateCarrinho(id, carrinhoInput);
+        return TypedResults.NoContent();
+    }
+
+    return TypedResults.NotFound();
 }
 
 static async Task<IResult> DeleteCarrinho(string id, ICarrinhoUseCase carrinhoUseCase)
 {
-    await carrinhoUseCase.DeleteCarrinho(id);
-    //return TypedResults.NoContent(); tratar retornos
+    if (await carrinhoUseCase.GetCarrinhoById(id) is Carrinho carrinho)
+    {
+        await carrinhoUseCase.DeleteCarrinho(id);
+        return TypedResults.NoContent();
+    }
+   
     return TypedResults.NotFound();
 }
 #endregion
@@ -372,8 +414,13 @@ static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IPedidoUs
 
 static async Task<IResult> UpdateStatusPedido(string id, int status, IPedidoUseCase pedidoUseCase)
 {
-    pedidoUseCase.UpdateStatusPedido(id, status);
-    return TypedResults.NoContent();
+    if (await pedidoUseCase.GetPedidoById(id) is Pedido pedido)
+    {
+        pedidoUseCase.UpdateStatusPedido(id, status);
+        return TypedResults.NoContent();
+    }
+
+    return TypedResults.NotFound();
 }
 
 static async Task<IResult> DeletePedido(string id, IPedidoUseCase pedidoUseCase)
