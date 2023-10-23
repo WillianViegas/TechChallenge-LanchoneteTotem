@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using Domain.Enum;
 
 namespace Domain.Entities
 {
@@ -10,23 +11,12 @@ namespace Domain.Entities
         public string Id { get; set; }
 
         public int Numero { get; set; }
-
         public List<Produto> Produtos { get; set; }
         public Usuario Usuario { get; set; }
         public decimal Total { get; set; }
-        public PedidoStatus Status { get; set; }
+        public EPedidoStatus Status { get; set; }
         public DateTime DataCriacao { get; set; }
         public string IdCarrinho { get; set; }
         public Pagamento Pagamento { get; set; }
-
-        public enum PedidoStatus
-        {
-            Novo = 0,
-            Pago = 1,
-            Confirmado = 2,
-            EmPreparo = 3,
-            Pronto = 4,
-            Finalizado = 5
-        };
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using Swashbuckle.AspNetCore.Annotations;
 using TechChallenge_LanchoneteTotem.Model;
 using static Domain.Entities.Pedido;
 
@@ -44,7 +45,7 @@ builder.Services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOpti
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(opts => opts.EnableAnnotations());
 
 builder.Services.AddSwaggerGen(x =>
 {
@@ -92,24 +93,24 @@ app.MapGet("/teste", GetTeste).WithName("GetTeste").WithOpenApi().RequireAuthori
 #region endpoint Usuario
 var usuarios = app.MapGroup("/usuario");
 
-usuarios.MapGet("/", GetAllUsuarios).WithName("GetAllUsuarios").WithOpenApi();
-usuarios.MapGet("/id/{id}", GetUsuarioById).WithName("GetUsuarioById").WithOpenApi();
-usuarios.MapGet("/cpf/{cpf}", GetUsuarioByCPF).WithName("GetUsuarioByCPF").WithOpenApi();
-usuarios.MapGet("/email/{email}", GetUsuarioByEmail).WithName("GetUsuarioByEmail").WithOpenApi();
-usuarios.MapPost("/", CreateUsuario).WithName("CreateUsuario").WithOpenApi();
-usuarios.MapPut("/{id}", UpdateUsuario).WithName("UpdateUsuario").WithOpenApi();
-usuarios.MapDelete("/{id}", DeleteUsuario).WithName("DeleteUsuario").WithOpenApi();
+usuarios.MapGet("/", GetAllUsuarios).WithName("GetAllUsuarios").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todos os usuários", description: "Retorna uma lista de usuários"));
+usuarios.MapGet("/id/{id}", GetUsuarioById).WithName("GetUsuarioById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo id", description: "Retorna o usuário encontrado"));
+usuarios.MapGet("/cpf/{cpf}", GetUsuarioByCPF).WithName("GetUsuarioByCPF").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo cpf", description: "Retorna o usuário encontrado"));
+usuarios.MapGet("/email/{email}", GetUsuarioByEmail).WithName("GetUsuarioByEmail").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo e-mail", description: "Retorna o usuário encontrado"));
+usuarios.MapPost("/", CreateUsuario).WithName("CreateUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar novo usuário", description: "Cria um novo usuário e retorna o usuário cadastrado"));
+usuarios.MapPut("/{id}", UpdateUsuario).WithName("UpdateUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar usuário existente", description: "Atualiza os dados do usuário"));
+usuarios.MapDelete("/{id}", DeleteUsuario).WithName("DeleteUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar usuário", description: "Deleta o usuário"));
 #endregion
 
 #region endpoint Categoria
 var categorias = app.MapGroup("/categoria");
 
-categorias.MapGet("/", GetAllCategorias).WithName("GetAllCategorias").WithOpenApi();
-categorias.MapGet("/{id}", GetCategoriaById).WithName("GetCategoriaById").WithOpenApi();
-categorias.MapGet("/nome/{nome}", GetCategoriaByNome).WithName("GetCategoriaByNome").WithOpenApi();
-categorias.MapPost("/", CreateCategoria).WithName("CreateCategoria").WithOpenApi();
-categorias.MapPut("/{id}", UpdateCategoria).WithName("UpdateCategoria").WithOpenApi();
-categorias.MapDelete("/{id}", DeleteCategoria).WithName("DeleteCategoria").WithOpenApi();
+categorias.MapGet("/", GetAllCategorias).WithName("GetAllCategorias").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todas as categorias", description: "Retorna uma lista de categorias"));
+categorias.MapGet("/{id}", GetCategoriaById).WithName("GetCategoriaById").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter categoria pelo id", description: "Retorna uma categoria"));
+categorias.MapGet("/nome/{nome}", GetCategoriaByNome).WithName("GetCategoriaByNome").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter categoria pelo nome", description: "Retorna uma categoria"));
+categorias.MapPost("/", CreateCategoria).WithName("CreateCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar nova categoria", description: "Cria uma nova categoria"));
+categorias.MapPut("/{id}", UpdateCategoria).WithName("UpdateCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar categoria existente", description: "Atualizar uma categoria existente"));
+categorias.MapDelete("/{id}", DeleteCategoria).WithName("DeleteCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deleta uma categoria", description: "Deleta categoria existente"));
 #endregion
 
 #region endpoint Produto

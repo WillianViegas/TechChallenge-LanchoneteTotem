@@ -1,6 +1,7 @@
 ﻿using Application.UseCases.Interfaces;
 using Domain.Entities;
 using Domain.Entities.DTO;
+using Domain.Enum;
 using Domain.Repositories;
 using Infra.Configurations;
 using Infra.Repositories;
@@ -28,10 +29,10 @@ namespace Application.UseCases
 
                 //fazer solicitação do QRCode para pagamento(antes ou durante essa chamada)
                 //passando status pra pago por enquanto (ver como funciona na api do mercado pago)
-                pedido.Status = PedidoStatus.Pago;
+                pedido.Status = EPedidoStatus.Pago;
                 pedido.Pagamento = new Pagamento()
                 {
-                    Tipo = Pagamento.TipoPagamento.QRCode,
+                    Tipo = ETipoPagamento.QRCode,
                     QRCodeUrl = "www.usdfhosdfsdhfosdfhsdofhdsfds.com.br",
                 };
 
@@ -137,7 +138,7 @@ namespace Application.UseCases
             try
             {
                 var listaPedidosAtivos = await _pedidoRepository.GetAllPedidos();
-                return listaPedidosAtivos.Where(x => x.Status != Pedido.PedidoStatus.Finalizado).ToList();
+                return listaPedidosAtivos.Where(x => x.Status != EPedidoStatus.Finalizado).ToList();
             }
             catch (Exception ex)
             {
@@ -184,7 +185,7 @@ namespace Application.UseCases
                 var pedido = await _pedidoRepository.GetPedidoById(id);
                 if (pedido is null) throw new Exception("Pedido não encontrado");
 
-                pedido.Status = (Pedido.PedidoStatus)status;
+                pedido.Status = (EPedidoStatus)status;
                 await _pedidoRepository.UpdatePedido(id, pedido);
             }
             catch (Exception ex)

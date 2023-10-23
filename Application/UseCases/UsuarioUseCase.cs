@@ -25,7 +25,8 @@ namespace Application.UseCases
                 {
                     Nome = usuarioDTO.Nome,
                     CPF = usuarioDTO.CPF,
-                    Email = usuarioDTO.Email
+                    Email = usuarioDTO.Email,
+                    Tipo = "C" //cliente
                 };
 
                 return new UsuarioDTO(await _usuarioRepository.CreateUsuario(usuario));
