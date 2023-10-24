@@ -1,0 +1,33 @@
+version: '3.4'
+
+services:
+  techchallenge-lanchonetetotem:
+    image: ${DOCKER_REGISTRY-}techchallengelanchonetetotem
+    build:
+      context: .
+      dockerfile: TechChallenge-LanchoneteTotem/Dockerfile
+    ports:
+      - "7003:80"
+      - "7004:443"
+    networks:
+      - prod-network
+    environment:
+        MongoDbSettings_ConnectionString: 'mongodb://admin:abc123!@mongodbLanchonete'
+    depends_on:
+        - mongodb
+
+  mongodb:
+     image: mongo:latest
+     networks:
+       - prod-network
+     # ports:
+     #  - '2019:2017'
+     container_name: mongodbLanchonete
+     command: mongod --port 27017 --bind_ip 0.0.0.0
+     environment:
+      MONGO_INITDB_ROOT_USERNAME: 'admin'
+      MONGO_INITDB_ROOT_PASSWORD: 'abc123!'
+
+networks:
+  prod-network:
+    driver: bridge

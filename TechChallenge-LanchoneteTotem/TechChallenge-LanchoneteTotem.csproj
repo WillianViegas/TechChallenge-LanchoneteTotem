@@ -7,6 +7,7 @@
     <RootNamespace>TechChallenge_LanchoneteTotem</RootNamespace>
     <UserSecretsId>b13afea0-6a8c-4bad-89b3-dedd019bfa7c</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
