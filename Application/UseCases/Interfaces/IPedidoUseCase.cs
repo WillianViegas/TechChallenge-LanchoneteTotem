@@ -12,6 +12,8 @@ namespace Application.UseCases.Interfaces
     public interface IPedidoUseCase
     {
         public Task<IList<Pedido>> GetAllPedidosAtivos();
+        public Task<IList<Pedido>> GetAllPedidosFinalizados();
+        public Task<IList<Pedido>> GetAllPedidosProntosParaRetirada();
         public Task<IList<Pedido>> GetAllPedidos();
         public Task<Pedido> GetPedidoById(string id);
         public Task<Pedido> CreatePedidoFromCarrinho(Carrinho carrinho);

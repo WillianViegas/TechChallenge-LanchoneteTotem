@@ -138,7 +138,33 @@ namespace Application.UseCases
             try
             {
                 var listaPedidosAtivos = await _pedidoRepository.GetAllPedidos();
-                return listaPedidosAtivos.Where(x => x.Status != EPedidoStatus.Finalizado).ToList();
+                return listaPedidosAtivos.Where(x => x.Status != EPedidoStatus.Novo && x.Status != EPedidoStatus.Pago && x.Status != EPedidoStatus.Finalizado).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IList<Pedido>> GetAllPedidosProntosParaRetirada()
+        {
+            try
+            {
+                var listaPedidosAtivos = await _pedidoRepository.GetAllPedidos();
+                return listaPedidosAtivos.Where(x => x.Status == EPedidoStatus.Pronto).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IList<Pedido>> GetAllPedidosFinalizados()
+        {
+            try
+            {
+                var listaPedidosAtivos = await _pedidoRepository.GetAllPedidos();
+                return listaPedidosAtivos.Where(x => x.Status == EPedidoStatus.Finalizado).ToList();
             }
             catch (Exception ex)
             {

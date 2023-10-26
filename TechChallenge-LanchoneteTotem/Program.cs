@@ -140,6 +140,8 @@ carrinho.MapDelete("/{id}", DeleteCarrinho).WithName("DeleteCarrinho").WithOpenA
 var pedido = app.MapGroup("/pedido").WithTags("Pedido");
 
 pedido.MapGet("/ativos", GetAllPedidosAtivos).WithName("GetAllPedidosAtivos").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos ativos", description: "Retorna uma lista de pedidos ativos"));
+pedido.MapGet("/prontos", GetAllPedidosProntosParaRetirada).WithName("GetAllPedidosProntosParaRetirada").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos prontos para retirada", description: "Retorna uma lista de pedidos com status 'pronto' para serem retirados"));
+pedido.MapGet("/finalizados", GetAllPedidosFinalizados).WithName("GetAllPedidosFinalizados").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos finalizados", description: "Retorna uma lista de pedidos com status 'Finalizado'"));
 pedido.MapGet("/", GetAllPedidos).WithName("GetAllPedidos").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos", description: "Retorna uma lista de pedidos"));
 pedido.MapGet("/{id}", GetPedidoById).WithName("GetPedidoById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedido por id", description: "Retorna um pedido pelo id"));
 pedido.MapPost("/", CreatePedido).WithName("CreatePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar pedido", description: "Cria um novo pedido"));
@@ -649,6 +651,32 @@ static async Task<IResult> GetAllPedidosAtivos(IPedidoUseCase pedidoUseCase)
     catch (Exception ex)
     {
         return TypedResults.Problem($"Erro ao obter os pedidos ativos.");
+    }
+}
+
+static async Task<IResult> GetAllPedidosProntosParaRetirada(IPedidoUseCase pedidoUseCase)
+{
+    try
+    {
+        var pedidos = await pedidoUseCase.GetAllPedidosProntosParaRetirada();
+        return TypedResults.Ok(pedidos);
+    }
+    catch (Exception ex)
+    {
+        return TypedResults.Problem($"Erro ao obter os pedidos finalizados.");
+    }
+}
+
+static async Task<IResult> GetAllPedidosFinalizados(IPedidoUseCase pedidoUseCase)
+{
+    try
+    {
+        var pedidos = await pedidoUseCase.GetAllPedidosFinalizados();
+        return TypedResults.Ok(pedidos);
+    }
+    catch (Exception ex)
+    {
+        return TypedResults.Problem($"Erro ao obter os pedidos finalizados.");
     }
 }
 
