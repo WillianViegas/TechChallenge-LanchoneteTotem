@@ -3,6 +3,7 @@ using Application.UseCases.Interfaces;
 using Domain.Entities;
 using Domain.Entities.DTO;
 using Domain.Repositories;
+using Domain.ValueObjects;
 using Infra.Configurations;
 using Infra.Repositories;
 
@@ -21,11 +22,11 @@ namespace Application.UseCases
         {
             try
             {
-                var usuario = new Usuario
+                var usuario = new Usuario()
                 {
-                    Nome = usuarioDTO.Nome,
-                    CPF = usuarioDTO.CPF,
-                    Email = usuarioDTO.Email,
+                    Nome = new NomeVO(usuarioDTO.Nome),
+                    CPF = new CpfVO(usuarioDTO.CPF),
+                    Email = new EmailVO(usuarioDTO.Email),
                     Tipo = "C" //cliente
                 };
 
@@ -113,9 +114,9 @@ namespace Application.UseCases
                 var usuarioOriginal = await _usuarioRepository.GetUsuarioById(id);
                 if (usuarioOriginal is null) throw new Exception("Usuario não encontrado");
 
-                usuarioOriginal.Nome = usuarioDTO.Nome;
-                usuarioOriginal.Email = usuarioDTO.Email;
-                usuarioOriginal.CPF = usuarioDTO.CPF;
+                usuarioOriginal.Nome = new NomeVO(usuarioDTO.Nome);
+                usuarioOriginal.Email = new EmailVO(usuarioDTO.Email);
+                usuarioOriginal.CPF = new CpfVO(usuarioDTO.CPF);
 
                 await _usuarioRepository.UpdateUsuario(id, usuarioOriginal);
             }

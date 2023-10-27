@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using Domain.ValueObjects;
 
 namespace Domain.Entities
 {
@@ -8,9 +9,21 @@ namespace Domain.Entities
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
-        public string? Nome { get; set; } = null;
-        public string? Email { get; set; } = null;
-        public string? CPF { get; set; } = null;
+
+        public Usuario() { }
+
+        public Usuario(NomeVO nome, CpfVO cpf, EmailVO email, string tipo, string senha)
+        {
+            Nome = nome;
+            CPF = cpf;
+            Email = email;
+            Tipo = tipo;
+            Senha = senha;
+        }
+
+        public NomeVO Nome { get; set; }
+        public EmailVO Email { get; set; }
+        public CpfVO CPF { get; set; } 
         public string? Tipo { get; set; } = null;
         public string? Senha { get; set; } = null;
     }

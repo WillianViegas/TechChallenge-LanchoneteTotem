@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Entities.DTO;
 using Domain.Repositories;
+using Domain.ValueObjects;
 using Infra.Configurations;
 using MongoDB.Driver;
 using System;
@@ -32,12 +33,12 @@ namespace Infra.Repositories
 
         public async Task<Usuario> GetUsuarioByCPF(string cpf)
         {
-            return await _collection.Find(x => x.CPF == cpf).FirstOrDefaultAsync();
+            return await _collection.Find(x => x.CPF == new CpfVO(cpf)).FirstOrDefaultAsync();
         }
 
         public async Task<Usuario> GetUsuarioByEmail(string email)
         {
-            return await _collection.Find(x => x.Email == email).FirstOrDefaultAsync();
+            return await _collection.Find(x => x.Email == new EmailVO(email)).FirstOrDefaultAsync();
         }
 
         public async Task<Usuario> CreateUsuario(Usuario usuario)
