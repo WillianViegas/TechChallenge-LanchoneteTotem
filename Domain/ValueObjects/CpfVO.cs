@@ -17,10 +17,12 @@ namespace Domain.ValueObjects
 
         public CpfVO(string numero)
         {
-            if (string.IsNullOrEmpty(numero)) throw new ArgumentNullException(nameof(numero));
+            if (numero == null) throw new ArgumentNullException("CPF inválido.");
            
             Numero = numero;
-            Validar();
+
+            if(numero != "")
+                Validar();
         }
 
         public override string ToString()
