@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 using TechChallenge_LanchoneteTotem.Model;
 using static Domain.Entities.Pedido;
 
@@ -58,6 +59,7 @@ builder.Services.AddSwaggerGen(x =>
     });
 });
 
+//por enquanto apenas no metodo de teste (será implementado futuramente)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthorizationBuilder()
@@ -87,69 +89,69 @@ if (app.Environment.IsDevelopment())
     app.UseAuthorization();
 }
 
-var teste = app.MapGroup("/").WithTags("Requisiçõe de teste");
+var teste = app.MapGroup("/").WithTags("Requisições de teste");
 teste.MapGet("/teste", GetTeste).WithName("GetTeste").WithOpenApi().RequireAuthorization("token_admin");
 
 #region endpoint Usuario
 var usuarios = app.MapGroup("/usuario").WithTags("Usuario");
 
-usuarios.MapGet("/", GetAllUsuarios).WithName("GetAllUsuarios").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todos os usuários", description: "Retorna uma lista de usuários"));
-usuarios.MapGet("/id/{id}", GetUsuarioById).WithName("GetUsuarioById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo id", description: "Retorna o usuário encontrado"));
-usuarios.MapGet("/cpf/{cpf}", GetUsuarioByCPF).WithName("GetUsuarioByCPF").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo cpf", description: "Retorna o usuário encontrado"));
-usuarios.MapGet("/email/{email}", GetUsuarioByEmail).WithName("GetUsuarioByEmail").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo e-mail", description: "Retorna o usuário encontrado"));
-usuarios.MapPost("/", CreateUsuario).WithName("CreateUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar novo usuário", description: "Cria um novo usuário e retorna o usuário cadastrado"));
-usuarios.MapPut("/{id}", UpdateUsuario).WithName("UpdateUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar usuário existente", description: "Atualiza os dados do usuário"));
-usuarios.MapDelete("/{id}", DeleteUsuario).WithName("DeleteUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar usuário", description: "Deleta o usuário"));
+usuarios.MapGet("/", GetAllUsuarios).WithName("GetAllUsuarios").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todos os usuários", description: "Retorna uma lista de usuários")).Produces(200).Produces(400).Produces(404).Produces(500);
+usuarios.MapGet("/id/{id}", GetUsuarioById).WithName("GetUsuarioById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo id", description: "Retorna o usuário encontrado")).Produces(200).Produces(400).Produces(404).Produces(500);
+usuarios.MapGet("/cpf/{cpf}", GetUsuarioByCPF).WithName("GetUsuarioByCPF").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo cpf", description: "Retorna o usuário encontrado")).Produces(200).Produces(400).Produces(404).Produces(500);
+usuarios.MapGet("/email/{email}", GetUsuarioByEmail).WithName("GetUsuarioByEmail").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter usuário pelo e-mail", description: "Retorna o usuário encontrado")).Produces(200).Produces(400).Produces(404).Produces(500);
+usuarios.MapPost("/", CreateUsuario).WithName("CreateUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar novo usuário", description: "Cria um novo usuário e retorna o usuário cadastrado")).Produces(201).Produces(400).Produces(404).Produces(500);
+usuarios.MapPut("/{id}", UpdateUsuario).WithName("UpdateUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar usuário existente", description: "Atualiza os dados do usuário")).Produces(204).Produces(400).Produces(404).Produces(500); ;
+usuarios.MapDelete("/{id}", DeleteUsuario).WithName("DeleteUsuario").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar usuário", description: "Deleta o usuário")).Produces(204).Produces(400).Produces(404).Produces(500);
 #endregion
 
 #region endpoint Categoria
 var categorias = app.MapGroup("/categoria").WithTags("Categoria");
 
-categorias.MapGet("/", GetAllCategorias).WithName("GetAllCategorias").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todas as categorias", description: "Retorna uma lista de categorias"));
-categorias.MapGet("/{id}", GetCategoriaById).WithName("GetCategoriaById").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter categoria pelo id", description: "Retorna uma categoria"));
-categorias.MapGet("/nome/{nome}", GetCategoriaByNome).WithName("GetCategoriaByNome").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter categoria pelo nome", description: "Retorna uma categoria"));
-categorias.MapPost("/", CreateCategoria).WithName("CreateCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar nova categoria", description: "Cria uma nova categoria"));
-categorias.MapPut("/{id}", UpdateCategoria).WithName("UpdateCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar categoria existente", description: "Atualizar uma categoria existente"));
-categorias.MapDelete("/{id}", DeleteCategoria).WithName("DeleteCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deleta uma categoria", description: "Deleta categoria existente"));
+categorias.MapGet("/", GetAllCategorias).WithName("GetAllCategorias").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todas as categorias", description: "Retorna uma lista de categorias")).Produces(200).Produces(400).Produces(404).Produces(500);
+categorias.MapGet("/{id}", GetCategoriaById).WithName("GetCategoriaById").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter categoria pelo id", description: "Retorna uma categoria")).Produces(200).Produces(400).Produces(404).Produces(500);
+categorias.MapGet("/nome/{nome}", GetCategoriaByNome).WithName("GetCategoriaByNome").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter categoria pelo nome", description: "Retorna uma categoria")).Produces(200).Produces(400).Produces(404).Produces(500);
+categorias.MapPost("/", CreateCategoria).WithName("CreateCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar nova categoria", description: "Cria uma nova categoria")).Produces(201).Produces(400).Produces(404).Produces(500);
+categorias.MapPut("/{id}", UpdateCategoria).WithName("UpdateCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar categoria existente", description: "Atualizar uma categoria existente")).Produces(204).Produces(400).Produces(404).Produces(500);
+categorias.MapDelete("/{id}", DeleteCategoria).WithName("DeleteCategoria").WithOpenApi().WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deleta uma categoria", description: "Deleta categoria existente")).Produces(204).Produces(400).Produces(404).Produces(500);
 #endregion
 
 #region endpoint Produto
 var produtos = app.MapGroup("/produto").WithTags("Produto");
 
-produtos.MapGet("/", GetAllProdutos).WithName("GetAllProdutos").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todos os produtos", description: "Retorna uma lista de produtos"));
-produtos.MapGet("/{id}", GetProdutoById).WithName("GetProdutoById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter produto por id", description: "Retorna um produto pelo seu id"));
-produtos.MapGet("/nome/{nome}", GetProdutoByNome).WithName("GetProdutoByNome").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter produto por nome", description: "Retorna um produto pelo seu nome"));
-produtos.MapGet("/categoria/{id}", GetAllProdutosPorCategoria).WithName("GetAllProdutosPorCategoria").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todos os produtos de uma categoria", description: "Retorna uma lista de produtos com base no id de uma categoria"));
-produtos.MapPost("/", CreateProduto).WithName("CreateProduto").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar produto", description: "Cria um novo produto"));
-produtos.MapPut("/{id}", UpdateProduto).WithName("UpdateProduto").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar produto", description: "Atualiza um produto existente"));
-produtos.MapDelete("/{id}", DeleteProduto).WithName("DeleteProduto").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar produto", description: "Deleta um produto pelo id"));
+produtos.MapGet("/", GetAllProdutos).WithName("GetAllProdutos").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todos os produtos", description: "Retorna uma lista de produtos")).Produces(200).Produces(400).Produces(404).Produces(500);
+produtos.MapGet("/{id}", GetProdutoById).WithName("GetProdutoById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter produto por id", description: "Retorna um produto pelo seu id")).Produces(200).Produces(400).Produces(404).Produces(500);
+produtos.MapGet("/nome/{nome}", GetProdutoByNome).WithName("GetProdutoByNome").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter produto por nome", description: "Retorna um produto pelo seu nome")).Produces(200).Produces(400).Produces(404).Produces(500);
+produtos.MapGet("/categoria/{id}", GetAllProdutosPorCategoria).WithName("GetAllProdutosPorCategoria").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter todos os produtos de uma categoria", description: "Retorna uma lista de produtos com base no id de uma categoria")).Produces(200).Produces(400).Produces(404).Produces(500);
+produtos.MapPost("/", CreateProduto).WithName("CreateProduto").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar produto", description: "Cria um novo produto")).Produces(201).Produces(400).Produces(404).Produces(500);
+produtos.MapPut("/{id}", UpdateProduto).WithName("UpdateProduto").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar produto", description: "Atualiza um produto existente")).Produces(204).Produces(400).Produces(404).Produces(500);
+produtos.MapDelete("/{id}", DeleteProduto).WithName("DeleteProduto").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar produto", description: "Deleta um produto pelo id")).Produces(204).Produces(400).Produces(404).Produces(500);
 #endregion
 
 #region endpoint Carrinho
 var carrinho = app.MapGroup("/carrinho").WithTags("Carrinho");
 
-carrinho.MapGet("/{id}", GetCarrinhoById).WithName("GetCarrinhoById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter carrinho", description: "Obter carrinho pelo id"));
-carrinho.MapPost("/addProduto", AddProdutoCarrinho).WithName("AddProdutoCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Adicionar produto ao carrinho", description: "Adiciona um produto ao carrinho com base no id do produto, id do carrinho e quantidade"));
-carrinho.MapPost("/RemoveProduto", RemoveProdutoCarrinho).WithName("RemoveProdutoCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Remover produto do carrinho", description: "Remove um produto ao carrinho com base no id do produto, id do carrinho"));
-carrinho.MapPost("/", CreateCarrinho).WithName("CreateCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar carrinho", description: "Cria um novo carrinho"));
-carrinho.MapPut("/{id}", UpdateCarrinho).WithName("UpdateCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar carrinho", description: "Atualiza as informações do carrinho"));
-carrinho.MapDelete("/{id}", DeleteCarrinho).WithName("DeleteCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar carrinho", description: "Deleta o carrinho pelo id"));
+carrinho.MapGet("/{id}", GetCarrinhoById).WithName("GetCarrinhoById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter carrinho", description: "Obter carrinho pelo id")).Produces(200).Produces(400).Produces(404).Produces(500);
+carrinho.MapPost("/addProduto", AddProdutoCarrinho).WithName("AddProdutoCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Adicionar produto ao carrinho", description: "Adiciona um produto ao carrinho com base no id do produto, id do carrinho e quantidade")).Produces(200).Produces(400).Produces(404).Produces(500);
+carrinho.MapPost("/RemoveProduto", RemoveProdutoCarrinho).WithName("RemoveProdutoCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Remover produto do carrinho", description: "Remove um produto ao carrinho com base no id do produto, id do carrinho")).Produces(200).Produces(400).Produces(404).Produces(500);
+carrinho.MapPost("/", CreateCarrinho).WithName("CreateCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar carrinho", description: "Cria um novo carrinho")).Produces(201).Produces(400).Produces(404).Produces(500);
+carrinho.MapPut("/{id}", UpdateCarrinho).WithName("UpdateCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar carrinho", description: "Atualiza as informações do carrinho")).Produces(204).Produces(400).Produces(404).Produces(500);
+carrinho.MapDelete("/{id}", DeleteCarrinho).WithName("DeleteCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar carrinho", description: "Deleta o carrinho pelo id")).Produces(204).Produces(400).Produces(404).Produces(500);
 #endregion
 
 #region endpoint Pedido
 var pedido = app.MapGroup("/pedido").WithTags("Pedido");
 
-pedido.MapGet("/ativos", GetAllPedidosAtivos).WithName("GetAllPedidosAtivos").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos ativos", description: "Retorna uma lista de pedidos ativos"));
-pedido.MapGet("/prontos", GetAllPedidosProntosParaRetirada).WithName("GetAllPedidosProntosParaRetirada").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos prontos para retirada", description: "Retorna uma lista de pedidos com status 'pronto' para serem retirados"));
-pedido.MapGet("/finalizados", GetAllPedidosFinalizados).WithName("GetAllPedidosFinalizados").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos finalizados", description: "Retorna uma lista de pedidos com status 'Finalizado'"));
-pedido.MapGet("/", GetAllPedidos).WithName("GetAllPedidos").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos", description: "Retorna uma lista de pedidos"));
-pedido.MapGet("/{id}", GetPedidoById).WithName("GetPedidoById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedido por id", description: "Retorna um pedido pelo id"));
-pedido.MapPost("/", CreatePedido).WithName("CreatePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar pedido", description: "Cria um novo pedido"));
-pedido.MapPost("/fromCarrinho", CreatePedidoFromCarrinho).WithName("CreatePedidoFromCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar pedido a partir do carrinho", description: "Cria um novo pedido utilizando o id de um carrinho"));
-pedido.MapPost("/confirmar/{id}", ConfirmarPedido).WithName("ConfirmarPedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Confirmar pedido", description: "Confirma o pedido finalizando a compra"));
-pedido.MapPut("/{id}", UpdatePedido).WithName("UpdatePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar pedido", description: "Atualizar informações do pedido"));
-pedido.MapPut("/status/{id}", UpdateStatusPedido).WithName("UpdateStatusPedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar status pedido", description: "Atualiza o status do pedido"));
-pedido.MapDelete("/{id}", DeletePedido).WithName("DeletePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar pedido", description: "Deleta o pedido pelo id"));
+pedido.MapGet("/ativos", GetAllPedidosAtivos).WithName("GetAllPedidosAtivos").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos ativos", description: "Retorna uma lista de pedidos ativos")).Produces(200).Produces(400).Produces(404).Produces(500);
+pedido.MapGet("/prontos", GetAllPedidosProntosParaRetirada).WithName("GetAllPedidosProntosParaRetirada").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos prontos para retirada", description: "Retorna uma lista de pedidos com status 'pronto' para serem retirados")).Produces(200).Produces(400).Produces(404).Produces(500);
+pedido.MapGet("/finalizados", GetAllPedidosFinalizados).WithName("GetAllPedidosFinalizados").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos finalizados", description: "Retorna uma lista de pedidos com status 'Finalizado'")).Produces(200).Produces(400).Produces(404).Produces(500);
+pedido.MapGet("/", GetAllPedidos).WithName("GetAllPedidos").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedidos", description: "Retorna uma lista de pedidos")).Produces(200).Produces(400).Produces(404).Produces(500);
+pedido.MapGet("/{id}", GetPedidoById).WithName("GetPedidoById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedido por id", description: "Retorna um pedido pelo id")).Produces(200).Produces(400).Produces(404).Produces(500);
+pedido.MapPost("/", CreatePedido).WithName("CreatePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar pedido", description: "Cria um novo pedido")).Produces(201).Produces(400).Produces(404).Produces(500);
+pedido.MapPost("/fromCarrinho", CreatePedidoFromCarrinho).WithName("CreatePedidoFromCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar pedido a partir do carrinho", description: "Cria um novo pedido utilizando o id de um carrinho")).Produces(201).Produces(400).Produces(404).Produces(500);
+pedido.MapPost("/confirmar/{id}", ConfirmarPedido).WithName("ConfirmarPedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Confirmar pedido", description: "Confirma o pedido finalizando a compra")).Produces(201).Produces(400).Produces(404).Produces(500);
+pedido.MapPut("/{id}", UpdatePedido).WithName("UpdatePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar pedido", description: "Atualizar informações do pedido")).Produces(204).Produces(400).Produces(404).Produces(500);
+pedido.MapPut("/status/{id}", UpdateStatusPedido).WithName("UpdateStatusPedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar status pedido", description: "Atualiza o status do pedido")).Produces(204).Produces(400).Produces(404).Produces(500);
+pedido.MapDelete("/{id}", DeletePedido).WithName("DeletePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar pedido", description: "Deleta o pedido pelo id")).Produces(204).Produces(400).Produces(404).Produces(500);
 #endregion
 
 app.Run();
@@ -243,6 +245,16 @@ static async Task<IResult> CreateUsuario(UsuarioDTO usuarioDTO, IUsuarioUseCase 
 
         usuarioDTO = await usuarioUseCase.CreateUsuario(usuarioDTO);
         return TypedResults.Created($"/usuario/{usuarioDTO.Id}", usuarioDTO);
+    }
+    catch (ValidationException ex)
+    {
+        var error = "Erro ao criar usuário";
+
+        if(ex.Message.Contains("CPF"))
+            error = "Erro ao criar usuário. CPF já cadastrado";
+
+        //logar dps
+        return TypedResults.BadRequest(error);
     }
     catch (Exception ex)
     {

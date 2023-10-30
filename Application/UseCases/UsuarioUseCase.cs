@@ -6,6 +6,7 @@ using Domain.Repositories;
 using Domain.ValueObjects;
 using Infra.Configurations;
 using Infra.Repositories;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.UseCases
 {
@@ -30,9 +31,18 @@ namespace Application.UseCases
                     Tipo = "C" //cliente
                 };
 
+                var usuarioPorCpf = await GetUsuarioByCPF(usuarioDTO.CPF);
+
+                if (usuarioPorCpf != null && !string.IsNullOrEmpty(usuarioPorCpf.Id))
+                    throw new ValidationException("CPF já cadastrado");
+
                 return new UsuarioDTO(await _usuarioRepository.CreateUsuario(usuario));
             }
-            catch(Exception ex)
+            catch (ValidationException ex)
+            {
+                throw new ValidationException(ex.Message);
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

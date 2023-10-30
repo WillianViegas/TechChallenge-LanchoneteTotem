@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using Domain.Entities.DTO;
 
 namespace Domain.Entities
 {
@@ -11,6 +12,6 @@ namespace Domain.Entities
         public List<Produto> Produtos { get; set; }
         public decimal Total { get; set; }
         public bool Ativo { get; set; }
-        public Usuario Usuario { get; set; }
+        public UsuarioDTO Usuario { get; set; }
     }
 }

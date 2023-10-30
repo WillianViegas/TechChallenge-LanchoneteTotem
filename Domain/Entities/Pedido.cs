@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using Domain.Enum;
+using Domain.Entities.DTO;
 
 namespace Domain.Entities
 {
@@ -12,7 +13,7 @@ namespace Domain.Entities
 
         public int Numero { get; set; }
         public List<Produto> Produtos { get; set; }
-        public Usuario Usuario { get; set; }
+        public UsuarioDTO Usuario { get; set; }
         public decimal Total { get; set; }
         public EPedidoStatus Status { get; set; }
         public DateTime DataCriacao { get; set; }

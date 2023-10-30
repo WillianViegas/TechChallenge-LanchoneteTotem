@@ -20,8 +20,6 @@ services:
      image: mongo:latest
      networks:
        - prod-network
-     # ports:
-     #  - '2019:2017'
      container_name: mongodbLanchonete
      command: mongod --port 27017 --bind_ip 0.0.0.0
      environment:
