@@ -34,6 +34,7 @@ builder.Services.AddTransient<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddTransient<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddTransient<ICarrinhoRepository, CarrinhoRepository>();
 builder.Services.AddTransient<IPedidoRepository, PedidoRepository>();
+builder.Services.AddTransient<IInitialDataSeed, InitialDataSeed>();
 
 builder.Services.AddTransient<IUsuarioUseCase, UsuarioUseCase>();
 builder.Services.AddTransient<ICategoriaUseCase, CategoriaUseCase>();
@@ -91,6 +92,7 @@ if (app.Environment.IsDevelopment())
 
 var teste = app.MapGroup("/").WithTags("Requisições de teste");
 teste.MapGet("/teste", GetTeste).WithName("GetTeste").WithOpenApi().RequireAuthorization("token_admin");
+teste.MapGet("/seed", SeedInitialData).WithName("SeedInitialData").WithOpenApi();
 
 #region endpoint Usuario
 var usuarios = app.MapGroup("/usuario").WithTags("Usuario");
@@ -158,6 +160,12 @@ app.Run();
 
 static async Task<IResult> GetTeste(IMongoCollection<Categoria> collection)
 {
+    return TypedResults.Ok();
+}
+
+static async Task<IResult> SeedInitialData(IInitialDataSeed seedRepository)
+{
+    await seedRepository.CarregarDadosIniciais();
     return TypedResults.Ok();
 }
 
