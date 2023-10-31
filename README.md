@@ -1,7 +1,7 @@
 
 # TechChallenge-LanchoneteTotem
 
-Sistem de solicitação de pedido via totem de autoatendimento para lanchonete criado em .Net 7 utilizando Minimal Api e mongoDB, seguindo o padrão de arquitetura hexagonal. Proposta realizada como meio avaliativo da Fiap Pos Tech 
+Sistema de solicitação de pedido via totem de autoatendimento para lanchonete criado em .Net 7 utilizando Minimal Api e mongoDB, seguindo o padrão de arquitetura hexagonal. Proposta realizada como meio avaliativo da Fiap Pos Tech 
 
 ### Inicializando o sistema
 * A seguir estarão disponíveis instruções para a execução na sua máquina local para fins de teste e desenvolvimento.  
