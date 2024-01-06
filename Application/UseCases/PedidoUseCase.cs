@@ -125,7 +125,13 @@ namespace Application.UseCases
         {
             try
             {
-                return await _pedidoRepository.GetAllPedidos();
+                var listaPedidos = await _pedidoRepository.GetAllPedidos();
+                var listaPedidosFiltrados = listaPedidos.Where(x => x.Status == EPedidoStatus.EmPreparo || x.Status == EPedidoStatus.Pronto || x.Status == EPedidoStatus.Confirmado)
+                    .OrderBy(n => n.Status == EPedidoStatus.Pronto)
+                    .ThenBy(n => n.Status == EPedidoStatus.EmPreparo)
+                    .ThenBy(n => n.Status == EPedidoStatus.Confirmado).ToList();
+
+                return listaPedidosFiltrados;
             }
             catch (Exception ex)
             {
