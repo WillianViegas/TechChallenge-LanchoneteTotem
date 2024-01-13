@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infra", "Infra\Infra.csproj
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{16EAE387-C271-4AF5-B2A4-599E9A0D8B6F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PagamentoPedidoNotificationConsumer", "PagamentoPedidoNotificationConsumer\PagamentoPedidoNotificationConsumer.csproj", "{DEC8D3D8-9C9D-4482-BCD0-E909B850ACC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{16EAE387-C271-4AF5-B2A4-599E9A0D8B6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16EAE387-C271-4AF5-B2A4-599E9A0D8B6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16EAE387-C271-4AF5-B2A4-599E9A0D8B6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEC8D3D8-9C9D-4482-BCD0-E909B850ACC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEC8D3D8-9C9D-4482-BCD0-E909B850ACC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEC8D3D8-9C9D-4482-BCD0-E909B850ACC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEC8D3D8-9C9D-4482-BCD0-E909B850ACC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +70,7 @@ Global
 		{496E068C-9188-4F6D-8718-A7D2C1A1516F} = {C31F1318-3F15-4E20-ABEC-2B3CAE110568}
 		{1B2FF100-8BD3-4D9F-BE9F-0C7334C602E4} = {C31F1318-3F15-4E20-ABEC-2B3CAE110568}
 		{44697594-227F-4EDE-AAD5-3D8EDB115729} = {F5CD3631-DA89-4E24-B5C1-FE1D81F56A86}
+		{DEC8D3D8-9C9D-4482-BCD0-E909B850ACC6} = {CF3758A6-49C0-4A03-8001-12482F729DA9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {719E210A-8162-4F84-966E-BEC57F133419}

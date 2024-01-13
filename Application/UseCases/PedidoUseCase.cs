@@ -27,6 +27,8 @@ namespace Application.UseCases
                 var pedido = await GetPedidoById(id);
                 if (pedido is null) throw new Exception("Pedido não existe");
 
+                if (pedido.Status != EPedidoStatus.Novo) throw new Exception($"Status do pedido não é válido para confirmação. Status: {pedido.Status}, NumeroPedido: {pedido.Numero}");
+
                 //fazer solicitação do QRCode para pagamento(antes ou durante essa chamada)
                 //passando status pra pago por enquanto (ver como funciona na api do mercado pago)
                 pedido.Status = EPedidoStatus.Pago;
