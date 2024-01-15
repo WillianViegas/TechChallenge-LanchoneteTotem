@@ -150,7 +150,8 @@ pedido.MapGet("/", GetAllPedidos).WithName("GetAllPedidos").WithOpenApi().WithMe
 pedido.MapGet("/{id}", GetPedidoById).WithName("GetPedidoById").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Obter pedido por id", description: "Retorna um pedido pelo id")).Produces(200).Produces(400).Produces(404).Produces(500);
 pedido.MapPost("/", CreatePedido).WithName("CreatePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar pedido", description: "Cria um novo pedido")).Produces(201).Produces(400).Produces(404).Produces(500);
 pedido.MapPost("/fromCarrinho", CreatePedidoFromCarrinho).WithName("CreatePedidoFromCarrinho").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Criar pedido a partir do carrinho", description: "Cria um novo pedido utilizando o id de um carrinho")).Produces(201).Produces(400).Produces(404).Produces(500);
-pedido.MapPost("/confirmar/{id}", ConfirmarPedido).WithName("ConfirmarPedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Confirmar pedido", description: "Confirma o pedido finalizando a compra")).Produces(201).Produces(400).Produces(404).Produces(500);
+pedido.MapPost("/finalizar/{id}", FinalizarPedido).WithName("FinalizarPedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Finalizar pedido", description: "Finaliza o pedido gerando QRcode para pagamento")).Produces(201).Produces(400).Produces(404).Produces(500);
+pedido.MapPost("/confirmar/{id}", ConfirmarPedido).WithName("ConfirmarPedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Confirmar pedido", description: "Confirma o pagamento do pedido")).Produces(201).Produces(400).Produces(404).Produces(500);
 pedido.MapPut("/{id}", UpdatePedido).WithName("UpdatePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar pedido", description: "Atualizar informações do pedido")).Produces(204).Produces(400).Produces(404).Produces(500);
 pedido.MapPut("/status/{id}", UpdateStatusPedido).WithName("UpdateStatusPedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Atualizar status pedido", description: "Atualiza o status do pedido")).Produces(204).Produces(400).Produces(404).Produces(500);
 pedido.MapDelete("/{id}", DeletePedido).WithName("DeletePedido").WithOpenApi().WithMetadata(new SwaggerOperationAttribute(summary: "Deletar pedido", description: "Deleta o pedido pelo id")).Produces(204).Produces(400).Produces(404).Produces(500);
@@ -766,6 +767,21 @@ static async Task<IResult> CreatePedido(Pedido pedidoInput, IPedidoUseCase pedid
     }
 }
 
+static async Task<IResult> FinalizarPedido(string id, IPedidoUseCase pedidoUseCase)
+{
+    try
+    {
+        if (string.IsNullOrEmpty(id))
+            return TypedResults.BadRequest("Id inválido");
+
+        var pedido = await pedidoUseCase.FinalizarPedido(id);
+        return TypedResults.Created($"/pedido/{pedido.Id}", pedido);
+    }
+    catch (Exception ex)
+    {
+        return TypedResults.Problem($"Erro ao confirmar criar o pedido. Id: {id}");
+    }
+}
 
 static async Task<IResult> ConfirmarPedido(string id, IPedidoUseCase pedidoUseCase)
 {

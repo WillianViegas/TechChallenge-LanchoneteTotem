@@ -9,10 +9,11 @@ namespace Domain.Enum
     public enum EPedidoStatus
     {
         Novo = 0,
-        Pago = 1,
-        Confirmado = 2,
-        EmPreparo = 3,
-        Pronto = 4,
-        Finalizado = 5
+        PendentePagamento = 1,
+        Pago = 2,
+        Confirmado = 3,
+        EmPreparo = 4,
+        Pronto = 5,
+        Finalizado = 6
     }
 }

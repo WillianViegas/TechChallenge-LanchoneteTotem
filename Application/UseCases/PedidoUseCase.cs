@@ -20,7 +20,7 @@ namespace Application.UseCases
             _carrinhoRepository = carrinhoRepository;
         }
 
-        public async Task<Pedido> ConfirmarPedido(string id)
+        public async Task<Pedido> FinalizarPedido(string id)
         {
             try
             {
@@ -29,13 +29,12 @@ namespace Application.UseCases
 
                 if (pedido.Status != EPedidoStatus.Novo) throw new Exception($"Status do pedido não é válido para confirmação. Status: {pedido.Status}, NumeroPedido: {pedido.Numero}");
 
-                //fazer solicitação do QRCode para pagamento(antes ou durante essa chamada)
-                //passando status pra pago por enquanto (ver como funciona na api do mercado pago)
-                pedido.Status = EPedidoStatus.Pago;
+                pedido.Status = EPedidoStatus.PendentePagamento;
                 pedido.Pagamento = new Pagamento()
                 {
                     Tipo = ETipoPagamento.QRCode,
                     QRCodeUrl = "www.usdfhosdfsdhfosdfhsdofhdsfds.com.br",
+                    OrdemDePagamento = Guid.NewGuid().ToString()
                 };
 
                 await _pedidoRepository.UpdatePedido(id, pedido);
@@ -47,6 +46,27 @@ namespace Application.UseCases
                     carrinho.Ativo = false;
                     await _carrinhoRepository.UpdateCarrinho(carrinho.Id, carrinho);
                 }
+
+                return pedido;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Pedido> ConfirmarPedido(string id)
+        {
+            try
+            {
+                var pedido = await GetPedidoById(id);
+                if (pedido is null) throw new Exception("Pedido não existe");
+
+                if (pedido.Status != EPedidoStatus.PendentePagamento) throw new Exception($"Status do pedido não é válido para confirmação. Status: {pedido.Status}, NumeroPedido: {pedido.Numero}");
+                
+                pedido.Status = EPedidoStatus.Pago;
+
+                await _pedidoRepository.UpdatePedido(id, pedido);
 
                 return pedido;
             }
