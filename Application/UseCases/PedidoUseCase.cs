@@ -5,6 +5,7 @@ using Domain.Enum;
 using Domain.Repositories;
 using Infra.Configurations;
 using Infra.Repositories;
+using Microsoft.Extensions.Logging;
 using static Domain.Entities.Pedido;
 
 namespace Application.UseCases
@@ -13,11 +14,13 @@ namespace Application.UseCases
     {
         private readonly IPedidoRepository _pedidoRepository;
         private readonly ICarrinhoRepository _carrinhoRepository;
+        private readonly ILogger _log;
 
-        public PedidoUseCase(IPedidoRepository pedidoRepository, ICarrinhoRepository carrinhoRepository)
+        public PedidoUseCase(IPedidoRepository pedidoRepository, ICarrinhoRepository carrinhoRepository, ILogger<PedidoUseCase> log)
         {
             _pedidoRepository = pedidoRepository;
             _carrinhoRepository = carrinhoRepository;
+            _log = log;
         }
 
         public async Task<Pedido> FinalizarPedido(string id)
@@ -57,23 +60,32 @@ namespace Application.UseCases
 
         public async Task<Pedido> ConfirmarPedido(string id)
         {
+            var pedido = new Pedido();
             try
             {
-                var pedido = await GetPedidoById(id);
-                if (pedido is null) throw new Exception("Pedido não existe");
+                pedido = await GetPedidoById(id);
 
-                if (pedido.Status != EPedidoStatus.PendentePagamento) throw new Exception($"Status do pedido não é válido para confirmação. Status: {pedido.Status}, NumeroPedido: {pedido.Numero}");
+                if (pedido is null)
+                {
+                    _log.LogError("Pedido não encontrado");
+                    return pedido;
+                }
+                if (pedido.Status != EPedidoStatus.PendentePagamento)
+                {
+                    _log.LogError($"Status do pedido não é válido para confirmação. Status: {pedido.Status}, NumeroPedido: {pedido.Numero}");
+                    return pedido;
+                }
                 
                 pedido.Status = EPedidoStatus.Pago;
 
                 await _pedidoRepository.UpdatePedido(id, pedido);
-
-                return pedido;
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                _log.LogError(ex.Message);
             }
+
+            return pedido;
         }
 
         public async Task<Pedido> CreatePedidoFromCarrinho(Carrinho carrinho)

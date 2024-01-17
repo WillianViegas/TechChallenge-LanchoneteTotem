@@ -111,7 +111,7 @@ namespace PagamentoPedidoNotificationConsumer.Service
             {
                 obj = Newtonsoft.Json.JsonConvert.DeserializeObject<PedidoNotification>(body);
 
-                if (string.IsNullOrEmpty(obj.IdTransacao) || string.IsNullOrEmpty(obj.idPedido))
+                if (string.IsNullOrEmpty(obj.idPedido))
                 {
                     //logar
                     return null;
@@ -130,7 +130,7 @@ namespace PagamentoPedidoNotificationConsumer.Service
         private async Task SendTestMessageAsync()
         {
             var messageBody = new PedidoNotification();
-            messageBody.IdTransacao = Guid.NewGuid().ToString();
+            messageBody.IdTransacao = Guid.NewGuid();
             messageBody.idPedido = "65a315fadb1f522d916d9361";
             messageBody.Status = "OK";
             messageBody.DataTransacao = DateTime.Now;

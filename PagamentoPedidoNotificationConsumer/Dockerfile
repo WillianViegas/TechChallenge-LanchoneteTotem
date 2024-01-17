@@ -7,12 +7,12 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["PagamentoPedidoNotificationConsumer/PagamentoPedidoNotificationConsumer.csproj", "TechChallenge-LanchoneteTotem/"]
+COPY ["PagamentoPedidoNotificationConsumer/PagamentoPedidoNotificationConsumer.csproj", "PagamentoPedidoNotificationConsumer/"]
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Infra/Infra.csproj", "Infra/"]
 RUN dotnet restore "PagamentoPedidoNotificationConsumer/PagamentoPedidoNotificationConsumer.csproj"
 COPY . .
-WORKDIR "/src/TechChallenge-LanchoneteTotem"
+WORKDIR "/src/PagamentoPedidoNotificationConsumer"
 RUN dotnet build "PagamentoPedidoNotificationConsumer.csproj" -c Release -o /app/build
 
 FROM build AS publish

@@ -39,6 +39,8 @@ services:
     ports:
       - "4510-4559:4510-4559"  # external service port range
       - "4566:4566"            # LocalStack Edge Proxy
+    networks:
+         - prod-network
     environment:
       - AWS_DEFAULT_REGION=us-east-1
       - SERVICES=sqs,s3
