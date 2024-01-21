@@ -1,4 +1,6 @@
 ﻿using Amazon.S3;
+using Amazon.SecretsManager.Model;
+using Amazon.SecretsManager;
 using Amazon.SQS;
 using Amazon.SQS.ExtendedClient;
 using Amazon.SQS.Model;
@@ -52,6 +54,8 @@ namespace PagamentoPedidoNotificationConsumer.Service
                 }
             }
 
+
+            //adicionar padrão secretManager igual no notifier
 
             while (!stoppingToken.IsCancellationRequested)
             {
