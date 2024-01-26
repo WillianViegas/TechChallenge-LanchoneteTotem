@@ -82,30 +82,57 @@ LocalStack:
 
  ## Proposta atual
 
- Documentação do sistema (DDD) utilizando a linguagem ubíqua dos fluxos:
-  
-- Realização do pedido e pagamento
+- Checkout do pedido e identificação do mesmo
 
-- Preparo e entrega do pedido
+- Consultar status do pagamento
 
-Link documentação: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&t=eIOHebPJdDjUs6OT-1
+- API para confirmar pagamento do pedido ( postergando a necessidade de realizar a integração com provedor de pagamento) 
+
+- Webhook para saber se o pagamento foi aprovado
+
+- Ordenação de pedidos seguindo critérios de status e data
+
+- Atualização de status do pedido
 
 
 Projeto com foco no backend seguindo os padrões solicitados em aula:
 
-- Arquitetura Hexagonal
+- Arquitetura Limpa
 
-- Api
-    - Cadastro de cliente
-    - Identificação via CPF
-    - Criar, editar e remover produtos
-    - Buscar produtos por categoria
-    - Fake checkout, apenas enviar os produtos escolhidos para a fila (futuramente será implementado um provedor de pagamento)
-    - Listar pedidos
+- `Api TechChallenge-LanchoneteTotem`
+  - Cadastro de cliente
+  - Identificação via CPF
+  - Criar, editar e remover produtos
+  - Buscar produtos por categoria
+  - Fake checkout, apenas enviar os produtos escolhidos para a fila (futuramente será implementado um provedor de pagamento)
+  - Listar pedidos
+      
+- `Api Notifier`
+  - Envio da confirmação do pagamento do pedido (utilizado pra simular o provedor de pagamento)
+ 
+- `Webhook PagamentoPedidoNotificationConsumer`
+  - Captura de confirmações de pagamento e atualização do status do pedido
+ 
+- `Ferramentas e serviços`
+  - LocalStack
+  - AWS SQS
+  - AWS SecretManager 
 
-- Aplicação com foco em escalabilidade
-- Banco de dados (realizado com mongoDb)
-- Utilização de docker e dockercompose para a criação e orquestração dos containers (1 para a aplicação e um para o banco de dados)
+- `Docker e Docker-Compose`
+  -  Criação e orquestração dos containers (4 Containers)
+  - 1 Api TechChallenge-LanchoneteTotem
+  - 1 Api Notifier
+  - 1 Webhook PagamentoPedidoNotificationConsumer
+  - 1 LocalStack
+  - 1 Banco de dados
+
+- `Estrutura Kubernetes`
+  - Escalabilidade com aumento e diminuição de Podes conforme demanda
+  - Arquivos manifesto (yaml)
+
+- `Desenho da arquitetura`
+  - Requisitos de negócio e requisitos de infraestrutura
+  - Link documentação: {adicionar link doc}
 
 
 ## Futuras adições e melhorias:
@@ -130,19 +157,27 @@ Link documentação: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta
 
 Projeto com foco no backend seguindo os padrões solicitados em aula:
 
-- Arquitetura Hexagonal
+- `Arquitetura Hexagonal`
 
-- Api
+- `Api`
     - Cadastro de cliente
     - Identificação via CPF
     - Criar, editar e remover produtos
     - Buscar produtos por categoria
     - Fake checkout, apenas enviar os produtos escolhidos para a fila (futuramente será implementado um provedor de pagamento)
     - Listar pedidos
+    - Aplicação com foco em escalabilidade
 
-- Aplicação com foco em escalabilidade
-- Banco de dados (realizado com mongoDb)
-- Utilização de docker e dockercompose para a criação e orquestração dos containers (1 para a aplicação e um para o banco de dados)
+  
+- `Banco de dados`
+  - MongoDb
+    
+- `Docker e Docker-Compose`
+  -  Criação e orquestração dos containers (1 para a aplicação e um para o banco de dados)
 
 
 ### Fase 2:
+Atualização da aplicação desenvolvida na Fase 1 refatorando código para seguir os padrões de clean code e clean architecture;
+
+  Obs: Atualmente o conteúdo da proposta atual é respectivo a fase 2, posteriormente será adicionado aqui, assim que for iniciada a fase 3;
+
