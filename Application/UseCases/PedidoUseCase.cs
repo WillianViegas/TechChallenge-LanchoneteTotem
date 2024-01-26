@@ -76,7 +76,7 @@ namespace Application.UseCases
                     return pedido;
                 }
                 
-                pedido.Status = EPedidoStatus.Pago;
+                pedido.Status = EPedidoStatus.Recebido;
 
                 await _pedidoRepository.UpdatePedido(id, pedido);
             }
@@ -160,10 +160,10 @@ namespace Application.UseCases
             try
             {
                 var listaPedidos = await _pedidoRepository.GetAllPedidos();
-                var listaPedidosFiltrados = listaPedidos.Where(x => x.Status == EPedidoStatus.EmPreparo || x.Status == EPedidoStatus.Pronto || x.Status == EPedidoStatus.Confirmado)
+                var listaPedidosFiltrados = listaPedidos.Where(x => x.Status == EPedidoStatus.EmPreparo || x.Status == EPedidoStatus.Pronto || x.Status == EPedidoStatus.Recebido)
                     .OrderBy(n => n.Status == EPedidoStatus.Pronto)
                     .ThenBy(n => n.Status == EPedidoStatus.EmPreparo)
-                    .ThenBy(n => n.Status == EPedidoStatus.Confirmado).ToList();
+                    .ThenBy(n => n.Status == EPedidoStatus.Recebido).ToList();
 
                 return listaPedidosFiltrados;
             }
@@ -178,7 +178,7 @@ namespace Application.UseCases
             try
             {
                 var listaPedidosAtivos = await _pedidoRepository.GetAllPedidos();
-                return listaPedidosAtivos.Where(x => x.Status != EPedidoStatus.Novo && x.Status != EPedidoStatus.Pago && x.Status != EPedidoStatus.Finalizado).ToList();
+                return listaPedidosAtivos.Where(x => x.Status != EPedidoStatus.Novo && x.Status != EPedidoStatus.Recebido && x.Status != EPedidoStatus.Finalizado).ToList();
             }
             catch (Exception ex)
             {

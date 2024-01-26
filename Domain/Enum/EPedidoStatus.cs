@@ -10,10 +10,9 @@ namespace Domain.Enum
     {
         Novo = 0,
         PendentePagamento = 1,
-        Pago = 2,
-        Confirmado = 3,
-        EmPreparo = 4,
-        Pronto = 5,
-        Finalizado = 6
+        Recebido = 2,
+        EmPreparo = 3,
+        Pronto = 4,
+        Finalizado = 5
     }
 }
