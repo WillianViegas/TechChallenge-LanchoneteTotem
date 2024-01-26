@@ -3,6 +3,20 @@
 
 Sistema de solicitação de pedido via totem de autoatendimento para lanchonete criado em .Net 7 utilizando Minimal Api e mongoDB, seguindo o padrão de arquitetura hexagonal. Proposta realizada como meio avaliativo da Fiap Pos Tech 
 
+## Estutura
+
+Para um melhor entendimento da estrutura e como realizar o fluxo e utilizar o projeto segue uma breve descrição:
+O projeto tem 3 modulos que se comunicam entre si:
+- Api TechChallenge-LanchoneteTotem (Se trata da api principal, permitindo o CRUD de Produtos e Categorias, além da realização do pedido e seu controle/visualização);
+- Api Notifier (Se trata de uma api que faz um envio para a fila do SQS informando que o pagamento de um pedido foi confirmado [Obs: Essa api existe por conta de ainda não ter sido implementado um terceiro para gerenciar o pagamento no processo. Então o notifier serve como  auxiliar para que possamos confirmar os nossos pedidos e fazer o fluxo rodar]);
+- Webhook PagamentoPedidoNotificationConsumer (Se trata de um Webhook que fica ouvindo uma fila, a mesma em que o Notifier envia a confirmação do pedido, quando chegam mensagens na fila o webhook as captura e realiza a confirmação do pedido atualizando seu status e salvando no banco de dados)
+
+Estrutura visual dos três modulos interagindo:
+![Screenshot_2](https://github.com/WillianViegas/TechChallenge-LanchoneteTotem/assets/58482678/7449fe57-e093-4142-9e8c-4d285fa9304c)
+
+Em relação a utilização do serviço da AWS SQS (Simple Queue Service) para facilitar os testes foi implementada a ferramenta Localstack que simula estes serviços sem custo e de forma mais prática para desenvolvimento local. Porém também foi configurado e testado o mesmo fluxo para a utilização do serviço na AWS;
+
+
 ### Inicializando o sistema
 * A seguir estarão disponíveis instruções para a execução na sua máquina local para fins de teste e desenvolvimento.  
 
@@ -22,18 +36,38 @@ Para inicializar execute o comando `docker-compose start` e
 para finalizar `docker-compose stop`
 
 ### Acessar swagger
-Após a subida dos containers basta acessar: https://localhost:7004/swagger/index.html
+Após a subida dos containers basta acessar: 
+
+Api TechChallenge-LanchoneteTotem
+https://localhost:7004/swagger/index.html
+
+Api Notifier
+https://localhost:7008/swagger/index.html
 
 ### Portas
 Aplicação:
-    
-    7004:443
-    
-    7003:80
+- Api TechChallenge-LanchoneteTotem
+
+        7004:443
+        7003:80
+
+- Api Notifier
+
+        7008:443
+        7007:80
+
+- Webhook PagamentoPedidoNotificationConsumer
+
+        7006:443
+        7005:80
 
 MongoDb:
 
     27017:27017
+
+LocalStack:
+
+    4566:4566 
 
  ## Populando o banco de dados para os dados iniciais
 
