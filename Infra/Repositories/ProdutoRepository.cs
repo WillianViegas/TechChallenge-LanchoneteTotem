@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Entities.DTO;
 using Domain.Repositories;
-using Infra.Configurations;
+using Infra.Configurations.Database;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;

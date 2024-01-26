@@ -2,21 +2,16 @@
 using Amazon.SQS;
 using Application.UseCases;
 using Application.UseCases.Interfaces;
-using Domain.Entities;
 using Domain.Repositories;
-using Infra.Configurations;
 using Infra.Repositories;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using PagamentoPedidoNotificationConsumer.Service;
 using PagamentoPedidoNotificationConsumer.HealthCheck;
-using Amazon.SecretsManager;
-using Amazon.SecretsManager.Model;
-using Amazon;
-
+using Infra.Configurations.SQS;
+using Infra.Configurations.Database;
 
 await Host.CreateDefaultBuilder(args)
         .ConfigureServices((hostContext, services) =>
@@ -30,6 +25,8 @@ await Host.CreateDefaultBuilder(args)
             services.AddTransient<IPedidoUseCase, PedidoUseCase>();
             services.AddTransient<ICarrinhoRepository, CarrinhoRepository>();
             services.AddTransient<IPedidoRepository, PedidoRepository>();
+            services.AddTransient<ISQSConfiguration, SQSConfiguration>();
+
 
             services.Configure<DatabaseConfig>(hostContext.Configuration.GetSection(nameof(DatabaseConfig)));
             services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOptions<DatabaseConfig>>().Value);

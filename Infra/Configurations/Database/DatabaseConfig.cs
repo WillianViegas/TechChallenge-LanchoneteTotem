@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Infra.Configurations
+namespace Infra.Configurations.Database
 {
     public class DatabaseConfig : IDatabaseConfig
     {

@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Repositories;
 using Domain.ValueObjects;
-using Infra.Configurations;
+using Infra.Configurations.Database;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;

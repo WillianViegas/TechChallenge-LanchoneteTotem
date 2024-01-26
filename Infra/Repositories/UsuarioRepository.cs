@@ -2,7 +2,7 @@
 using Domain.Entities.DTO;
 using Domain.Repositories;
 using Domain.ValueObjects;
-using Infra.Configurations;
+using Infra.Configurations.Database;
 using MongoDB.Driver;
 using System;
 

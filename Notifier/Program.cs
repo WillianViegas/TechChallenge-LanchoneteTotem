@@ -1,12 +1,9 @@
 using Amazon.S3;
-using Amazon.SecretsManager;
-using Amazon.SecretsManager.Model;
 using Amazon.SQS;
 using Amazon.SQS.ExtendedClient;
 using Amazon.SQS.Model;
+using Infra.Configurations.SQS;
 using LocalStack.Client.Extensions;
-using Microsoft.Extensions.Configuration;
-using MongoDB.Bson.IO;
 using Notifier.Model;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -21,15 +18,27 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddLocalStack(builder.Configuration);
 builder.Services.AddAWSServiceLocalStack<IAmazonSQS>();
 builder.Services.AddAWSServiceLocalStack<IAmazonS3>();
+builder.Services.AddTransient<ISQSConfiguration, SQSConfiguration>();
 
+
+var queueUrl = builder.Configuration.GetSection("QueueUrl").Value;
+var criarFila = builder.Configuration.GetSection("SQSConfig").GetSection("CreateTestQueue").Get<bool>();
+var enviarMensagem = builder.Configuration.GetSection("SQSConfig").GetSection("SendTestMessage").Get<bool>();
 var useLocalStack = builder.Configuration.GetSection("SQSConfig").GetSection("useLocalStack").Get<bool>();
+
+
+//config SQS AWS
 var sqsClient = new AmazonSQSClient(Amazon.RegionEndpoint.GetBySystemName(
-        string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MY_SECRET")) 
+        string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MY_SECRET")) || Environment.GetEnvironmentVariable("MY_SECRET").Equals("{MY_SECRET}")
         ? "us-east-1"
         : Environment.GetEnvironmentVariable("MY_SECRET")));
 
+
 if (!useLocalStack)
-    sqsClient = await ConfigurarSQS();
+{
+    var sqsConfiguration = new SQSConfiguration();
+    sqsClient = await sqsConfiguration.ConfigurarSQS();
+}
 
 var app = builder.Build();
 
@@ -45,36 +54,29 @@ pedido.MapPost("/", EnviarConfirmacaoPedido).WithName("EnviarConfirmacaoPedido")
 
 app.Run();
 
-async Task<IResult> EnviarConfirmacaoPedido(IConfiguration configuration, IAmazonSQS sqs, IAmazonS3 s3, MessageBody message)
+async Task<IResult> EnviarConfirmacaoPedido(IConfiguration configuration, ISQSConfiguration sqsConfiguration, IAmazonSQS sqs, IAmazonS3 s3, MessageBody message)
 {
     try
     {
-        var queueUrl = configuration.GetSection("QueueUrl").Value;
-
         if (useLocalStack)
         {
-            var criarFila = configuration.GetSection("SQSConfig").GetSection("CreateTestQueue").Get<bool>();
-            var enviarMensagem = configuration.GetSection("SQSConfig").GetSection("SendTestMessage").Get<bool>();
-
-            var configSQS = ConfigurarSQSBasic(configuration, sqs, s3);
+            var bucketName = builder.Configuration.GetSection("SQSExtendedClient").GetSection("S3Bucket").Value;
+            var configSQS = new AmazonSQSExtendedClient(sqs, new ExtendedClientConfiguration().WithLargePayloadSupportEnabled(s3, bucketName));
 
             if (criarFila)
-                await CreateMessageInQueueWithStatusASync(configuration, configSQS);
+                await CreateMessageInQueueWithStatusASyncLocalStack(builder.Configuration, configSQS);
 
             if (enviarMensagem)
-            {
-                await SendTestMessageAsync(queueUrl, configSQS);
-            }
-            else
-            {
-                var jsonMessage = Newtonsoft.Json.JsonConvert.SerializeObject(message);
-                await sqs.SendMessageAsync(queueUrl, jsonMessage);
-            }
+                await SendTestMessageAsyncLocalStack(queueUrl, configSQS);
+
+
+            var jsonMessage = Newtonsoft.Json.JsonConvert.SerializeObject(message);
+            await configSQS.SendMessageAsync(queueUrl, jsonMessage);
         }
         else
         {
             var messageJson = Newtonsoft.Json.JsonConvert.SerializeObject(message);
-            await EnviarParaSQS(messageJson, sqsClient);
+            await sqsConfiguration.EnviarParaSQS(messageJson, sqsClient);
         }
 
 
@@ -86,15 +88,7 @@ async Task<IResult> EnviarConfirmacaoPedido(IConfiguration configuration, IAmazo
     }
 }
 
-AmazonSQSExtendedClient ConfigurarSQSBasic(IConfiguration configuration, IAmazonSQS sqs, IAmazonS3 s3)
-{
-    var bucketName = configuration.GetSection("SQSExtendedClient").GetSection("S3Bucket").Value;
-    var amazonSQS = new AmazonSQSExtendedClient(sqs, new ExtendedClientConfiguration().WithLargePayloadSupportEnabled(s3, bucketName));
-
-    return amazonSQS;
-}
-
-async Task SendTestMessageAsync(string queue, AmazonSQSExtendedClient sqs)
+async Task SendTestMessageAsyncLocalStack(string queue, AmazonSQSExtendedClient sqs)
 {
     var messageBody = new MessageBody();
     messageBody.IdTransacao = Guid.NewGuid().ToString();
@@ -107,7 +101,7 @@ async Task SendTestMessageAsync(string queue, AmazonSQSExtendedClient sqs)
     await sqs.SendMessageAsync(queue, jsonObj);
 }
 
-async Task CreateMessageInQueueWithStatusASync(IConfiguration configuration, AmazonSQSExtendedClient sqs)
+async Task CreateMessageInQueueWithStatusASyncLocalStack(IConfiguration configuration, AmazonSQSExtendedClient sqs)
 {
     var name = configuration.GetSection("SQSConfig").GetSection("TestQueueName").Value;
     var responseQueue = await sqs.CreateQueueAsync(new CreateQueueRequest(name));
@@ -119,63 +113,5 @@ async Task CreateMessageInQueueWithStatusASync(IConfiguration configuration, Ama
     }
 }
 
-async Task<AmazonSQSClient> ConfigurarSQS()
-{
-    using (var secretsManagerClient = new AmazonSecretsManagerClient())
-    {
-        var secretName = Environment.GetEnvironmentVariable("MY_SECRET");
-        var getSecretValueRequest = new GetSecretValueRequest
-        {
-            SecretId = secretName
-        };
 
-        var getSecretValueResponse = await secretsManagerClient.GetSecretValueAsync(getSecretValueRequest);
-        var secretString = getSecretValueResponse.SecretString;
-
-        // Parse the secretString to get SQS connection details
-        var sqsConnectionDetails = ParseSecretString(secretString);
-
-        // Initialize the AmazonSQS client with the retrieved credentials
-        var sqsConfig = new AmazonSQSConfig
-        {
-            RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(sqsConnectionDetails.Region)
-        };
-
-        var sqsClient = new AmazonSQSClient(sqsConnectionDetails.AccessKeyId, sqsConnectionDetails.SecretAccessKey, sqsConfig);
-
-        return sqsClient;
-    }
-}
-
-
-async Task EnviarParaSQS(string jsonMessage, AmazonSQSClient sqsClient)
-{
-    try
-    {
-        // Use sqsClient to perform SQS operations
-        var listQueuesResponse = await sqsClient.ListQueuesAsync(new ListQueuesRequest());
-        foreach (var queueUrl in listQueuesResponse.QueueUrls)
-        {
-            Console.WriteLine($"SQS Queue URL: {queueUrl}");
-            await sqsClient.SendMessageAsync(queueUrl, jsonMessage);
-        }
-    }
-    catch(Exception ex)
-    {
-        //logar;
-    }
-  
-}
-
-static SqsConnectionDetails ParseSecretString(string secretString)
-{
-    return Newtonsoft.Json.JsonConvert.DeserializeObject<SqsConnectionDetails>(secretString);
-}
-
-class SqsConnectionDetails
-{
-    public string AccessKeyId { get; set; }
-    public string SecretAccessKey { get; set; }
-    public string Region { get; set; }
-}
 
