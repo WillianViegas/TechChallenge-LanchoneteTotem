@@ -7,9 +7,11 @@ Sistema de solicitação de pedido via totem de autoatendimento para lanchonete 
 
 Para um melhor entendimento da estrutura e como realizar o fluxo e utilizar o projeto segue uma breve descrição:
 O projeto tem 3 modulos que se comunicam entre si:
-- Api TechChallenge-LanchoneteTotem (Se trata da api principal, permitindo o CRUD de Produtos e Categorias, além da realização do pedido e seu controle/visualização);
-- Api Notifier (Se trata de uma api que faz um envio para a fila do SQS informando que o pagamento de um pedido foi confirmado [Obs: Essa api existe por conta de ainda não ter sido implementado um terceiro para gerenciar o pagamento no processo. Então o notifier serve como  auxiliar para que possamos confirmar os nossos pedidos e fazer o fluxo rodar]);
-- Webhook PagamentoPedidoNotificationConsumer (Se trata de um Webhook que fica ouvindo uma fila, a mesma em que o Notifier envia a confirmação do pedido, quando chegam mensagens na fila o webhook as captura e realiza a confirmação do pedido atualizando seu status e salvando no banco de dados)
+- `Api TechChallenge-LanchoneteTotem` (Se trata da api principal, permitindo o CRUD de Produtos e Categorias, além da realização do pedido e seu controle/visualização);
+  
+- `Api Notifier` (Se trata de uma api que faz um envio para a fila do SQS informando que o pagamento de um pedido foi confirmado [Obs: Essa api existe por conta de ainda não ter sido implementado um terceiro para gerenciar o pagamento no processo. Então o notifier serve como  auxiliar para que possamos confirmar os nossos pedidos e fazer o fluxo rodar]);
+  
+- `Webhook PagamentoPedidoNotificationConsumer` (Se trata de um Webhook que fica ouvindo uma fila, a mesma em que o Notifier envia a confirmação do pedido, quando chegam mensagens na fila o webhook as captura e realiza a confirmação do pedido atualizando seu status e salvando no banco de dados)
 
 Estrutura visual dos três modulos interagindo:
 ![Screenshot_2](https://github.com/WillianViegas/TechChallenge-LanchoneteTotem/assets/58482678/7449fe57-e093-4142-9e8c-4d285fa9304c)
@@ -113,3 +115,34 @@ Projeto com foco no backend seguindo os padrões solicitados em aula:
     - Implementar meio de pagamento do Mercado pago
     - Implementar testes de unidade
     - Melhorar e corrigir detalhes da Arquitetura
+
+## Fases do projeto
+
+### Fase 1:
+Documentação do sistema (DDD) utilizando a linguagem ubíqua dos fluxos:
+  
+- Realização do pedido e pagamento
+
+- Preparo e entrega do pedido
+
+Link documentação: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&t=eIOHebPJdDjUs6OT-1
+
+
+Projeto com foco no backend seguindo os padrões solicitados em aula:
+
+- Arquitetura Hexagonal
+
+- Api
+    - Cadastro de cliente
+    - Identificação via CPF
+    - Criar, editar e remover produtos
+    - Buscar produtos por categoria
+    - Fake checkout, apenas enviar os produtos escolhidos para a fila (futuramente será implementado um provedor de pagamento)
+    - Listar pedidos
+
+- Aplicação com foco em escalabilidade
+- Banco de dados (realizado com mongoDb)
+- Utilização de docker e dockercompose para a criação e orquestração dos containers (1 para a aplicação e um para o banco de dados)
+
+
+### Fase 2:
