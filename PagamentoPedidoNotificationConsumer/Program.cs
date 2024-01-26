@@ -13,11 +13,15 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using PagamentoPedidoNotificationConsumer.Service;
 using PagamentoPedidoNotificationConsumer.HealthCheck;
+using Amazon.SecretsManager;
+using Amazon.SecretsManager.Model;
+using Amazon;
 
 
 await Host.CreateDefaultBuilder(args)
         .ConfigureServices((hostContext, services) =>
         {
+            
             services.AddSingleton<PagamentoPedidoConsumer>();
             services.AddHostedService(provider => provider.GetService<PagamentoPedidoConsumer>());
             services.AddHealthChecks().AddCheck<CustomHealthCheck>("custom_check");
@@ -29,10 +33,12 @@ await Host.CreateDefaultBuilder(args)
 
             services.Configure<DatabaseConfig>(hostContext.Configuration.GetSection(nameof(DatabaseConfig)));
             services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOptions<DatabaseConfig>>().Value);
-
             services.AddLocalStack(hostContext.Configuration);
             services.AddAWSServiceLocalStack<IAmazonSQS>();
             services.AddAWSServiceLocalStack<IAmazonS3>();
             services.AddLogging();
         })
         .RunConsoleAsync();
+
+
+

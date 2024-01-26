@@ -29,8 +29,33 @@ services:
      environment:
          MongoDbSettings_ConnectionString: 'mongodb://admin:abc123!@mongodbLanchonete'
          LocalStack__Config__LocalStackHost: 'localstack'
+         AWS_ACCESS_KEY_ID: '{AWS_ACCESS_KEY_ID}'
+         AWS_SECRET_ACCESS_KEY: '{AWS_SECRET_ACCESS_KEY}'
+         AWS_REGION: 'us-east-1'
+         MY_SECRET: '{MY_SECRET}'
      depends_on:
          - mongodb
+         - localstack
+
+  notifier:
+     image: ${DOCKER_REGISTRY-}notifier
+     build:
+         context: .
+         dockerfile: Notifier/Dockerfile
+     ports:
+         - "7007:80"
+         - "7008:443"
+     networks:
+         - prod-network
+     environment:
+         ASPNETCORE_ENVIRONMENT: 'Development'
+         ASPNETCORE_URLS: 'https://+:443;http://+:80'
+         LocalStack__Config__LocalStackHost: 'localstack'
+         AWS_ACCESS_KEY_ID: '{AWS_ACCESS_KEY_ID}'
+         AWS_SECRET_ACCESS_KEY: '{AWS_SECRET_ACCESS_KEY}'
+         AWS_REGION: 'us-east-1'
+         MY_SECRET: '{MY_SECRET}'
+     depends_on:
          - localstack
 
   localstack:

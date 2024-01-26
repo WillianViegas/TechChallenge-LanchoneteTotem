@@ -18,8 +18,11 @@ namespace PagamentoPedidoNotificationConsumer.Service
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly IPedidoUseCase _pedidoUseCase;
-        private readonly string _queueUrl;
-        private readonly IAmazonSQS _amazonSQS;
+        private readonly string? _queueUrl;
+        private readonly string? _bucketName;
+        private readonly bool _useLocalStack;
+        private readonly IAmazonS3 _s3;
+        private IAmazonSQS _amazonSQS;
 
 
         public PagamentoPedidoConsumer(ILogger<PagamentoPedidoConsumer> logger, IConfiguration configuration, IPedidoUseCase pedidoUseCase, IAmazonSQS sqs, IAmazonS3 s3)
@@ -27,10 +30,12 @@ namespace PagamentoPedidoNotificationConsumer.Service
             _logger = logger;
             _configuration = configuration;
             _pedidoUseCase = pedidoUseCase;
-            _queueUrl = configuration.GetSection("QueueUrl").Value;
+            _amazonSQS = sqs;
+            _s3 = s3;
 
-            var bucketName = configuration.GetSection("SQSExtendedClient").GetSection("S3Bucket").Value;
-            _amazonSQS = new AmazonSQSExtendedClient(sqs, new ExtendedClientConfiguration().WithLargePayloadSupportEnabled(s3, bucketName));
+            _queueUrl = configuration.GetSection("QueueUrl").Value;
+            _bucketName = configuration.GetSection("SQSExtendedClient").GetSection("S3Bucket").Value;
+            _useLocalStack = configuration.GetSection("LocalStack").GetSection("UseLocalStack").Get<bool>();
 
             LastActivity = DateTime.Now;
         }
@@ -40,6 +45,13 @@ namespace PagamentoPedidoNotificationConsumer.Service
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Task.Delay(200, stoppingToken);
+
+
+            if (_useLocalStack)
+                _amazonSQS = new AmazonSQSExtendedClient(_amazonSQS, new ExtendedClientConfiguration().WithLargePayloadSupportEnabled(_s3, _bucketName));
+            else
+                _amazonSQS = await ConfigurarSQS();
+
 
             var createTestQueue = _configuration.GetSection("Test").GetSection("CreateTestQueue").Get<bool>();
             var sendTestMessage = _configuration.GetSection("Test").GetSection("SendTestMessage").Get<bool>();
@@ -53,9 +65,6 @@ namespace PagamentoPedidoNotificationConsumer.Service
                     await SendTestMessageAsync();
                 }
             }
-
-
-            //adicionar padrão secretManager igual no notifier
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -154,6 +163,46 @@ namespace PagamentoPedidoNotificationConsumer.Service
                 _logger.LogError($"Error creating the queue: {name}!");
                 throw new AmazonSQSException($"Failed to CreateQueue for queue {name}. Response: {responseQueue.HttpStatusCode}");
             }
+        }
+
+        async Task<AmazonSQSClient> ConfigurarSQS()
+        {
+            using (var secretsManagerClient = new AmazonSecretsManagerClient())
+            {
+                var secretName = Environment.GetEnvironmentVariable("MY_SECRET");
+                var getSecretValueRequest = new GetSecretValueRequest
+                {
+                    SecretId = secretName
+                };
+
+                var getSecretValueResponse = await secretsManagerClient.GetSecretValueAsync(getSecretValueRequest);
+                var secretString = getSecretValueResponse.SecretString;
+
+                // Parse the secretString to get SQS connection details
+                var sqsConnectionDetails = ParseSecretString(secretString);
+
+                // Initialize the AmazonSQS client with the retrieved credentials
+                var sqsConfig = new AmazonSQSConfig
+                {
+                    RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(sqsConnectionDetails.Region)
+                };
+
+                var sqsClient = new AmazonSQSClient(sqsConnectionDetails.AccessKeyId, sqsConnectionDetails.SecretAccessKey, sqsConfig);
+
+                return sqsClient;
+            }
+        }
+
+        static SqsConnectionDetails ParseSecretString(string secretString)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<SqsConnectionDetails>(secretString);
+        }
+
+        class SqsConnectionDetails
+        {
+            public string AccessKeyId { get; set; }
+            public string SecretAccessKey { get; set; }
+            public string Region { get; set; }
         }
     }
 }

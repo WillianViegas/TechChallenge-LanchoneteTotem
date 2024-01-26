@@ -6,9 +6,7 @@ using Amazon.SQS.ExtendedClient;
 using Amazon.SQS.Model;
 using LocalStack.Client.Extensions;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using MongoDB.Bson.IO;
-using MongoDB.Driver;
 using Notifier.Model;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -19,9 +17,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opts => opts.EnableAnnotations());
+builder.Services.AddSwaggerGen();
 builder.Services.AddLocalStack(builder.Configuration);
 builder.Services.AddAWSServiceLocalStack<IAmazonSQS>();
 builder.Services.AddAWSServiceLocalStack<IAmazonS3>();
+
+var useLocalStack = builder.Configuration.GetSection("SQSConfig").GetSection("useLocalStack").Get<bool>();
+var sqsClient = new AmazonSQSClient(Amazon.RegionEndpoint.GetBySystemName(
+        string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MY_SECRET")) 
+        ? "us-east-1"
+        : Environment.GetEnvironmentVariable("MY_SECRET")));
+
+if (!useLocalStack)
+    sqsClient = await ConfigurarSQS();
 
 var app = builder.Build();
 
@@ -29,7 +37,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
 }
 
 var pedido = app.MapGroup("/pedido").WithTags("Pedido");
@@ -42,29 +49,33 @@ async Task<IResult> EnviarConfirmacaoPedido(IConfiguration configuration, IAmazo
 {
     try
     {
-        var useLocalStack = configuration.GetSection("SQSConfig").GetSection("useLocalStack").Get<bool>();
-      
         var queueUrl = configuration.GetSection("QueueUrl").Value;
 
         if (useLocalStack)
         {
             var criarFila = configuration.GetSection("SQSConfig").GetSection("CreateTestQueue").Get<bool>();
             var enviarMensagem = configuration.GetSection("SQSConfig").GetSection("SendTestMessage").Get<bool>();
-            
+
             var configSQS = ConfigurarSQSBasic(configuration, sqs, s3);
 
-            if(criarFila)
+            if (criarFila)
                 await CreateMessageInQueueWithStatusASync(configuration, configSQS);
 
-            if(enviarMensagem)
+            if (enviarMensagem)
+            {
                 await SendTestMessageAsync(queueUrl, configSQS);
+            }
+            else
+            {
+                var jsonMessage = Newtonsoft.Json.JsonConvert.SerializeObject(message);
+                await sqs.SendMessageAsync(queueUrl, jsonMessage);
+            }
         }
         else
         {
             var messageJson = Newtonsoft.Json.JsonConvert.SerializeObject(message);
-            await EnviarParaSQS(messageJson);
+            await EnviarParaSQS(messageJson, sqsClient);
         }
-
 
 
         return TypedResults.Created($"/pedido/{message.idPedido}", message);
@@ -108,11 +119,11 @@ async Task CreateMessageInQueueWithStatusASync(IConfiguration configuration, Ama
     }
 }
 
-async Task EnviarParaSQS(string jsonMessage)
+async Task<AmazonSQSClient> ConfigurarSQS()
 {
     using (var secretsManagerClient = new AmazonSecretsManagerClient())
     {
-        var secretName = "your-secret";
+        var secretName = Environment.GetEnvironmentVariable("MY_SECRET");
         var getSecretValueRequest = new GetSecretValueRequest
         {
             SecretId = secretName
@@ -130,17 +141,30 @@ async Task EnviarParaSQS(string jsonMessage)
             RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(sqsConnectionDetails.Region)
         };
 
-        using (var sqsClient = new AmazonSQSClient(sqsConnectionDetails.AccessKeyId, sqsConnectionDetails.SecretAccessKey, sqsConfig))
+        var sqsClient = new AmazonSQSClient(sqsConnectionDetails.AccessKeyId, sqsConnectionDetails.SecretAccessKey, sqsConfig);
+
+        return sqsClient;
+    }
+}
+
+
+async Task EnviarParaSQS(string jsonMessage, AmazonSQSClient sqsClient)
+{
+    try
+    {
+        // Use sqsClient to perform SQS operations
+        var listQueuesResponse = await sqsClient.ListQueuesAsync(new ListQueuesRequest());
+        foreach (var queueUrl in listQueuesResponse.QueueUrls)
         {
-            // Use sqsClient to perform SQS operations
-            var listQueuesResponse = await sqsClient.ListQueuesAsync(new ListQueuesRequest());
-            foreach (var queueUrl in listQueuesResponse.QueueUrls)
-            {
-                Console.WriteLine($"SQS Queue URL: {queueUrl}");
-                await sqsClient.SendMessageAsync(queueUrl, jsonMessage);
-            }
+            Console.WriteLine($"SQS Queue URL: {queueUrl}");
+            await sqsClient.SendMessageAsync(queueUrl, jsonMessage);
         }
     }
+    catch(Exception ex)
+    {
+        //logar;
+    }
+  
 }
 
 static SqsConnectionDetails ParseSecretString(string secretString)
