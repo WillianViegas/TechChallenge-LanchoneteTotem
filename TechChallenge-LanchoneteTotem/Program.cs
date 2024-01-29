@@ -44,6 +44,7 @@ builder.Services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOpti
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opts => opts.EnableAnnotations());
+builder.Services.AddLogging();
 
 builder.Services.AddSwaggerGen(x =>
 {
@@ -87,7 +88,8 @@ if (app.Environment.IsDevelopment())
 }
 
 var teste = app.MapGroup("/").WithTags("Requisições de teste");
-teste.MapGet("/teste", GetTeste).WithName("GetTeste").WithOpenApi().RequireAuthorization("token_admin");
+teste.MapGet("/teste", GetTeste).WithName("GetTeste").WithOpenApi();
+//teste.MapGet("/teste", GetTeste).WithName("GetTeste").WithOpenApi().RequireAuthorization("token_admin");
 teste.MapGet("/seed", SeedInitialData).WithName("SeedInitialData").WithOpenApi();
 
 #region endpoint Usuario
@@ -157,7 +159,7 @@ app.Run();
 
 static async Task<IResult> GetTeste(IMongoCollection<Categoria> collection)
 {
-    return TypedResults.Ok();
+    return TypedResults.Ok("TESTE OK");
 }
 
 static async Task<IResult> SeedInitialData(IInitialDataSeed seedRepository)

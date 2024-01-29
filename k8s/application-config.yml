@@ -1,0 +1,260 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techchallenge-lanchonetetotem
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: techchallenge-lanchonetetotem
+  template:
+    metadata:
+      labels:
+        app: techchallenge-lanchonetetotem
+    spec:
+      containers:
+      - name: techchallenge-lanchonetetotem
+        image: wviegas/tech-lanchonetetotem-rep:techchallengelanchonetetotem
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "1.0"
+        readinessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        startupProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        envFrom:
+        - configMapRef:
+            name: my-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pagamentopedidonotificationconsumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pagamentopedidonotificationconsumer
+  template:
+    metadata:
+      labels:
+        app: pagamentopedidonotificationconsumer
+    spec:
+      containers:
+      - name: pagamentopedidonotificationconsumer
+        image: wviegas/tech-lanchonetetotem-rep:pagamentopedidonotificationconsumer
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources: 
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        # readinessProbe: {Ajustar posteriormente com verificacao por health}
+        #   tcpSocket:
+        #     port: 443
+        #   initialDelaySeconds: 200
+        #   periodSeconds: 150
+        # livenessProbe:
+        #   tcpSocket:
+        #     port: 443
+        #   initialDelaySeconds: 200
+        #   periodSeconds: 150
+        # startupProbe:
+        #   tcpSocket:
+        #     port: 443
+        #   initialDelaySeconds: 200
+        #   periodSeconds: 150
+        envFrom:
+        - configMapRef:
+            name: my-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifier
+  template:
+    metadata:
+      labels:
+        app: notifier
+    spec:
+      containers:
+      - name: notifier
+        image: wviegas/tech-lanchonetetotem-rep:notifier
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "1.0"
+        readinessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        startupProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        envFrom:
+        - configMapRef:
+            name: my-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      labels:
+        app: localstack
+    spec:
+      containers:
+      - name: localstack
+        image: wviegas/tech-lanchonetetotem-rep:localstack
+        ports:
+        - containerPort: 4510
+        - containerPort: 4559
+        - containerPort: 4566
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "1.0"
+        readinessProbe:
+          tcpSocket:
+            port: 4566
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 4566
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        startupProbe:
+          tcpSocket:
+            port: 4566
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        envFrom:
+        - configMapRef:
+            name: my-config
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: techchallenge-lanchonetetotem-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: techchallenge-lanchonetetotem
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pagamentopedidonotificationconsumer-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pagamentopedidonotificationconsumer
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notifier-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: notifier
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: localstack-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: localstack
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60

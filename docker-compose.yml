@@ -12,7 +12,10 @@ services:
     networks:
       - prod-network
     environment:
-        MongoDbSettings_ConnectionString: 'mongodb://admin:abc123!@mongodbLanchonete'
+        DatabaseConfig__ConnectionString: 'mongodb://admin:abc123!@mongodblanchonete:27017'
+        DatabaseConfig__DatabaseName: 'LanchoneteTotem'
+        DatabaseConfig__User: 'admin'
+        DatabaseConfig__Password: 'abc123!'
     depends_on:
         - mongodb
 
@@ -27,7 +30,10 @@ services:
      networks:
          - prod-network
      environment:
-         MongoDbSettings_ConnectionString: 'mongodb://admin:abc123!@mongodbLanchonete'
+         DatabaseConfig__ConnectionString: 'mongodb://admin:abc123!@mongodblanchonete:27017'
+         DatabaseConfig__DatabaseName: 'LanchoneteTotem'
+         DatabaseConfig__User: 'admin'
+         DatabaseConfig__Password: 'abc123!'
          LocalStack__Config__LocalStackHost: 'localstack'
          AWS_ACCESS_KEY_ID: '{AWS_ACCESS_KEY_ID}'
          AWS_SECRET_ACCESS_KEY: '{AWS_SECRET_ACCESS_KEY}'
@@ -67,8 +73,8 @@ services:
     networks:
          - prod-network
     environment:
-      - AWS_DEFAULT_REGION=us-east-1
-      - SERVICES=sqs,s3
+      AWS_DEFAULT_REGION: us-east-1
+      SERVICES: sqs,s3
     # volumes:
     #   - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
     #   - "/var/run/docker.sock:/var/run/docker.sock"
@@ -77,7 +83,7 @@ services:
      image: mongo:latest
      networks:
        - prod-network
-     container_name: mongodbLanchonete
+     container_name: mongodblanchonete
      command: mongod --port 27017 --bind_ip 0.0.0.0
      environment:
       MONGO_INITDB_ROOT_USERNAME: 'admin'
