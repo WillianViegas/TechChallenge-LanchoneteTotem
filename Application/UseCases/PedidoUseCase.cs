@@ -161,9 +161,9 @@ namespace Application.UseCases
             {
                 var listaPedidos = await _pedidoRepository.GetAllPedidos();
                 var listaPedidosFiltrados = listaPedidos.Where(x => x.Status == EPedidoStatus.EmPreparo || x.Status == EPedidoStatus.Pronto || x.Status == EPedidoStatus.Recebido)
-                    .OrderBy(n => n.Status == EPedidoStatus.Pronto)
+                    .OrderBy(n => n.Status == EPedidoStatus.Recebido)
                     .ThenBy(n => n.Status == EPedidoStatus.EmPreparo)
-                    .ThenBy(n => n.Status == EPedidoStatus.Recebido).ToList();
+                    .ThenBy(n => n.Status == EPedidoStatus.Pronto).ToList();
 
                 return listaPedidosFiltrados;
             }
