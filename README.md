@@ -18,7 +18,6 @@ Estrutura visual dos três modulos interagindo:
 
 Em relação a utilização do serviço da AWS SQS (Simple Queue Service) para facilitar os testes foi implementada a ferramenta Localstack que simula estes serviços sem custo e de forma mais prática para desenvolvimento local. Porém também foi configurado e testado o mesmo fluxo para a utilização do serviço na AWS;
 
-
 ### Inicializando o sistema
 * A seguir estarão disponíveis instruções para a execução na sua máquina local para fins de teste e desenvolvimento.  
 
@@ -134,6 +133,8 @@ Projeto com foco no backend seguindo os padrões solicitados em aula:
   - Requisitos de negócio e requisitos de infraestrutura
   - Link documentação: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&t=sPLhHH5Z8c1pNv9q-1
   - Demonstração da arquitetura: https://www.youtube.com/watch?v=rMTpeYQWRuE
+ 
+  OBs: Dentro da pasta do projeto existe a pasta "Info" nela está a collection do projeto para ser utilizada no postman e um txt com o passo a passo e comandos para realizar a execução dentro do kubernetes
 
 
 ## Futuras adições e melhorias:
