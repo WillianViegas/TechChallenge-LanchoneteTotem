@@ -2,12 +2,8 @@
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Infra.Configurations.Database;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infra.Repositories
 {
@@ -16,9 +12,11 @@ namespace Infra.Repositories
         private readonly IMongoCollection<Usuario> _collectionUsuario;
         private readonly IMongoCollection<Categoria> _collectionCategoria;
         private readonly IMongoCollection<Produto> _collectionProduto;
+        private readonly ILogger _log;
 
-        public InitialDataSeed(IDatabaseConfig databaseConfig)
+        public InitialDataSeed(IDatabaseConfig databaseConfig, ILogger<InitialDataSeed> log)
         {
+            _log = log;
             var connectionString = databaseConfig.ConnectionString.Replace("user", databaseConfig.User).Replace("password", databaseConfig.Password);
             var client = new MongoClient(connectionString);
             var database = client.GetDatabase(databaseConfig.DatabaseName);
@@ -31,7 +29,7 @@ namespace Infra.Repositories
         {
             var usuarios = await _collectionUsuario.Find(_ => true).ToListAsync();
 
-            if(!usuarios.Any())
+            if (!usuarios.Any())
             {
                 var usuariosList = MockarUsuarios();
                 await _collectionUsuario.InsertManyAsync(usuariosList);
@@ -53,6 +51,7 @@ namespace Infra.Repositories
                 var produtosList = await MockarProdutos();
                 await _collectionProduto.InsertManyAsync(produtosList);
             }
+
         }
 
         public List<Usuario> MockarUsuarios()

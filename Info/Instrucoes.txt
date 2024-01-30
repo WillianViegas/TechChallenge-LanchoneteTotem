@@ -1,0 +1,88 @@
+Instalar Minikube
+
+Fazer configurações iniciais
+
+Acessar pasta ../TechChallenge-LanchoneteTotem\k8s
+
+Abrir cmd no caminho da pasta
+
+Rodar o comando "minikube start"
+
+Com ele iniciado podemos começar a configurar 
+
+Executar comando "kubectl get deploy" para verificar deploys ativos
+
+Provavelmente não vai ter nenhum
+
+Dentro da pasta k8s temos alguns arquivos de configuração para serem executados
+
+Executar comando "kubectl apply -f configmap.yml"
+
+Executar comando "kubectl apply -f mongodb-config.yml"
+
+Executar comando "kubectl apply -f application-services.yml"
+
+Executar comando "kubectl apply -f application-config.yml"
+
+Executar comando "kubectl get deploy" para verificar deploys ativos
+
+Executar comando "kubectl get pods" para verificar pods ativos
+
+Abrir mais um cmd com o caminho ../TechChallenge-LanchoneteTotem\k8s para execução dos port-forward
+
+Executar comando para liberar acesso a requisições na API LanchoneteTotem pelo postman:
+    kubectl port-forward deployment/techchallenge-lanchonetetotem 7003:80 7004:443 &
+
+Abrir mais um cmd com o caminho ../TechChallenge-LanchoneteTotem\k8s para execução dos port-forward
+
+Executar comando para liberar acesso a requisições na API Notifier pelo postman:
+    kubectl port-forward deployment/notifier 7007:80 7008:443 &
+
+Ir até o postman utilizando a collection disponibilizada
+
+Realizar requisição "Teste" - Ela deve retornar o texto "TESTE OK 1" 
+
+Com o retorno bem sucedido você pode realizar a requisição "Seed" para popular o banco
+
+Com o retorno positivo da requisição agora você tem usuários, categorias e produtos cadastrados
+
+Realizar requisição "GetAllProdutos" para obter algum de exemplo para criação do carrinho
+
+Com o Json do produto retornado basta adiciona-lo na requisição "CreateCarrinho"
+
+Com o carrinho criado corretamente podemos utilizar seu Id para criarmos um pedido
+
+Com o id do carrinho realize a requisição "CreatePedidoFromCarrinho" passando o id do carrinho
+
+Com o pedido criado corretamente será gerado um id referência para o pedido (atualmente esse pedido se encontra no status 0 "Novo")
+
+É necessário utilizar o id desse pedido e realizar a requisição "FinalizarPedido", isso irá gerar a sessão de pagamento (mockada apenas para testes)
+
+Após a requisição concluida você pode consultar o status do pedido vai estar como 1 (PendentePagamento)
+
+Com o pedido já no status 1 podemos ir até a requisição dentro da pasta Notifier "EnviarConfirmacaoPedido" 
+
+Nela basta enviar o id do pedido, id da transação, data atual e status. (Essa requisição envia esse body para uma fila no SQS)
+
+A partir do momento que uma mensagem é enviada para nossa fila o Webhook a captura e realiza o tratamento atualizando o pedido
+
+Aqui para conferir se a mensagem foi capturada corretamente você pode logar o pod pagamentopedidonotificationconsumer
+
+Executar comando "kubectl get pods" para verificar pods ativos
+
+Obtenha o nome do respectivo pagamentopedidonotificationconsumer
+
+Realize o comando "kubectl logs pagamentopedidonotificationconsumer-84488b7bdb-7xz29"  <- (Aqui vai o nome do seu pod)
+
+Com o log sendo exibido você pode verificar que o json da mensagem foi enviado corretamente tratado e posteriormente deletado da fila
+
+Agora se voltar ao postman e ir até a requisição "GetPedidoById" e consultar seu id de pedido vai verificar que o status foi alterado para 2 (Confirmado)
+
+
+
+Exemplos de port-forward caso queira testar (obs. atualmente só esta funcionando http):
+kubectl port-forward deployment/techchallenge-lanchonetetotem 7003:80 7004:443 &
+kubectl port-forward deployment/pagamentopedidonotificationconsumer 7005:80 7006:443 &
+kubectl port-forward deployment/notifier 7007:80 7008:443 &
+kubectl port-forward deployment/localstack 4510:4510 4559:4559 4566:4566 &
+kubectl port-forward deployment/mongodb 27017:27017 &

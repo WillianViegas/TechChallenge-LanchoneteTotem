@@ -27,12 +27,12 @@ spec:
         readinessProbe:
             tcpSocket:
               port: 27017
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 10
         livenessProbe:
             tcpSocket:
               port: 27017
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 10
         envFrom:
         - configMapRef:

@@ -159,7 +159,7 @@ app.Run();
 
 static async Task<IResult> GetTeste(IMongoCollection<Categoria> collection)
 {
-    return TypedResults.Ok("TESTE OK");
+    return TypedResults.Ok("TESTE OK 1");
 }
 
 static async Task<IResult> SeedInitialData(IInitialDataSeed seedRepository)

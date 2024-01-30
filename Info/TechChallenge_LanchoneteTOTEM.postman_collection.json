@@ -1,0 +1,1010 @@
+{
+	"info": {
+		"_postman_id": "713dc357-38cf-4223-affd-ef5817f035c1",
+		"name": "TechChallenge_LanchoneteTOTEM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Usuario",
+			"item": [
+				{
+					"name": "CreateUsuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Nome\":\"Will\",\r\n    \"CPF\":\"45926744806\",\r\n    \"Email\":\"ww@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7004/usuario",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"usuario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUsuario",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Nome\":\"Zeca Dourado\",\r\n    \"CPF\":\"45926744806\",\r\n    \"Email\":\"zecaD@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/usuario/653b0f37057e6f4bccdb16a3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"usuario",
+								"653b0f37057e6f4bccdb16a3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllUsuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7004/usuario",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"usuario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUsuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/usuario/653b0f37057e6f4bccdb16a3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"usuario",
+								"653b0f37057e6f4bccdb16a3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUsuarioById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/usuario/id/653eea9791436e7c82595485",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"usuario",
+								"id",
+								"653eea9791436e7c82595485"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUsuarioByCPF",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/usuario/cpf/45926744806",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"usuario",
+								"cpf",
+								"45926744806"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUsuarioByEmail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/usuario/email/zeca@gmail.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"usuario",
+								"email",
+								"zeca@gmail.com"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categoria",
+			"item": [
+				{
+					"name": "CreateCategoria",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Nome\":\"Lanches\",\r\n    \"Ativa\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7004/categoria",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"categoria"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateCategoria",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Nome\":\"Lanches simples\",\r\n    \"Ativa\":false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/categoria/653f9779185b9e5df5928dc1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"categoria",
+								"653f9779185b9e5df5928dc1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllCategorias",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/categoria",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"categoria"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteCategoria",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/categoria/653f9779185b9e5df5928dc1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"categoria",
+								"653f9779185b9e5df5928dc1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCategoriaById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/categoria/653f97e4185b9e5df5928dc2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"categoria",
+								"653f97e4185b9e5df5928dc2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCategoriaByNome",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/categoria/nome/Doc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"categoria",
+								"nome",
+								"Doc"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "Lanches",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Produto",
+			"item": [
+				{
+					"name": "CreateProduto",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\":\"X-Burger simples\",\r\n    \"descricao\":\"Pao autstraliano com carne e queijo\",\r\n    \"preco\": 21.05,\r\n    \"categoriaId\": \"653f9fecc8562791b033f6fe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7004/produto",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"produto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateProduto",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"X-Burger simples picante\",\r\n    \"descricao\": \"Pao autstraliano com carne, queijo e pimenta do reino\",\r\n    \"preco\": 21.05,\r\n    \"categoriaId\": \"653f9fecc8562791b033f6fe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/produto/653fa020c8562791b033f6ff",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"produto",
+								"653fa020c8562791b033f6ff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllProdutos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7004/produto",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"produto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllProdutosPorCategoria",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/produto/categoria/653f97e4185b9e5df5928dc2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"produto",
+								"categoria",
+								"653f97e4185b9e5df5928dc2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteProduto",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Nome\":\"Lanches\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/produto/653f9817185b9e5df5928dc3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"produto",
+								"653f9817185b9e5df5928dc3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetProdutoById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7004/produto/653f9817185b9e5df5928dc3",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"produto",
+								"653f9817185b9e5df5928dc3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetProdutoByNome",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/produto/nome/hamb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"produto",
+								"nome",
+								"hamb"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Carrinho",
+			"item": [
+				{
+					"name": "CreateCarrinho",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Produtos\": [\r\n        {\r\n            \"id\": \"653fa020c8562791b033f6ff\",\r\n            \"nome\": \"X-Burger simples picante\",\r\n            \"descricao\": \"Pao autstraliano com carne, queijo e pimenta do reino\",\r\n            \"preco\": 21.05,\r\n            \"categoriaId\": \"653f9fecc8562791b033f6fe\"\r\n        }\r\n    ],\r\n    \"Usuario\": {\r\n        \"id\": \"653f9fd6c8562791b033f6fd\",\r\n        \"nome\": \"Will\",\r\n        \"email\": \"ww@gmail.com\",\r\n        \"cpf\": \"45926744806\"\r\n    },\r\n    \"Total\": 21.05\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7004/carrinho",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"carrinho"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddProdutoCarrinho",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"idCarrinho\":\"653fa126c8562791b033f700\",\r\n    \"idProduto\":\"653fa020c8562791b033f6ff\",\r\n    \"quantidade\":1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/carrinho/addProduto",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"carrinho",
+								"addProduto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveProdutoCarrinho",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"idCarrinho\":\"653f98e6185b9e5df5928dc6\",\r\n    \"idProduto\":\"653f9899185b9e5df5928dc4\",\r\n    \"quantidade\":2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/carrinho/removeProduto",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"carrinho",
+								"removeProduto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateCarrinho",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Produtos\": [\r\n        {\r\n           \"id\": \"653f9899185b9e5df5928dc4\",\r\n            \"nome\": \"MilkShake Cremoso\",\r\n            \"descricao\": \"Daquele jeito gelado\",\r\n            \"preco\": 21.05,\r\n            \"categoriaId\": \"653f97e4185b9e5df5928dc2\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/carrinho/653f98e6185b9e5df5928dc6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"carrinho",
+								"653f98e6185b9e5df5928dc6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteCarrinho",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/carrinho/653f9c8fc8562791b033f6f7",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"carrinho",
+								"653f9c8fc8562791b033f6f7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCarrinhoById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/carrinho/653fa126c8562791b033f700",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"carrinho",
+								"653fa126c8562791b033f700"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pedido",
+			"item": [
+				{
+					"name": "CreatePedidoFromCarrinho",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7004/pedido/fromCarrinho?idCarrinho=653fa126c8562791b033f700",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"pedido",
+								"fromCarrinho"
+							],
+							"query": [
+								{
+									"key": "idCarrinho",
+									"value": "653fa126c8562791b033f700"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreatePedido",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Produtos\": [\r\n        {\r\n            \"id\": \"65a5f9bfe4462ddc671c1bc1\",\r\n            \"nome\": \"Hamburguer vulcão cheddar\",\r\n            \"descricao\": \"Hamburguer no estilo vulcão, acompanhado de um bocado de cheddar\",\r\n            \"preco\": 39.99,\r\n            \"categoriaId\": \"65a5f9bfe4462ddc671c1bbd\"\r\n        }\r\n    ],\r\n    \"Usuario\": {},\r\n    \"Total\": 39.99\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/pedido",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ConfirmarPedido",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/pedido/confirmar/65b3cd71677c9c00fc393d46",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido",
+								"confirmar",
+								"65b3cd71677c9c00fc393d46"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FinalizarPedido",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7004/pedido/finalizar/653fa187c8562791b033f702",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"pedido",
+								"finalizar",
+								"653fa187c8562791b033f702"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateStatusPedido",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/pedido/status/65b3d163677c9c00fc393d51?status=5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido",
+								"status",
+								"65b3d163677c9c00fc393d51"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdatePedido",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"produtos\": [\r\n        {\r\n            \"id\": \"653f9c79c8562791b033f6f6\",\r\n            \"nome\": \"MilkShake Cremoso\",\r\n            \"descricao\": \"Daquele jeito gelado\",\r\n            \"preco\": 21.05,\r\n            \"categoriaId\": \"653f9c71c8562791b033f6f5\"\r\n        }\r\n    ],\r\n    \"usuario\": {\r\n        \"id\": \"653f9e2dc8562791b033f6fc\"\r\n    },\r\n    \"total\": 21.05,\r\n    \"idCarrinho\": \"653f9ce5c8562791b033f6f8\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7003/pedido/653f9daec8562791b033f6fa",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido",
+								"653f9daec8562791b033f6fa"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeletePedido",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/pedido/653f9d00c8562791b033f6f9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido",
+								"653f9d00c8562791b033f6f9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetPedidoById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7004/pedido/653f9d00c8562791b033f6f9",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7004",
+							"path": [
+								"pedido",
+								"653f9d00c8562791b033f6f9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllPedidosAtivos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/pedido/ativos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido",
+								"ativos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllPedidosProntosParaRetirada",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/pedido/prontos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido",
+								"prontos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllPedidosFinalizados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/pedido/finalizados",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido",
+								"finalizados"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllPedidos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:7003/pedido",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7003",
+							"path": [
+								"pedido"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Notifier",
+			"item": [
+				{
+					"name": "EnviarConfirmacaoPedido",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"IdTransacao\": \"c55fc0f2-0d9c-4a89-b522-4f58e2b89279\",\r\n    \"idPedido\": \"65b8461aac780426d5c23031\",\r\n    \"Status\": \"OK\",\r\n    \"DataTransacao\": \"2024-01-29T00:11:24.6203647-03:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7007/pedido",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7007",
+							"path": [
+								"pedido"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Teste",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlVTRVIiLCJzdWIiOiJVU0VSIiwianRpIjoiMjY4ZDg5OGIiLCJzY29wZSI6InRva2VuIiwicm9sZSI6ImFkbWluIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3Q6NTI4NDgiLCJodHRwczovL2xvY2FsaG9zdDo0NDM2OSIsImh0dHA6Ly9sb2NhbGhvc3Q6NTEzMSIsImh0dHBzOi8vbG9jYWxob3N0OjcyNTciXSwibmJmIjoxNjk3OTg5ODA0LCJleHAiOjE3MDU5Mzg2MDQsImlhdCI6MTY5Nzk4OTgwNSwiaXNzIjoiZG90bmV0LXVzZXItand0cyJ9.v-yXEtoQ8HaXsxFIeqsKKQP7PKSryly2A1vqQADJ6Bs",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7004/teste",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7004",
+					"path": [
+						"teste"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Seed",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7004/seed",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7004",
+					"path": [
+						"seed"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

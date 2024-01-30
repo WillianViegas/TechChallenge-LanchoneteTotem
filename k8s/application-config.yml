@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: techchallenge-lanchonetetotem
-        image: wviegas/tech-lanchonetetotem-rep:techchallengelanchonetetotem
+        image: wviegas/tech-lanchonetetotem-rep:techlan-v3
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
       - name: pagamentopedidonotificationconsumer
-        image: wviegas/tech-lanchonetetotem-rep:pagamentopedidonotificationconsumer
+        image: wviegas/tech-lanchonetetotem-rep:notification-consumer
         ports:
         - containerPort: 80
         - containerPort: 443
