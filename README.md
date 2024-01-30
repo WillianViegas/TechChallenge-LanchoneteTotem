@@ -132,7 +132,8 @@ Projeto com foco no backend seguindo os padrões solicitados em aula:
 
 - `Desenho da arquitetura`
   - Requisitos de negócio e requisitos de infraestrutura
-  - Link documentação: {adicionar link doc}
+  - Link documentação: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&t=sPLhHH5Z8c1pNv9q-1
+  - Demonstração da arquitetura: https://www.youtube.com/watch?v=rMTpeYQWRuE
 
 
 ## Futuras adições e melhorias:
