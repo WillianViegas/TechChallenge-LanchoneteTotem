@@ -28,7 +28,11 @@ namespace Application.UseCases
             try
             {
                 var pedido = await GetPedidoById(id);
-                if (pedido is null) throw new Exception("Pedido não existe");
+                if (pedido is null)
+                {
+                    _log.LogError("Pedido não encontrado");
+                    throw new Exception("Pedido não existe");
+                }
 
                 if (pedido.Status != EPedidoStatus.Novo) throw new Exception($"Status do pedido não é válido para confirmação. Status: {pedido.Status}, NumeroPedido: {pedido.Numero}");
 
@@ -41,6 +45,7 @@ namespace Application.UseCases
                 };
 
                 await _pedidoRepository.UpdatePedido(id, pedido);
+                _log.LogInformation($"Pedido atualizado id: {id}, status: {pedido.Status.ToString()}");
 
                 //desativa o carrinho (pensar se futuramente n é melhor excluir)
                 var carrinho = await _carrinhoRepository.GetCarrinhoById(id);
@@ -54,6 +59,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -79,6 +85,7 @@ namespace Application.UseCases
                 pedido.Status = EPedidoStatus.Recebido;
 
                 await _pedidoRepository.UpdatePedido(id, pedido);
+                _log.LogInformation($"Pedido atualizado id: {id}, status: {pedido.Status.ToString()}");
             }
             catch (Exception ex)
             {
@@ -111,7 +118,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
-
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -139,6 +146,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -151,6 +159,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -169,6 +178,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -182,6 +192,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -195,6 +206,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -208,6 +220,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -220,6 +233,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -229,17 +243,23 @@ namespace Application.UseCases
             try
             {
                 var pedido = await _pedidoRepository.GetPedidoById(id);
-                if (pedido is null) throw new Exception("Pedido não encontrado");
+                if (pedido is null)
+                {
+                    _log.LogError("Pedido não encontrado");
+                    throw new Exception("Pedido não encontrado");
+                }
 
                 pedido.Produtos = pedidoInput.Produtos;
                 pedido.Total = pedido.Produtos.Sum(x => x.Preco);
                 pedido.Usuario = pedidoInput.Usuario;
 
-                await _pedidoRepository.UpdatePedido(id, pedido);
+                await _pedidoRepository.UpdatePedido(id, pedido); 
+                _log.LogInformation($"Pedido atualizado id: {id}, status: {pedido.Status.ToString()}");
+
             }
             catch (Exception ex)
             {
-
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -253,9 +273,11 @@ namespace Application.UseCases
 
                 pedido.Status = (EPedidoStatus)status;
                 await _pedidoRepository.UpdatePedido(id, pedido);
+                _log.LogInformation($"Pedido atualizado id: {id}, status: {pedido.Status.ToString()}");
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }

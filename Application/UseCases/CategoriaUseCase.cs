@@ -4,6 +4,7 @@ using Domain.Entities.DTO;
 using Domain.Repositories;
 using Infra.Configurations;
 using Infra.Repositories;
+using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
 namespace Application.UseCases
@@ -11,10 +12,12 @@ namespace Application.UseCases
     public class CategoriaUseCase : ICategoriaUseCase
     {
         private readonly ICategoriaRepository _categoriaRepository;
+        private readonly ILogger _log;
 
-        public CategoriaUseCase(ICategoriaRepository categoriaRepository)
+        public CategoriaUseCase(ICategoriaRepository categoriaRepository, ILogger<CategoriaUseCase> log)
         {
             _categoriaRepository = categoriaRepository;
+            _log = log;
         }
 
         public async Task<Categoria> CreateCategoria(Categoria categoria)
@@ -26,6 +29,7 @@ namespace Application.UseCases
             }
             catch(Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -38,6 +42,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -50,6 +55,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -65,6 +71,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -80,6 +87,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -97,6 +105,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }

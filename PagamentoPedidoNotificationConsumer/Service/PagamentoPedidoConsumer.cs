@@ -101,6 +101,7 @@ namespace PagamentoPedidoNotificationConsumer.Service
                         //chamar confirmar pedido
                         var pedido = await _pedidoUseCase.ConfirmarPedido(obj.idPedido);
                         Console.WriteLine(message.Body);
+                        _logger.LogInformation(message.Body);
 
                         await _amazonSQS.DeleteMessageAsync(_queueUrl, message.ReceiptHandle, stoppingToken);
                         _logger.LogInformation($"Message deleted");

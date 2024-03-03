@@ -6,6 +6,7 @@ using Domain.Repositories;
 using Domain.ValueObjects;
 using Infra.Configurations;
 using Infra.Repositories;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
 namespace Application.UseCases
@@ -13,10 +14,12 @@ namespace Application.UseCases
     public class UsuarioUseCase : IUsuarioUseCase
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly Microsoft.Extensions.Logging.ILogger _log;
 
-        public UsuarioUseCase(IUsuarioRepository usuarioRepository)
+        public UsuarioUseCase(IUsuarioRepository usuarioRepository, ILogger<UsuarioUseCase> log)
         {
             _usuarioRepository = usuarioRepository;
+            _log = log;
         }
 
         public async Task<UsuarioDTO> CreateUsuario(UsuarioDTO usuarioDTO)
@@ -34,16 +37,21 @@ namespace Application.UseCases
                 var usuarioPorCpf = await GetUsuarioByCPF(usuarioDTO.CPF);
 
                 if (usuarioPorCpf != null && !string.IsNullOrEmpty(usuarioPorCpf.Id))
+                {
+                    _log.LogError("CPF já cadastrado");
                     throw new ValidationException("CPF já cadastrado");
+                }
 
                 return new UsuarioDTO(await _usuarioRepository.CreateUsuario(usuario));
             }
             catch (ValidationException ex)
             {
+                _log.LogError(ex.Message);
                 throw new ValidationException(ex.Message);
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -56,6 +64,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -68,6 +77,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -83,6 +93,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -98,6 +109,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -113,6 +125,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -132,6 +145,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
