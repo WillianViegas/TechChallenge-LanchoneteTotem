@@ -4,6 +4,7 @@ using Domain.Entities.DTO;
 using Domain.Repositories;
 using Infra.Configurations;
 using Infra.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases
 {
@@ -11,11 +12,13 @@ namespace Application.UseCases
     {
         private readonly ICarrinhoRepository _carrinhoRepository;
         private readonly IProdutoRepository _produtoRepository;
+        private readonly ILogger _log;
 
-        public CarrinhoUseCase(ICarrinhoRepository carrinhoRepository, IProdutoRepository produtoRepository)
+        public CarrinhoUseCase(ICarrinhoRepository carrinhoRepository, IProdutoRepository produtoRepository, ILogger<CarrinhoUseCase> log)
         {
             _carrinhoRepository = carrinhoRepository;
             _produtoRepository = produtoRepository;
+            _log = log;
         }
 
         public async Task<Carrinho> AddProdutoCarrinho(string idProduto, string idCarrinho, int quantidade = 1)
@@ -23,7 +26,11 @@ namespace Application.UseCases
             try
             {
                 var produto = await _produtoRepository.GetProdutoById(idProduto);
-                if (produto is null) throw new Exception("Produto não existe");
+                if (produto is null)
+                {
+                    _log.LogError("Produto não existe");
+                    throw new Exception("Produto não existe");
+                } 
 
                 var carrinho = new Carrinho();
 
@@ -61,6 +68,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -81,6 +89,7 @@ namespace Application.UseCases
             }
             catch(Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -93,6 +102,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -105,6 +115,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -139,6 +150,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -157,6 +169,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }

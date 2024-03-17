@@ -3,6 +3,7 @@ using Application.UseCases.Interfaces;
 using Domain.Entities;
 using Domain.Entities.DTO;
 using Domain.Repositories;
+using Domain.ValueObjects;
 using Infra.Configurations.Database;
 using Infra.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,6 +14,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using TechChallenge_LanchoneteTotem.Model;
 using static Domain.Entities.Pedido;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -169,7 +171,7 @@ static async Task<IResult> SeedInitialData(IInitialDataSeed seedRepository)
 }
 
 #region Usuario
-static async Task<IResult> GetAllUsuarios(IUsuarioUseCase usuarioUseCase)
+static async Task<IResult> GetAllUsuarios(IUsuarioUseCase usuarioUseCase, ILogger<UsuarioUseCase> log)
 {
     try
     {
@@ -180,12 +182,13 @@ static async Task<IResult> GetAllUsuarios(IUsuarioUseCase usuarioUseCase)
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao buscar usuários.");
+        var erro = $"Erro ao buscar usuários.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetUsuarioById(string id, IUsuarioUseCase usuarioUseCase)
+static async Task<IResult> GetUsuarioById(string id, IUsuarioUseCase usuarioUseCase, ILogger<UsuarioUseCase> log)
 {
     try
     {
@@ -200,12 +203,13 @@ static async Task<IResult> GetUsuarioById(string id, IUsuarioUseCase usuarioUseC
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao buscar usuário pelo id. Id: {id}");
+        var erro = $"Erro ao buscar usuário pelo id. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetUsuarioByCPF(string cpf, IUsuarioUseCase usuarioUseCase)
+static async Task<IResult> GetUsuarioByCPF(string cpf, IUsuarioUseCase usuarioUseCase, ILogger<UsuarioUseCase> log)
 {
     try
     {
@@ -219,12 +223,13 @@ static async Task<IResult> GetUsuarioByCPF(string cpf, IUsuarioUseCase usuarioUs
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao buscar usuário pelo cpf. CPF: {cpf}");
+        var erro = $"Erro ao buscar usuário pelo cpf. CPF: {cpf}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetUsuarioByEmail(string email, IUsuarioUseCase usuarioUseCase)
+static async Task<IResult> GetUsuarioByEmail(string email, IUsuarioUseCase usuarioUseCase, ILogger<UsuarioUseCase> log)
 {
     try
     {
@@ -238,12 +243,13 @@ static async Task<IResult> GetUsuarioByEmail(string email, IUsuarioUseCase usuar
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao buscar usuário pelo e-mail. E-mail: {email}");
+        var erro = $"Erro ao buscar usuário pelo e-mail. E-mail: {email}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> CreateUsuario(UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase)
+static async Task<IResult> CreateUsuario(UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase, ILogger<UsuarioUseCase> log)
 {
     try
     {
@@ -260,17 +266,18 @@ static async Task<IResult> CreateUsuario(UsuarioDTO usuarioDTO, IUsuarioUseCase 
         if(ex.Message.Contains("CPF"))
             error = "Erro ao criar usuário. CPF já cadastrado";
 
-        //logar dps
+        log.LogError(error, ex);
         return TypedResults.BadRequest(error);
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem("Erro ao criar usuário");
+        var erro = "Erro ao criar usuário";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> UpdateUsuario(string id, UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase)
+static async Task<IResult> UpdateUsuario(string id, UsuarioDTO usuarioDTO, IUsuarioUseCase usuarioUseCase, ILogger<UsuarioUseCase> log)
 {
     try
     {
@@ -285,12 +292,13 @@ static async Task<IResult> UpdateUsuario(string id, UsuarioDTO usuarioDTO, IUsua
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao atualizar o usuário. Id: {id}");
+        var erro = $"Erro ao atualizar o usuário. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCase)
+static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCase, ILogger<UsuarioUseCase> log)
 {
     try
     {
@@ -305,15 +313,16 @@ static async Task<IResult> DeleteUsuario(string id, IUsuarioUseCase usuarioUseCa
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao deletar o usuário. Id: {id}");
+        var erro = $"Erro ao deletar o usuário. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 #endregion
 
 #region Categoria
 
-static async Task<IResult> GetAllCategorias(ICategoriaUseCase categoriaUseCase)
+static async Task<IResult> GetAllCategorias(ICategoriaUseCase categoriaUseCase, ILogger<CategoriaUseCase> log)
 {
     try
     {
@@ -322,12 +331,13 @@ static async Task<IResult> GetAllCategorias(ICategoriaUseCase categoriaUseCase)
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao buscar categorias");
+        var erro = $"Erro ao buscar categorias";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetCategoriaById(string id, ICategoriaUseCase categoriaUseCase)
+static async Task<IResult> GetCategoriaById(string id, ICategoriaUseCase categoriaUseCase, ILogger<CategoriaUseCase> log)
 {
     try
     {
@@ -341,12 +351,13 @@ static async Task<IResult> GetCategoriaById(string id, ICategoriaUseCase categor
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao obter a categoria pelo id. Id: {id}");
+        var erro = $"Erro ao obter a categoria pelo id. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetCategoriaByNome(string nome, ICategoriaUseCase categoriaUseCase)
+static async Task<IResult> GetCategoriaByNome(string nome, ICategoriaUseCase categoriaUseCase, ILogger<CategoriaUseCase> log)
 {
     try
     {
@@ -360,12 +371,13 @@ static async Task<IResult> GetCategoriaByNome(string nome, ICategoriaUseCase cat
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao obter a categoria pelo nome. Nome: {nome}");
+        var erro = $"Erro ao obter a categoria pelo nome. Nome: {nome}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> CreateCategoria(Categoria categoria, ICategoriaUseCase categoriaUseCase)
+static async Task<IResult> CreateCategoria(Categoria categoria, ICategoriaUseCase categoriaUseCase, ILogger<CategoriaUseCase> log)
 {
     try
     {
@@ -374,12 +386,13 @@ static async Task<IResult> CreateCategoria(Categoria categoria, ICategoriaUseCas
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao criar categoria");
+        var erro = $"Erro ao criar categoria";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, ICategoriaUseCase categoriaUseCase)
+static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, ICategoriaUseCase categoriaUseCase, ILogger<CategoriaUseCase> log)
 {
     try
     {
@@ -394,12 +407,13 @@ static async Task<IResult> UpdateCategoria(string id, Categoria categoriaInput, 
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao atualizar categoria. Id: {id}");
+        var erro = $"Erro ao atualizar categoria. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categoriaUseCase)
+static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categoriaUseCase, ILogger<CategoriaUseCase> log)
 {
     try
     {
@@ -414,15 +428,16 @@ static async Task<IResult> DeleteCategoria(string id, ICategoriaUseCase categori
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao deletar a categoria. Id: {id}");
+        var erro = $"Erro ao deletar a categoria. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 #endregion
 
 #region Produto
 
-static async Task<IResult> GetAllProdutos(IProdutoUseCase produtoUseCase)
+static async Task<IResult> GetAllProdutos(IProdutoUseCase produtoUseCase, ILogger<ProdutoUseCase> log)
 {
     try
     {
@@ -431,17 +446,21 @@ static async Task<IResult> GetAllProdutos(IProdutoUseCase produtoUseCase)
     }
     catch(Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao obter produtos");
+        var erro = $"Erro ao obter produtos";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetProdutoById(string id, IProdutoUseCase produtoUseCase)
+static async Task<IResult> GetProdutoById(string id, IProdutoUseCase produtoUseCase,ILogger<ProdutoUseCase> log)
 {
     try
     {
         if (string.IsNullOrEmpty(id))
+        {
+            log.LogWarning("Id inválido");
             return TypedResults.BadRequest("Id inválido");
+        }
 
         var produto = await produtoUseCase.GetProdutoById(id);
         if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
@@ -450,35 +469,43 @@ static async Task<IResult> GetProdutoById(string id, IProdutoUseCase produtoUseC
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao obter o produto pelo id. Id: {id}");
+        var erro = $"Erro ao obter o produto pelo id. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
 
-static async Task<IResult> GetAllProdutosPorCategoria(string id, IProdutoUseCase produtoUseCase)
+static async Task<IResult> GetAllProdutosPorCategoria(string id, IProdutoUseCase produtoUseCase, ILogger<ProdutoUseCase> log)
 {
     try
     {
         if (string.IsNullOrEmpty(id))
+        {
+            log.LogWarning("Id inválido");
             return TypedResults.BadRequest("Id inválido");
+        }
 
         var produtos = await produtoUseCase.GetAllProdutosPorCategoria(id);
         return TypedResults.Ok(produtos.Select(x => new ProdutoDTO(x)).ToArray());
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Obter todos os produtos pelo id da categoria. Id: {id}");
+        var erro = $"Obter todos os produtos pelo id da categoria. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetProdutoByNome(string nome, IProdutoUseCase produtoUseCase)
+static async Task<IResult> GetProdutoByNome(string nome, IProdutoUseCase produtoUseCase, ILogger<ProdutoUseCase> log)
 {
     try
     {
         if (string.IsNullOrEmpty(nome))
-            return TypedResults.BadRequest("Id inválido");
+        {
+            log.LogWarning("Nome inválido");
+            return TypedResults.BadRequest("Nome inválido");
+        }
 
         var produto = await produtoUseCase.GetProdutoByNome(nome);
         if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
@@ -487,12 +514,13 @@ static async Task<IResult> GetProdutoByNome(string nome, IProdutoUseCase produto
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao obter produto pelo nome. Nome: {nome}");
+        var erro = $"Erro ao obter produto pelo nome. Nome: {nome}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> CreateProduto(Produto produto, IProdutoUseCase produtoUseCase)
+static async Task<IResult> CreateProduto(Produto produto, IProdutoUseCase produtoUseCase, ILogger<ProdutoUseCase> log)
 {
     try
     {
@@ -501,17 +529,21 @@ static async Task<IResult> CreateProduto(Produto produto, IProdutoUseCase produt
     }
     catch (Exception ex)
     {
-        //logar dps
+        var erro = $"Erro ao criar produto.";
+        log.LogError(erro, ex);
         return TypedResults.Problem($"Erro ao criar produto.");
     }
 }
 
-static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IProdutoUseCase produtoUseCase)
+static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IProdutoUseCase produtoUseCase, ILogger<ProdutoUseCase> log)
 {
     try
     {
         if (string.IsNullOrEmpty(id))
+        {
+            log.LogWarning("Id inválido");
             return TypedResults.BadRequest("Id inválido");
+        }
 
         var produto = await produtoUseCase.GetProdutoById(id);
         if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
@@ -521,17 +553,21 @@ static async Task<IResult> UpdateProduto(string id, Produto produtoInput, IProdu
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao atualizar o produto. Id: {id}");
+        var erro = $"Erro ao atualizar o produto. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCase)
+static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCase, ILogger<ProdutoUseCase> log)
 {
     try
     {
         if (string.IsNullOrEmpty(id))
+        {
+            log.LogWarning("Id inválido");
             return TypedResults.BadRequest("Id inválido");
+        }
 
         var produto = await produtoUseCase.GetProdutoById(id);
         if (produto is null || string.IsNullOrEmpty(produto.Id)) return TypedResults.NotFound();
@@ -541,20 +577,24 @@ static async Task<IResult> DeleteProduto(string id, IProdutoUseCase produtoUseCa
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao deletar o produto. Id: {id}");
+        var erro = $"Erro ao deletar o produto. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 #endregion
 
 #region Carrinho
 
-static async Task<IResult> GetCarrinhoById(string id, ICarrinhoUseCase carrinhoUseCase)
+static async Task<IResult> GetCarrinhoById(string id, ICarrinhoUseCase carrinhoUseCase, ILogger<CarrinhoUseCase> log)
 {
     try
     {
         if (string.IsNullOrEmpty(id))
+        {
+            log.LogWarning("Id inválido");
             return TypedResults.BadRequest("Id inválido");
+        }
 
         var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
         if (carrinho is null || string.IsNullOrEmpty(carrinho.Id)) return TypedResults.NotFound();
@@ -563,13 +603,14 @@ static async Task<IResult> GetCarrinhoById(string id, ICarrinhoUseCase carrinhoU
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao obter o carrinho. Id: {id}");
+        var erro = $"Erro ao obter o carrinho. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
 
-static async Task<IResult> CreateCarrinho(Carrinho carrinho, ICarrinhoUseCase carrinhoUseCase)
+static async Task<IResult> CreateCarrinho(Carrinho carrinho, ICarrinhoUseCase carrinhoUseCase, ILogger<CarrinhoUseCase> log)
 {
     try
     {
@@ -578,52 +619,66 @@ static async Task<IResult> CreateCarrinho(Carrinho carrinho, ICarrinhoUseCase ca
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao criar carrinho.");
+        var erro = $"Erro ao criar carrinho.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
 
-static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, IProdutoUseCase produtoUseCase, CarrinhoBody carrinhoBody)
+static async Task<IResult> AddProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, IProdutoUseCase produtoUseCase, CarrinhoBody carrinhoBody, ILogger<CarrinhoUseCase> log)
 {
     try
     {
         if (carrinhoBody is null)
+        {
+            log.LogWarning("Dados para adição do produto inválidos");
             return TypedResults.BadRequest("Dados para adição do produto inválidos");
+        }
 
         var carrinho = await carrinhoUseCase.AddProdutoCarrinho(carrinhoBody.IdProduto, carrinhoBody.IdCarrinho, carrinhoBody.Quantidade);
         return TypedResults.Ok(carrinho);
     }
     catch(Exception ex)
     {
-        return TypedResults.Problem($"Erro ao adicionar produto no carrinho.");
+        var erro = $"Erro ao adicionar produto no carrinho.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
    
 }
 
-static async Task<IResult> RemoveProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, CarrinhoBody carrinhoBody)
+static async Task<IResult> RemoveProdutoCarrinho(ICarrinhoUseCase carrinhoUseCase, CarrinhoBody carrinhoBody, ILogger<CarrinhoUseCase> log)
 {
     try
     {
         if (carrinhoBody is null)
+        {
+            log.LogWarning("Dados para remoção do produto inválidos");
             return TypedResults.BadRequest("Dados para remoção do produto inválidos");
+        }
 
         var carrinho = await carrinhoUseCase.RemoveProdutoCarrinho(carrinhoBody.IdProduto, carrinhoBody.IdCarrinho, carrinhoBody.Quantidade);
         return TypedResults.Ok(carrinho);
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao remover produto do carrinho.");
+        var erro = $"Erro ao remover produto do carrinho.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 
 }
 
-static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, ICarrinhoUseCase carrinhoUseCase)
+static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, ICarrinhoUseCase carrinhoUseCase, ILogger<CarrinhoUseCase> log)
 {
     try
     {
         if (string.IsNullOrEmpty(id))
+        {
+            log.LogWarning("Id inválido");
             return TypedResults.BadRequest("Id inválido");
+        }
 
         var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
         if (carrinho is null || string.IsNullOrEmpty(carrinho.Id)) return TypedResults.NotFound();
@@ -633,17 +688,21 @@ static async Task<IResult> UpdateCarrinho(string id, Carrinho carrinhoInput, ICa
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao atualizar o carrinho. Id: {id}");
+        var erro = $"Erro ao atualizar o carrinho. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> DeleteCarrinho(string id, ICarrinhoUseCase carrinhoUseCase)
+static async Task<IResult> DeleteCarrinho(string id, ICarrinhoUseCase carrinhoUseCase, ILogger<CarrinhoUseCase> log)
 {
     try
     {
         if (string.IsNullOrEmpty(id))
+        {
+            log.LogWarning("Id inválido");
             return TypedResults.BadRequest("Id inválido");
+        }
 
         var carrinho = await carrinhoUseCase.GetCarrinhoById(id);
         if (carrinho is null || string.IsNullOrEmpty(carrinho.Id)) return TypedResults.NotFound();
@@ -653,14 +712,15 @@ static async Task<IResult> DeleteCarrinho(string id, ICarrinhoUseCase carrinhoUs
     }
     catch (Exception ex)
     {
-        //logar dps
-        return TypedResults.Problem($"Erro ao deletar o carrinho. Id: {id}");
+        var erro = $"Erro ao deletar o carrinho. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 #endregion
 
 #region Pedido
-static async Task<IResult> GetAllPedidosAtivos(IPedidoUseCase pedidoUseCase)
+static async Task<IResult> GetAllPedidosAtivos(IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -669,11 +729,13 @@ static async Task<IResult> GetAllPedidosAtivos(IPedidoUseCase pedidoUseCase)
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao obter os pedidos ativos.");
+        var erro = $"Erro ao obter os pedidos ativos.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetAllPedidosProntosParaRetirada(IPedidoUseCase pedidoUseCase)
+static async Task<IResult> GetAllPedidosProntosParaRetirada(IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -682,11 +744,13 @@ static async Task<IResult> GetAllPedidosProntosParaRetirada(IPedidoUseCase pedid
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao obter os pedidos finalizados.");
+        var erro = $"Erro ao obter os pedidos finalizados.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetAllPedidosFinalizados(IPedidoUseCase pedidoUseCase)
+static async Task<IResult> GetAllPedidosFinalizados(IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -695,11 +759,13 @@ static async Task<IResult> GetAllPedidosFinalizados(IPedidoUseCase pedidoUseCase
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao obter os pedidos finalizados.");
+        var erro = $"Erro ao obter os pedidos finalizados.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetAllPedidos(IPedidoUseCase pedidoUseCase)
+static async Task<IResult> GetAllPedidos(IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -708,11 +774,13 @@ static async Task<IResult> GetAllPedidos(IPedidoUseCase pedidoUseCase)
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao obter os pedidos ativos.");
+        var erro = $"Erro ao obter os pedidos ativos.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> GetPedidoById(string id, IPedidoUseCase pedidoUseCase)
+static async Task<IResult> GetPedidoById(string id, IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -726,12 +794,14 @@ static async Task<IResult> GetPedidoById(string id, IPedidoUseCase pedidoUseCase
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao obter o pedido. Id: {id}");
+        var erro = $"Erro ao obter o pedido. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
 
-static async Task<IResult> CreatePedidoFromCarrinho(string idCarrinho, IPedidoUseCase pedidoUseCase, ICarrinhoUseCase carrinhoUseCase)
+static async Task<IResult> CreatePedidoFromCarrinho(string idCarrinho, IPedidoUseCase pedidoUseCase, ICarrinhoUseCase carrinhoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -748,11 +818,13 @@ static async Task<IResult> CreatePedidoFromCarrinho(string idCarrinho, IPedidoUs
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao criar pedido a partir do carrinho. IdCarrinho: {idCarrinho}");
+        var erro = $"Erro ao criar pedido a partir do carrinho. IdCarrinho: {idCarrinho}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> CreatePedido(Pedido pedidoInput, IPedidoUseCase pedidoUseCase)
+static async Task<IResult> CreatePedido(Pedido pedidoInput, IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -761,11 +833,13 @@ static async Task<IResult> CreatePedido(Pedido pedidoInput, IPedidoUseCase pedid
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao criar o pedido.");
+        var erro = $"Erro ao criar o pedido.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> FinalizarPedido(string id, IPedidoUseCase pedidoUseCase)
+static async Task<IResult> FinalizarPedido(string id, IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -777,11 +851,13 @@ static async Task<IResult> FinalizarPedido(string id, IPedidoUseCase pedidoUseCa
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao confirmar criar o pedido. Id: {id}");
+        var erro = $"Erro ao confirmar criar o pedido. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> ConfirmarPedido(string id, IPedidoUseCase pedidoUseCase)
+static async Task<IResult> ConfirmarPedido(string id, IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -793,11 +869,13 @@ static async Task<IResult> ConfirmarPedido(string id, IPedidoUseCase pedidoUseCa
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao confirmar criar o pedido. Id: {id}");
+        var erro = $"Erro ao confirmar criar o pedido. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IPedidoUseCase pedidoUseCase)
+static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -812,11 +890,13 @@ static async Task<IResult> UpdatePedido(string id, Pedido pedidoInput, IPedidoUs
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao atualizar o pedido. Id: {id}");
+        var erro = $"Erro ao atualizar o pedido. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> UpdateStatusPedido(string id, int status, IPedidoUseCase pedidoUseCase)
+static async Task<IResult> UpdateStatusPedido(string id, int status, IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -831,11 +911,13 @@ static async Task<IResult> UpdateStatusPedido(string id, int status, IPedidoUseC
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao atualizar o status do pedido. Id: {id}");
+        var erro = $"Erro ao atualizar o status do pedido. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
-static async Task<IResult> DeletePedido(string id, IPedidoUseCase pedidoUseCase)
+static async Task<IResult> DeletePedido(string id, IPedidoUseCase pedidoUseCase, ILogger<PedidoUseCase> log)
 {
     try
     {
@@ -850,7 +932,9 @@ static async Task<IResult> DeletePedido(string id, IPedidoUseCase pedidoUseCase)
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao deletar o pedido. Id: {id}");
+        var erro = $"Erro ao deletar o pedido. Id: {id}";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 #endregion

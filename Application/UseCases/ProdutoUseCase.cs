@@ -4,16 +4,19 @@ using Domain.Entities.DTO;
 using Domain.Repositories;
 using Infra.Configurations;
 using Infra.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases
 {
     public class ProdutoUseCase : IProdutoUseCase
     {
         private readonly IProdutoRepository _produtoRepository;
+        private readonly ILogger _log;
 
-        public ProdutoUseCase(IProdutoRepository produtoRepository)
+        public ProdutoUseCase(IProdutoRepository produtoRepository, ILogger<ProdutoUseCase> log)
         {
             _produtoRepository = produtoRepository;
+            _log = log;
         }
 
         public async Task<ProdutoDTO> CreateProduto(Produto produto)
@@ -24,6 +27,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -36,6 +40,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -48,6 +53,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -63,6 +69,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -75,6 +82,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -90,6 +98,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -110,6 +119,7 @@ namespace Application.UseCases
             }
             catch (Exception ex)
             {
+                _log.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }

@@ -19,6 +19,7 @@ builder.Services.AddLocalStack(builder.Configuration);
 builder.Services.AddAWSServiceLocalStack<IAmazonSQS>();
 builder.Services.AddAWSServiceLocalStack<IAmazonS3>();
 builder.Services.AddTransient<ISQSConfiguration, SQSConfiguration>();
+builder.Services.AddLogging();
 
 
 var queueUrl = builder.Configuration.GetSection("QueueUrl").Value;
@@ -54,7 +55,7 @@ pedido.MapPost("/", EnviarConfirmacaoPedido).WithName("EnviarConfirmacaoPedido")
 
 app.Run();
 
-async Task<IResult> EnviarConfirmacaoPedido(IConfiguration configuration, ISQSConfiguration sqsConfiguration, IAmazonSQS sqs, IAmazonS3 s3, MessageBody message)
+async Task<IResult> EnviarConfirmacaoPedido(IConfiguration configuration, ISQSConfiguration sqsConfiguration, IAmazonSQS sqs, IAmazonS3 s3, MessageBody message, ILogger log)
 {
     try
     {
@@ -64,7 +65,7 @@ async Task<IResult> EnviarConfirmacaoPedido(IConfiguration configuration, ISQSCo
             var configSQS = new AmazonSQSExtendedClient(sqs, new ExtendedClientConfiguration().WithLargePayloadSupportEnabled(s3, bucketName));
 
             if (criarFila)
-                await CreateMessageInQueueWithStatusASyncLocalStack(builder.Configuration, configSQS);
+                await CreateMessageInQueueWithStatusASyncLocalStack(builder.Configuration, configSQS, log);
 
             if (enviarMensagem)
                 await SendTestMessageAsyncLocalStack(queueUrl, configSQS);
@@ -84,7 +85,9 @@ async Task<IResult> EnviarConfirmacaoPedido(IConfiguration configuration, ISQSCo
     }
     catch (Exception ex)
     {
-        return TypedResults.Problem($"Erro ao criar o pedido.");
+        var erro = $"Erro ao criar o pedido.";
+        log.LogError(erro, ex);
+        return TypedResults.Problem(erro);
     }
 }
 
@@ -101,15 +104,16 @@ async Task SendTestMessageAsyncLocalStack(string queue, AmazonSQSExtendedClient 
     await sqs.SendMessageAsync(queue, jsonObj);
 }
 
-async Task CreateMessageInQueueWithStatusASyncLocalStack(IConfiguration configuration, AmazonSQSExtendedClient sqs)
+async Task CreateMessageInQueueWithStatusASyncLocalStack(IConfiguration configuration, AmazonSQSExtendedClient sqs, ILogger log)
 {
     var name = configuration.GetSection("SQSConfig").GetSection("TestQueueName").Value;
     var responseQueue = await sqs.CreateQueueAsync(new CreateQueueRequest(name));
 
     if (responseQueue.HttpStatusCode != HttpStatusCode.OK)
     {
-        //_logger.LogError($"Error creating the queue: {name}!");
-        throw new AmazonSQSException($"Failed to CreateQueue for queue {name}. Response: {responseQueue.HttpStatusCode}");
+        var erro = $"Failed to CreateQueue for queue {name}. Response: {responseQueue.HttpStatusCode}";
+        log.LogError(erro);
+        throw new AmazonSQSException(erro);
     }
 }
 
