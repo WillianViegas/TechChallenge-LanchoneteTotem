@@ -37,17 +37,17 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t notifier-img:latest -f Notifier/Dockerfile .
-        aws ecr get-login-password --region region | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
+        aws ecr get-login-password --region ${{secrets.AWS_REGION}} | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
         docker tag notifier-img:latest ${{ secrets.AWS_REGISTRY_URL }}/notifier-img:latest
         docker push ${{ secrets.AWS_REGISTRY_URL }}/notifier-img:latest
 
         docker build -t pagamentopedidonotificationconsumer-img:latest -f PagamentoPedidoNotificationConsumer/Dockerfile .
-        aws ecr get-login-password --region region | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
+        aws ecr get-login-password --region ${{secrets.AWS_REGION}}  | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
         docker tag pagamentopedidonotificationconsumer-img:latest:latest ${{ secrets.AWS_REGISTRY_URL }}/pagamentopedidonotificationconsumer-img:latest
         docker push ${{ secrets.AWS_REGISTRY_URL }}/pagamentopedidonotificationconsumer-img:latest
 
         docker build -t lanchonetetotem-img:latest -f TechChallenge-LanchoneteTotem/Dockerfile .
-        aws ecr get-login-password --region region | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
+        aws ecr get-login-password --region ${{secrets.AWS_REGION}}  | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
         docker tag lanchonetetotem-img:latest ${{ secrets.AWS_REGISTRY_URL }}/lanchonetetotem-img:latest
         docker push ${{ secrets.AWS_REGISTRY_URL }}/lanchonetetotem-img:latest
 
