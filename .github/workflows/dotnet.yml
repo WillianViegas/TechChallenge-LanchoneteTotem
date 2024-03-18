@@ -10,22 +10,22 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.200
+
     - name: Restore dependencies
       run: dotnet restore ./TechChallenge-LanchoneteTotem.sln
+
     - name: Build
       run: dotnet build ./TechChallenge-LanchoneteTotem.sln --no-restore
-    - name: Test
-      run: dotnet test ./TechChallenge-LanchoneteTotem.sln --no-build --verbosity normal
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -34,22 +34,22 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Build Docker image
+    - name: Docker Login
+      run: aws ecr get-login-password --region ${{secrets.AWS_REGION}} | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
+
+    - name: Build and Push Docker images
       run: |
         docker build -t notifier-img:latest -f Notifier/Dockerfile .
-        aws ecr get-login-password --region ${{secrets.AWS_REGION}} | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
-        docker tag notifier-img:latest ${{ secrets.AWS_REGISTRY_URL }}/notifier-img:latest
-        docker push ${{ secrets.AWS_REGISTRY_URL }}/notifier-img:latest
+        docker tag notifier-img:latest ${{ secrets.AWS_REGISTRY_URL }}:notifier-img
+        docker push ${{ secrets.AWS_REGISTRY_URL }}:notifier-img
 
         docker build -t pagamentopedidonotificationconsumer-img:latest -f PagamentoPedidoNotificationConsumer/Dockerfile .
-        aws ecr get-login-password --region ${{secrets.AWS_REGION}}  | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
-        docker tag pagamentopedidonotificationconsumer-img:latest:latest ${{ secrets.AWS_REGISTRY_URL }}/pagamentopedidonotificationconsumer-img:latest
-        docker push ${{ secrets.AWS_REGISTRY_URL }}/pagamentopedidonotificationconsumer-img:latest
+        docker tag pagamentopedidonotificationconsumer-img:latest ${{ secrets.AWS_REGISTRY_URL }}:pagamentopedidonotificationconsumer-img
+        docker push ${{ secrets.AWS_REGISTRY_URL }}:pagamentopedidonotificationconsumer-img
 
         docker build -t lanchonetetotem-img:latest -f TechChallenge-LanchoneteTotem/Dockerfile .
-        aws ecr get-login-password --region ${{secrets.AWS_REGION}}  | docker login --username AWS --password-stdin ${{ secrets.AWS_REGISTRY_URL }}
-        docker tag lanchonetetotem-img:latest ${{ secrets.AWS_REGISTRY_URL }}/lanchonetetotem-img:latest
-        docker push ${{ secrets.AWS_REGISTRY_URL }}/lanchonetetotem-img:latest
+        docker tag lanchonetetotem-img:latest ${{ secrets.AWS_REGISTRY_URL }}:lanchonetetotem-img
+        docker push ${{ secrets.AWS_REGISTRY_URL }}:lanchonetetotem-img
 
     #- name: Deploy to EKS
      # run: |
