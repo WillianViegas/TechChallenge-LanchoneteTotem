@@ -51,7 +51,9 @@ jobs:
         docker tag lanchonetetotem-img:latest ${{ secrets.AWS_REGISTRY_URL }}:lanchonetetotem-img
         docker push ${{ secrets.AWS_REGISTRY_URL }}:lanchonetetotem-img
 
-    #- name: Deploy to EKS
-     # run: |
-      #  aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
-       # kubectl apply -f path/to/deployment.yaml # Adjust as per your deployment configuration
+    - name: Deploy to EKS
+      run: |
+        aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
+        kubectl apply -f ./k8s/configmap.yaml
+        kubectl apply -f ./k8s/application-services.yaml
+        kubectl apply -f ./k8s/application-config.yaml
