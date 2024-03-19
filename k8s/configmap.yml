@@ -17,3 +17,5 @@ data:
   MONGO_INITDB_DATABASE: 'LanchoneteTotem'
   MONGO_INITDB_ROOT_USERNAME: 'admin'
   MONGO_INITDB_ROOT_PASSWORD: 'abc123!'
+  AWS_REGISTRY_URL: '{AWS_REGISTRY_URL}'
+  DOCKER_HUB_URL: 'wviegas/tech-lanchonetetotem-rep'
