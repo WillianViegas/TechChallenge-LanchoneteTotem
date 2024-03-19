@@ -1,51 +1,51 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mongodb
-  labels:
-    app: mongodb
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mongodb
-  template:
-    metadata:
-      labels:
-        app: mongodb
-    spec:
-      containers:
-      - name: mongodb
-        image: wviegas/tech-lanchonetetotem-rep:mongodb
-        ports:
-          - containerPort: 27017
-            protocol: TCP
-        resources:
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        readinessProbe:
-            tcpSocket:
-              port: 27017
-            initialDelaySeconds: 30
-            periodSeconds: 10
-        livenessProbe:
-            tcpSocket:
-              port: 27017
-            initialDelaySeconds: 30
-            periodSeconds: 10
-        envFrom:
-        - configMapRef:
-            name: my-config
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongodb
-spec:
-  selector:
-    app: mongodb
-  ports:
-    - protocol: TCP
-      port: 27017
-      targetPort: 27017
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: mongodb
+#   labels:
+#     app: mongodb
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: mongodb
+#   template:
+#     metadata:
+#       labels:
+#         app: mongodb
+#     spec:
+#       containers:
+#       - name: mongodb
+#         image: wviegas/tech-lanchonetetotem-rep:mongodb
+#         ports:
+#           - containerPort: 27017
+#             protocol: TCP
+#         resources:
+#           limits:
+#             memory: "1Gi"
+#             cpu: "500m"
+#         readinessProbe:
+#             tcpSocket:
+#               port: 27017
+#             initialDelaySeconds: 30
+#             periodSeconds: 10
+#         livenessProbe:
+#             tcpSocket:
+#               port: 27017
+#             initialDelaySeconds: 30
+#             periodSeconds: 10
+#         envFrom:
+#         - configMapRef:
+#             name: my-config
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: mongodb
+# spec:
+#   selector:
+#     app: mongodb
+#   ports:
+#     - protocol: TCP
+#       port: 27017
+#       targetPort: 27017
