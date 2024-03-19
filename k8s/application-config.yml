@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: techchallenge-lanchonetetotem
-        image: ${AWS_REGISTRY_URL}":lanchonetetotem-img"
+        image: "${AWS_REGISTRY_URL}:lanchonetetotem-img"
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
       - name: pagamentopedidonotificationconsumer
-        image: ${AWS_REGISTRY_URL}":pagamentopedidonotificationconsumer-img"
+        image: "${AWS_REGISTRY_URL}:pagamentopedidonotificationconsumer-img"
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -106,7 +106,7 @@ spec:
     spec:
       containers:
       - name: notifier
-        image: ${AWS_REGISTRY_URL}":notifier-img"
+        image: "${AWS_REGISTRY_URL}:notifier-img"
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -152,7 +152,7 @@ spec:
     spec:
       containers:
       - name: localstack
-        image: ${AWS_REGISTRY_URL}":localstack"
+        image: "${AWS_REGISTRY_URL}:localstack"
         ports:
         - containerPort: 4510
         - containerPort: 4559
