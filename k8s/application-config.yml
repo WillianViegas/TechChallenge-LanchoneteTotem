@@ -16,6 +16,7 @@ spec:
       - name: techchallenge-lanchonetetotem
         image: wviegas/tech-lanchonetetotem-rep:techlan-v3
         ports:
+        - name: web-totem-api
         - containerPort: 80
         - containerPort: 443
         resources:
@@ -62,6 +63,7 @@ spec:
       - name: pagamentopedidonotificationconsumer
         image: wviegas/tech-lanchonetetotem-rep:notification-consumer
         ports:
+        - name: web-consumer
         - containerPort: 80
         - containerPort: 443
         resources: 
@@ -105,6 +107,7 @@ spec:
         app: notifier
     spec:
       containers:
+      - name: web-notifier
       - name: notifier
         image: wviegas/tech-lanchonetetotem-rep:notifier
         ports:
