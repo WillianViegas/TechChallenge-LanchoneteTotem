@@ -13,26 +13,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: web
-
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: private-lb-notifier
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-type: nlb
-    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
-spec:
-  type: LoadBalancer
-  selector:
-    app: pagamentopedidonotificationconsumer
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: web
-
+      targetPort: web-totem-api
 
 
 ---
@@ -46,8 +27,27 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
+    app: pagamentopedidonotificationconsumer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: web-consumer
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: private-lb-notifier
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  selector:
     app: notifier
   ports:
     - protocol: TCP
       port: 80
-      targetPort: web
+      targetPort: web-notifier
