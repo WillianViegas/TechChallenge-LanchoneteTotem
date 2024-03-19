@@ -55,7 +55,7 @@ jobs:
       run: |
         aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
         kubectl apply -f ./k8s/configmap.yml
-        kubectl apply -f public-lb.yml
-        kubectl apply -f private-lb.yml
+        kubectl apply -f ./k8s/public-lb.yml
+        kubectl apply -f ./k8s/private-lb.yml
         kubectl apply -f ./k8s/application-services.yml
         kubectl apply -f ./k8s/application-config.yml
