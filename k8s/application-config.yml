@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: techchallenge-lanchonetetotem
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: techchallenge-lanchonetetotem
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: techchallenge-lanchonetetotem
-        image: "${AWS_REGISTRY_URL}:lanchonetetotem-img"
+        image: ${AWS_REGISTRY_URL}":lanchonetetotem-img"
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -49,7 +49,7 @@ kind: Deployment
 metadata:
   name: pagamentopedidonotificationconsumer
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: pagamentopedidonotificationconsumer
@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
       - name: pagamentopedidonotificationconsumer
-        image: "${AWS_REGISTRY_URL}:pagamentopedidonotificationconsumer-img"
+        image: ${AWS_REGISTRY_URL}":pagamentopedidonotificationconsumer-img"
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -95,7 +95,7 @@ kind: Deployment
 metadata:
   name: notifier
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: notifier
@@ -106,7 +106,7 @@ spec:
     spec:
       containers:
       - name: notifier
-        image: "${AWS_REGISTRY_URL}:notifier-img"
+        image: ${AWS_REGISTRY_URL}":notifier-img"
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -141,7 +141,7 @@ kind: Deployment
 metadata:
   name: localstack
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: localstack
@@ -152,7 +152,7 @@ spec:
     spec:
       containers:
       - name: localstack
-        image: "${AWS_REGISTRY_URL}:localstack"
+        image: ${AWS_REGISTRY_URL}":localstack"
         ports:
         - containerPort: 4510
         - containerPort: 4559
@@ -183,78 +183,78 @@ spec:
         - configMapRef:
             name: my-config
 ---
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: techchallenge-lanchonetetotem-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: techchallenge-lanchonetetotem
-  minReplicas: 1
-  maxReplicas: 2
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 60
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: pagamentopedidonotificationconsumer-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: pagamentopedidonotificationconsumer
-  minReplicas: 1
-  maxReplicas: 2
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 60
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: notifier-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: notifier
-  minReplicas: 1
-  maxReplicas: 2
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 60
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: localstack-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: localstack
-  minReplicas: 1
-  maxReplicas: 2
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 60
+# apiVersion: autoscaling/v2
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: techchallenge-lanchonetetotem-hpa
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: techchallenge-lanchonetetotem
+#   minReplicas: 1
+#   maxReplicas: 2
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         target:
+#           type: Utilization
+#           averageUtilization: 60
+# ---
+# apiVersion: autoscaling/v2
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: pagamentopedidonotificationconsumer-hpa
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: pagamentopedidonotificationconsumer
+#   minReplicas: 1
+#   maxReplicas: 2
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         target:
+#           type: Utilization
+#           averageUtilization: 60
+# ---
+# apiVersion: autoscaling/v2
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: notifier-hpa
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: notifier
+#   minReplicas: 1
+#   maxReplicas: 2
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         target:
+#           type: Utilization
+#           averageUtilization: 60
+# ---
+# apiVersion: autoscaling/v2
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: localstack-hpa
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: localstack
+#   minReplicas: 1
+#   maxReplicas: 2
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         target:
+#           type: Utilization
+#           averageUtilization: 60
