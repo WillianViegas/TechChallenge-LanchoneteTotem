@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: techchallenge-lanchonetetotem
-        image: wviegas/tech-lanchonetetotem-rep:techlan-v3
+        image: {AWS_REGISTRY_URL}:techlan-v3
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
       - name: pagamentopedidonotificationconsumer
-        image: wviegas/tech-lanchonetetotem-rep:notification-consumer
+        image: {AWS_REGISTRY_URL}:notification-consumer
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -106,7 +106,7 @@ spec:
     spec:
       containers:
       - name: notifier
-        image: wviegas/tech-lanchonetetotem-rep:notifier
+        image: {AWS_REGISTRY_URL}:notifier
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -152,7 +152,7 @@ spec:
     spec:
       containers:
       - name: localstack
-        image: wviegas/tech-lanchonetetotem-rep:localstack
+        image: {AWS_REGISTRY_URL}:localstack
         ports:
         - containerPort: 4510
         - containerPort: 4559
