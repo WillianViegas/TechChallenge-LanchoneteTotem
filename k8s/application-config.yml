@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: techchallenge-lanchonetetotem
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: techchallenge-lanchonetetotem
@@ -49,7 +49,7 @@ kind: Deployment
 metadata:
   name: pagamentopedidonotificationconsumer
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: pagamentopedidonotificationconsumer
@@ -95,7 +95,7 @@ kind: Deployment
 metadata:
   name: notifier
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: notifier
@@ -141,7 +141,7 @@ kind: Deployment
 metadata:
   name: localstack
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: localstack
