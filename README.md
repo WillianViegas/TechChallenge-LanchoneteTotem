@@ -3,6 +3,47 @@
 
 Sistema de solicitação de pedido via totem de autoatendimento para lanchonete criado em .Net 7 utilizando Minimal Api e mongoDB, seguindo o padrão de arquitetura hexagonal. Proposta realizada como meio avaliativo da Fiap Pos Tech 
 
+
+ ## Proposta atual
+
+Em cada fase do projeto é abordada uma proposta diferente, você pode encontrar as fases no final do readme, atualmente este repositório está na fase 3, exemplificada abaixo:
+
+FASE 3
+
+ Utilização da aplicação kubernetes desenvolvida na Fase 2 para o deploy na AWS utilizando terraform e GitHubActions.
+
+1. Implementar um API Gateway e um function serverless para autenticar o cliente com base no CPF
+   a. Integrar ao sitema de autenticação para identificar o cliente [Pendente]
+
+2. Implementar as melhores práticas de CI/CD para a aplicação, segregando os códigos em repositórios:
+   a. 1 repositório Banco de dados gerenciaveis com terraform:
+     - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Infra-Banco
+       
+   a. 1 repositório infra Kubernetes com terraform:
+     - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Infra
+       
+   c. 1 repositório Lambda + cognito:
+    - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Lambda
+      
+   d. 1 repositório para aplicação que é executada o kubernetes (Repositório atual)
+
+
+3. Repositórios devem fazer deploy automatizado na conta da nuvem utilizando actions. As branches main/master devem ser protegidas não permitindo commits diretos. Obrigatório uso de pull request.
+
+
+4. Melhorar estrutura do banco, documentar e justificar escolha do banco de dados:
+
+![image](https://github.com/WillianViegas/TechChallenge-LanchoneteTotem/assets/58482678/46dd4524-9c78-416e-93d2-edd2a87e6a3a)
+
+   - Documentação do Banco: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&node-id=0%3A1&t=NrS7vAgBQheSdpmh-1
+
+  
+5. Obrigatoriedadde de utilização de serviços de algum provedor de cloud.
+  - Cloud utilizada = AWS;
+  - Principais serviços utilizados = Lambda, Cognito, ECR, EKS, EC2, IAM, DocumentDB, APIGateway;  
+
+
+
 ## Estutura
 
 Para um melhor entendimento da estrutura e como realizar o fluxo e utilizar o projeto segue uma breve descrição:
@@ -78,9 +119,49 @@ LocalStack:
 
     endpoint + /seed
 
+## Futuras adições e melhorias:
+    - Implentar meio de autenticação (foi iniciado alguns testes com JWT para entendimento da tecnologia mas deve ser melhor desenvolvido futuramente )
+    - Adicionar Logs no projeto
+    - Deixar respostas das requisições mais agradáveis
+    - Implementar meio de pagamento do Mercado pago
+    - Implementar testes de unidade
+    - Melhorar e corrigir detalhes da Arquitetura
 
- ## Proposta atual
+## Fases do projeto
 
+### Fase 1:
+Documentação do sistema (DDD) utilizando a linguagem ubíqua dos fluxos:
+  
+- Realização do pedido e pagamento
+
+- Preparo e entrega do pedido
+
+Link documentação: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&t=eIOHebPJdDjUs6OT-1
+
+
+Projeto com foco no backend seguindo os padrões solicitados em aula:
+
+- `Arquitetura Hexagonal`
+
+- `Api`
+    - Cadastro de cliente
+    - Identificação via CPF
+    - Criar, editar e remover produtos
+    - Buscar produtos por categoria
+    - Fake checkout, apenas enviar os produtos escolhidos para a fila (futuramente será implementado um provedor de pagamento)
+    - Listar pedidos
+    - Aplicação com foco em escalabilidade
+
+  
+- `Banco de dados`
+  - MongoDb
+    
+- `Docker e Docker-Compose`
+  -  Criação e orquestração dos containers (1 para a aplicação e um para o banco de dados)
+
+
+### Fase 2:
+Atualização da aplicação desenvolvida na Fase 1 refatorando código para seguir os padrões de clean code e clean architecture;
 - Checkout do pedido e identificação do mesmo
 
 - Consultar status do pagamento
@@ -136,50 +217,6 @@ Projeto com foco no backend seguindo os padrões solicitados em aula:
  
   OBs: Dentro da pasta do projeto existe a pasta "Info" nela está a collection do projeto para ser utilizada no postman e um txt com o passo a passo e comandos para realizar a execução dentro do kubernetes
 
-
-## Futuras adições e melhorias:
-    - Implentar meio de autenticação (foi iniciado alguns testes com JWT para entendimento da tecnologia mas deve ser melhor desenvolvido futuramente )
-    - Adicionar Logs no projeto
-    - Deixar respostas das requisições mais agradáveis
-    - Implementar meio de pagamento do Mercado pago
-    - Implementar testes de unidade
-    - Melhorar e corrigir detalhes da Arquitetura
-
-## Fases do projeto
-
-### Fase 1:
-Documentação do sistema (DDD) utilizando a linguagem ubíqua dos fluxos:
-  
-- Realização do pedido e pagamento
-
-- Preparo e entrega do pedido
-
-Link documentação: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&t=eIOHebPJdDjUs6OT-1
-
-
-Projeto com foco no backend seguindo os padrões solicitados em aula:
-
-- `Arquitetura Hexagonal`
-
-- `Api`
-    - Cadastro de cliente
-    - Identificação via CPF
-    - Criar, editar e remover produtos
-    - Buscar produtos por categoria
-    - Fake checkout, apenas enviar os produtos escolhidos para a fila (futuramente será implementado um provedor de pagamento)
-    - Listar pedidos
-    - Aplicação com foco em escalabilidade
-
-  
-- `Banco de dados`
-  - MongoDb
-    
-- `Docker e Docker-Compose`
-  -  Criação e orquestração dos containers (1 para a aplicação e um para o banco de dados)
-
-
-### Fase 2:
-Atualização da aplicação desenvolvida na Fase 1 refatorando código para seguir os padrões de clean code e clean architecture;
-
-  Obs: Atualmente o conteúdo da proposta atual é respectivo a fase 2, posteriormente será adicionado aqui, assim que for iniciada a fase 3;
+### Fase 3:
+  Obs: Atualmente o conteúdo da proposta atual é respectivo a fase 3, posteriormente será adicionado aqui, assim que for iniciada a fase 4;
 
