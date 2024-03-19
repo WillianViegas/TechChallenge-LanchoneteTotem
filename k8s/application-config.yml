@@ -107,10 +107,10 @@ spec:
         app: notifier
     spec:
       containers:
-      - name: web-notifier
       - name: notifier
         image: wviegas/tech-lanchonetetotem-rep:notifier
         ports:
+        - name: web-notifier
         - containerPort: 80
         - containerPort: 443
         resources:
