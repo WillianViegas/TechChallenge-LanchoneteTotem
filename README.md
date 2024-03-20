@@ -42,7 +42,7 @@ FASE 3
   - Cloud utilizada = AWS;
   - Principais serviços utilizados = Lambda, Cognito, ECR, EKS, EC2, IAM, DocumentDB, APIGateway;  
 
-
+Video explicando a arquitetura desta fase: https://www.youtube.com/watch?v=TU74cMct8sk
 
 ## Estutura
 
