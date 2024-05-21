@@ -32,11 +32,6 @@ Em cada fase do projeto é abordada uma proposta diferente, você pode encontrar
    - Automatize o deploy dos seus microsserviços
   
 
-
-
-![image](https://github.com/WillianViegas/TechChallenge-LanchoneteTotem/assets/58482678/746783a2-9701-4b76-bc2b-b07d97e73fd2)
-
-
 Link do fluxograma + fluxos das fases anteriores:
 https://www.figma.com/board/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?node-id=0%3A1&t=oY6vBdqPodcM5LMR-1
 
