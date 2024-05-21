@@ -6,43 +6,43 @@ Sistema de solicitação de pedido via totem de autoatendimento para lanchonete 
 
  ## Proposta atual
 
-Em cada fase do projeto é abordada uma proposta diferente, você pode encontrar as fases no final do readme, atualmente este repositório está na fase 3, exemplificada abaixo:
+Em cada fase do projeto é abordada uma proposta diferente, você pode encontrar as fases no final do readme, atualmente este repositório está na fase 4, exemplificada abaixo:
 
-FASE 3
+1. Refatore o projeto separando em ao menos 3 microsserviços:
+   - Pedido: Responsável por organizar o processo de pedidos;
+     - rep: https://github.com/WillianViegas/techchallenge-microservico-pedido
+    
+   - Pagamento: Responsável por operacionalizar a cobrança do pedido;
+      - rep: https://github.com/WillianViegas/techchallenge-microservico-pagamento
 
- Utilização da aplicação kubernetes desenvolvida na Fase 2 para o deploy na AWS utilizando terraform e GitHubActions.
+   - Produção: Responsável por operacionalizar o processo de produção do pedido;
+      - rep: https://github.com/WillianViegas/techchallenge-microservico-producao
 
-1. Implementar um API Gateway e um function serverless para autenticar o cliente com base no CPF
-   a. Integrar ao sitema de autenticação para identificar o cliente [Pendente]
+  Critérios obrigatórios:
+   - Usar ao menos um banco NoSQL e um SQL;
+   - Os serviços devem se comunicar por chamada direta, fila ou outras estratégias. Os serviços não podem acessar os bancos de dados uns dos outros;
 
-2. Implementar as melhores práticas de CI/CD para a aplicação, segregando os códigos em repositórios:
-   a. 1 repositório Banco de dados gerenciaveis com terraform:
-     - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Infra-Banco
-       
-   a. 1 repositório infra Kubernetes com terraform:
-     - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Infra
-       
-   c. 1 repositório Lambda + cognito:
-    - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Lambda
-      
-   d. 1 repositório para aplicação que é executada o kubernetes (Repositório atual)
-
-
-3. Repositórios devem fazer deploy automatizado na conta da nuvem utilizando actions. As branches main/master devem ser protegidas não permitindo commits diretos. Obrigatório uso de pull request.
-
-
-4. Melhorar estrutura do banco, documentar e justificar escolha do banco de dados:
-
-![image](https://github.com/WillianViegas/TechChallenge-LanchoneteTotem/assets/58482678/46dd4524-9c78-416e-93d2-edd2a87e6a3a)
-
-   - Documentação do Banco: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&node-id=0%3A1&t=NrS7vAgBQheSdpmh-1
-
+2. Ao refatorar, os serviços devem conter testes unitários:
+   - Ao menos um dos caminhos de teste deve implementar BDD
+   - Em todos os projetos a cobertura de testes deve ser de 80%
   
-5. Obrigatoriedadde de utilização de serviços de algum provedor de cloud.
-  - Cloud utilizada = AWS;
-  - Principais serviços utilizados = Lambda, Cognito, ECR, EKS, EC2, IAM, DocumentDB, APIGateway;  
+3. Seus repositórios devem ser separados para cada aplicação e devem respeitar as seguintes regras:
+   - Main protegida
+   - PR para a branch main deve validar o build da aplicação e a qualidade do código via Sonarqube
+   - Automatize o deploy dos seus microsserviços
+  
 
-Video explicando a arquitetura desta fase: https://www.youtube.com/watch?v=TU74cMct8sk
+
+
+![image](https://github.com/WillianViegas/TechChallenge-LanchoneteTotem/assets/58482678/746783a2-9701-4b76-bc2b-b07d97e73fd2)
+
+
+Link do fluxograma + fluxos das fases anteriores:
+https://www.figma.com/board/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?node-id=0%3A1&t=oY6vBdqPodcM5LMR-1
+
+Link do video explicativo desta fase:
+
+     
 
 ## Estutura
 
@@ -218,5 +218,38 @@ Projeto com foco no backend seguindo os padrões solicitados em aula:
   OBs: Dentro da pasta do projeto existe a pasta "Info" nela está a collection do projeto para ser utilizada no postman e um txt com o passo a passo e comandos para realizar a execução dentro do kubernetes
 
 ### Fase 3:
-  Obs: Atualmente o conteúdo da proposta atual é respectivo a fase 3, posteriormente será adicionado aqui, assim que for iniciada a fase 4;
+
+ Utilização da aplicação kubernetes desenvolvida na Fase 2 para o deploy na AWS utilizando terraform e GitHubActions.
+
+1. Implementar um API Gateway e um function serverless para autenticar o cliente com base no CPF
+   a. Integrar ao sitema de autenticação para identificar o cliente [Pendente]
+
+2. Implementar as melhores práticas de CI/CD para a aplicação, segregando os códigos em repositórios:
+   a. 1 repositório Banco de dados gerenciaveis com terraform:
+     - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Infra-Banco
+       
+   a. 1 repositório infra Kubernetes com terraform:
+     - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Infra
+       
+   c. 1 repositório Lambda + cognito:
+    - https://github.com/WillianViegas/TechChallenge-LanchoneteTotem-Lambda
+      
+   d. 1 repositório para aplicação que é executada o kubernetes (Repositório atual)
+
+
+3. Repositórios devem fazer deploy automatizado na conta da nuvem utilizando actions. As branches main/master devem ser protegidas não permitindo commits diretos. Obrigatório uso de pull request.
+
+
+4. Melhorar estrutura do banco, documentar e justificar escolha do banco de dados:
+
+![image](https://github.com/WillianViegas/TechChallenge-LanchoneteTotem/assets/58482678/46dd4524-9c78-416e-93d2-edd2a87e6a3a)
+
+   - Documentação do Banco: https://www.figma.com/file/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?type=whiteboard&node-id=0%3A1&t=NrS7vAgBQheSdpmh-1
+
+  
+5. Obrigatoriedadde de utilização de serviços de algum provedor de cloud.
+  - Cloud utilizada = AWS;
+  - Principais serviços utilizados = Lambda, Cognito, ECR, EKS, EC2, IAM, DocumentDB, APIGateway;  
+
+Video explicando a arquitetura desta fase: https://www.youtube.com/watch?v=TU74cMct8sk
 
