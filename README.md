@@ -36,7 +36,7 @@ Link do fluxograma + fluxos das fases anteriores:
 https://www.figma.com/board/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?node-id=0%3A1&t=oY6vBdqPodcM5LMR-1
 
 Link do video explicativo desta fase:
-
+https://youtu.be/-OZgHsUoLkM
      
 
 ## Estutura
