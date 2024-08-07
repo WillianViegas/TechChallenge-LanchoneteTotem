@@ -6,38 +6,49 @@ Sistema de solicitação de pedido via totem de autoatendimento para lanchonete 
 
  ## Proposta atual
 
-Em cada fase do projeto é abordada uma proposta diferente, você pode encontrar as fases no final do readme, atualmente este repositório está na fase 4, exemplificada abaixo:
+Em cada fase do projeto é abordada uma proposta diferente, você pode encontrar as fases no final do readme, atualmente este repositório está na fase 5, exemplificada abaixo:
 
-1. Refatore o projeto separando em ao menos 3 microsserviços:
-   - Pedido: Responsável por organizar o processo de pedidos;
-     - rep: https://github.com/WillianViegas/techchallenge-microservico-pedido
+1. Utilizar o Padrão Saga para garantir uma melhor experiência na utilização do projeto.
+   - Padrão escolhido foi a Saga Coreográfada, a justificativa completa se encontra no link da documentação abaixo junto da arquitetura do projeto + arquitetura da nuvem;
+   - Dentro do fluxo de funcionalmento foi solicitado que pedidos não pagos não cheguem até a cozinha evitando que os pedidos sejam preparados sem um pagamento devido. Foi implementado para que apenas após a confirmação do pagamento o pedido seja enviado para o serviço responsável por gerenciar os pedidos prontos para serem preparados.
+   - Foi solicitado a utilização de um serviço de mensageria, nesse caso foi utilizado o SQS da AWS para a comunicação entre os microsserviços;
+
+2. Executar a ferramenta OWASP Zap nos seguintes fluxos:
+   - Listar/Exibir Cardápio ( Esse fluxo permanece no repositório atual dentro do monolíto)
+   - Realização pedido (checkout) (Esse fluxo pertence ao MS-Pedido)
+   - Geração de Pagamento (Esse fluxo pertence ao MS-Pagamento)
+   - Confirmação do Pagamento / Fila de Preparação de pedidos (Esse fluxo pertence ao MS-Producao)
+   - Gerar os relatórios com vulnerabilidades e correções e disponibilizar nos readmes
+  
+   Obs. Foram gerados os relatórios e cada link está disponível nos respectivos repositórios dos projetos, serão disponibilizados os links para os repositórios abaixo, também serão adicionados os relatórios referentes ao fluxo de Listar/Exibição Cardápio.
+
+3. Considerando a LGPD foi solicitado:
+   - A criação de um relatório de impacto dos dados pessoais (RIPD) que terá seu link disponibilizado abaixo;
+   - A criação de uma api para que o cliente possa solicitar a exclusão ou inativação de seus dados pessoais. Contendo os seguntes campos:
+      - Nome
+      - Endereço
+      - Número de telefone
+      - Informações de Pagamento (caso seja armazenado em algum local)
     
-   - Pagamento: Responsável por operacionalizar a cobrança do pedido;
-      - rep: https://github.com/WillianViegas/techchallenge-microservico-pagamento
 
-   - Produção: Responsável por operacionalizar o processo de produção do pedido;
-      - rep: https://github.com/WillianViegas/techchallenge-microservico-producao
+Links:
+- Documentação Justificativa SAGA Coreográfada + Arquitetura Microsserviços + Arquitetura Nuvem (Basta descer até a Fase 5): https://www.figma.com/board/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?node-id=0%3A1&t=oY6vBdqPodcM5LMR-1
 
-  Critérios obrigatórios:
-   - Usar ao menos um banco NoSQL e um SQL;
-   - Os serviços devem se comunicar por chamada direta, fila ou outras estratégias. Os serviços não podem acessar os bancos de dados uns dos outros;
+- Link para o video explicando fase 5: (ADICIONAR LINK)
 
-2. Ao refatorar, os serviços devem conter testes unitários:
-   - Ao menos um dos caminhos de teste deve implementar BDD
-   - Em todos os projetos a cobertura de testes deve ser de 80%
+- Link para os relatórios OWASP ZAP:
+
+    - Vulnerabilidades: https://fiap-docs.s3.amazonaws.com/OWASP+ZAP+Relatorios/Vulnerabilidades/Techchallenge-LanchoneteTotem-Cardapio.html
+    - Correções: https://fiap-docs.s3.amazonaws.com/OWASP+ZAP+Relatorios/Correcoes/Techchallenge-LanchoneteTotem-Cardapio.html
+
+- Relatório RIPD: https://fiap-docs.s3.amazonaws.com/RIPD/Relatorio-RIPD-GRUPO-45.pdf
+
+- Repositórios relacionados:
+    - MS-Pedido: https://github.com/WillianViegas/techchallenge-microservico-pedido
+    - MS-Pagamento: https://github.com/WillianViegas/techchallenge-microservico-pagamento
+    - MS-Producao: https://github.com/WillianViegas/techchallenge-microservico-producao
+    - MS-Cancelamento-Dados:  https://github.com/WillianViegas/techchallenge-microservico-cancelamento-dados
   
-3. Seus repositórios devem ser separados para cada aplicação e devem respeitar as seguintes regras:
-   - Main protegida
-   - PR para a branch main deve validar o build da aplicação e a qualidade do código via Sonarqube
-   - Automatize o deploy dos seus microsserviços
-  
-
-Link do fluxograma + fluxos das fases anteriores:
-https://www.figma.com/board/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?node-id=0%3A1&t=oY6vBdqPodcM5LMR-1
-
-Link do video explicativo desta fase:
-https://youtu.be/-OZgHsUoLkM
-     
 
 ## Estutura
 
@@ -247,4 +258,37 @@ Projeto com foco no backend seguindo os padrões solicitados em aula:
   - Principais serviços utilizados = Lambda, Cognito, ECR, EKS, EC2, IAM, DocumentDB, APIGateway;  
 
 Video explicando a arquitetura desta fase: https://www.youtube.com/watch?v=TU74cMct8sk
+
+
+### Fase 4:
+1. Refatore o projeto separando em ao menos 3 microsserviços:
+   - Pedido: Responsável por organizar o processo de pedidos;
+     - rep: https://github.com/WillianViegas/techchallenge-microservico-pedido
+    
+   - Pagamento: Responsável por operacionalizar a cobrança do pedido;
+      - rep: https://github.com/WillianViegas/techchallenge-microservico-pagamento
+
+   - Produção: Responsável por operacionalizar o processo de produção do pedido;
+      - rep: https://github.com/WillianViegas/techchallenge-microservico-producao
+
+  Critérios obrigatórios:
+   - Usar ao menos um banco NoSQL e um SQL;
+   - Os serviços devem se comunicar por chamada direta, fila ou outras estratégias. Os serviços não podem acessar os bancos de dados uns dos outros;
+
+2. Ao refatorar, os serviços devem conter testes unitários:
+   - Ao menos um dos caminhos de teste deve implementar BDD
+   - Em todos os projetos a cobertura de testes deve ser de 80%
+  
+3. Seus repositórios devem ser separados para cada aplicação e devem respeitar as seguintes regras:
+   - Main protegida
+   - PR para a branch main deve validar o build da aplicação e a qualidade do código via Sonarqube
+   - Automatize o deploy dos seus microsserviços
+  
+
+Link do fluxograma + fluxos das fases anteriores:
+https://www.figma.com/board/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?node-id=0%3A1&t=oY6vBdqPodcM5LMR-1
+
+Link do video explicativo desta fase:
+https://youtu.be/-OZgHsUoLkM
+
 
