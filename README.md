@@ -34,7 +34,7 @@ Em cada fase do projeto é abordada uma proposta diferente, você pode encontrar
 Links:
 - Documentação Justificativa SAGA Coreográfada + Arquitetura Microsserviços + Arquitetura Nuvem (Basta descer até a Fase 5): https://www.figma.com/board/foY2Q9t6aj6Gzv9WK8actk/Documenta%C3%A7%C3%A3o-Sistema-DDD?node-id=0%3A1&t=oY6vBdqPodcM5LMR-1
 
-- Link para o video explicando fase 5: (ADICIONAR LINK)
+- Link para o video explicando fase 5: https://youtu.be/_8Dvd5Me59w
 
 - Link para os relatórios OWASP ZAP:
 
